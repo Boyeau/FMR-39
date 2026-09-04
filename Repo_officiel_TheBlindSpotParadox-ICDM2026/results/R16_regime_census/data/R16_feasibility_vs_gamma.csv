@@ -1,0 +1,7 @@
+census_source,gamma,budget,n_phases,n_detectable,frac_detectable
+refined,20,unc,66,13,0.19696969696969696
+refined,20,sign,66,14,0.21212121212121213
+refined,252,unc,66,2,0.030303030303030304
+refined,252,sign,66,2,0.030303030303030304
+refined,1260,unc,66,0,0
+refined,1260,sign,66,1,0.015151515151515152

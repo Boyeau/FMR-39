@@ -1,0 +1,2 @@
+Gamma,c,Delta_std,pathology,mon_len,n_streams,lambda_star_Concept,delta_C,FPR_Concept_val,n_alarm_Concept_null,DetRate_Concept,DetRate_Concept_CI_low,DetRate_Concept_CI_high,n_detected,ADD_Concept,excess_streams,fisher_p_value
+11.579999998279618,1,1,location,5000,400,11.400000000000022,0.10000000000000001,0.055,22,1,0.99048770566570343,1,400,42.895000000000003,378,3.0974778310583452e-203

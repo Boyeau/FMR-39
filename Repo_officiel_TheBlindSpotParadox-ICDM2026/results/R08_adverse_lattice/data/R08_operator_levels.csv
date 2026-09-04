@@ -1,0 +1,33 @@
+record_type,lambda_value,lambda_units,operator,n_streams,exact_level,realised_level,disagreements_vs_strict,disagreements_vs_weak,count_on_boundary,count_within_ulp_budget,count_float_above,count_float_below,count_float_equal
+exact_level,11,55,exact M_units > lambda,NaN,0.059900409117847379,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN
+exact_level,11,55,exact M_units >= lambda,NaN,0.070269867528308674,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN
+exact_level,11.199999999999999,56,exact M_units > lambda,NaN,0.051020717214682557,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN
+exact_level,11.199999999999999,56,exact M_units >= lambda,NaN,0.059900409117847379,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN
+exact_level,11.4,57,exact M_units > lambda,NaN,0.043428228893176074,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN
+exact_level,11.4,57,exact M_units >= lambda,NaN,0.051020717214682557,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN
+exact_level,11.6,58,exact M_units > lambda,NaN,0.036944510104723778,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN
+exact_level,11.6,58,exact M_units >= lambda,NaN,0.043428228893176074,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN
+exact_level,11.800000000000001,59,exact M_units > lambda,NaN,0.031413618187913044,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN
+exact_level,11.800000000000001,59,exact M_units >= lambda,NaN,0.036944510104723778,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN
+exact_level,12,60,exact M_units > lambda,NaN,0.026699782955808733,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN
+exact_level,12,60,exact M_units >= lambda,NaN,0.031413618187913044,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN
+realised_level,11,55,float M > lambda,200000,NaN,0.070360000000000006,2032,0,2032,NaN,NaN,NaN,NaN
+realised_level,11,55,exact M_units > lambda,200000,NaN,0.060199999999999997,0,2032,2032,NaN,NaN,NaN,NaN
+realised_level,11,55,exact M_units >= lambda,200000,NaN,0.070360000000000006,2032,0,2032,NaN,NaN,NaN,NaN
+realised_level,11.199999999999999,56,float M > lambda,200000,NaN,0.060199999999999997,1877,0,1877,NaN,NaN,NaN,NaN
+realised_level,11.199999999999999,56,exact M_units > lambda,200000,NaN,0.050814999999999999,0,1877,1877,NaN,NaN,NaN,NaN
+realised_level,11.199999999999999,56,exact M_units >= lambda,200000,NaN,0.060199999999999997,1877,0,1877,NaN,NaN,NaN,NaN
+realised_level,11.4,57,float M > lambda,200000,NaN,0.050814999999999999,1517,0,1517,NaN,NaN,NaN,NaN
+realised_level,11.4,57,exact M_units > lambda,200000,NaN,0.043229999999999998,0,1517,1517,NaN,NaN,NaN,NaN
+realised_level,11.4,57,exact M_units >= lambda,200000,NaN,0.050814999999999999,1517,0,1517,NaN,NaN,NaN,NaN
+realised_level,11.6,58,float M > lambda,200000,NaN,0.043229999999999998,1305,0,1305,NaN,NaN,NaN,NaN
+realised_level,11.6,58,exact M_units > lambda,200000,NaN,0.036705000000000002,0,1305,1305,NaN,NaN,NaN,NaN
+realised_level,11.6,58,exact M_units >= lambda,200000,NaN,0.043229999999999998,1305,0,1305,NaN,NaN,NaN,NaN
+realised_level,11.800000000000001,59,float M > lambda,200000,NaN,0.036705000000000002,1107,0,1107,NaN,NaN,NaN,NaN
+realised_level,11.800000000000001,59,exact M_units > lambda,200000,NaN,0.03117,0,1107,1107,NaN,NaN,NaN,NaN
+realised_level,11.800000000000001,59,exact M_units >= lambda,200000,NaN,0.036705000000000002,1107,0,1107,NaN,NaN,NaN,NaN
+realised_level,12,60,float M > lambda,200000,NaN,0.03117,970,0,970,NaN,NaN,NaN,NaN
+realised_level,12,60,exact M_units > lambda,200000,NaN,0.02632,0,970,970,NaN,NaN,NaN,NaN
+realised_level,12,60,exact M_units >= lambda,200000,NaN,0.03117,970,0,970,NaN,NaN,NaN,NaN
+ulp_boundary,NaN,NaN,|M_float - M_units * 2delta| <= 4 ulp,200000,NaN,NaN,NaN,NaN,1517,78971,192842,2776,4382
+operator_delta,11.4,57,exact weak minus exact strict at lambda*,NaN,0.0075924883215064826,0.0075850000000000015,NaN,NaN,NaN,NaN,NaN,NaN,NaN

@@ -1,0 +1,246 @@
+experiment,quantity,grid_name,grid_value,arm,value,n,note
+A,clamp_rate_per_step,gamma_lev,0,dgp,0,1399800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+A,clamp_rate_per_stream,gamma_lev,0,dgp,0,200,control C10
+A,max_sigma2_over_unc,gamma_lev,0,dgp,3.4428652877326442,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+A,clamp_rate_per_step,gamma_lev,0.02,dgp,0,1399800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+A,clamp_rate_per_stream,gamma_lev,0.02,dgp,0,200,control C10
+A,max_sigma2_over_unc,gamma_lev,0.02,dgp,4.5772447996110941,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+A,clamp_rate_per_step,gamma_lev,0.040000000000000001,dgp,0,1399800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+A,clamp_rate_per_stream,gamma_lev,0.040000000000000001,dgp,0,200,control C10
+A,max_sigma2_over_unc,gamma_lev,0.040000000000000001,dgp,7.2182297375632167,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+A,clamp_rate_per_step,gamma_lev,0.059999999999999998,dgp,0,1399800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+A,clamp_rate_per_stream,gamma_lev,0.059999999999999998,dgp,0,200,control C10
+A,max_sigma2_over_unc,gamma_lev,0.059999999999999998,dgp,11.49412442291735,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+A,clamp_rate_per_step,gamma_lev,0.080000000000000002,dgp,0,1399800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+A,clamp_rate_per_stream,gamma_lev,0.080000000000000002,dgp,0,200,control C10
+A,max_sigma2_over_unc,gamma_lev,0.080000000000000002,dgp,18.161256276325183,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+A,clamp_rate_per_step,gamma_lev,0.10000000000000001,dgp,0,1399800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+A,clamp_rate_per_stream,gamma_lev,0.10000000000000001,dgp,0,200,control C10
+A,max_sigma2_over_unc,gamma_lev,0.10000000000000001,dgp,28.143321475146287,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+A,clamp_rate_per_step,gamma_lev,0.12,dgp,0,1399800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+A,clamp_rate_per_stream,gamma_lev,0.12,dgp,0,200,control C10
+A,max_sigma2_over_unc,gamma_lev,0.12,dgp,42.466089371924916,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+A,clamp_rate_per_step,gamma_lev,0.14000000000000001,dgp,0,1399800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+A,clamp_rate_per_stream,gamma_lev,0.14000000000000001,dgp,0,200,control C10
+A,max_sigma2_over_unc,gamma_lev,0.14000000000000001,dgp,62.107594509894078,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+A,clamp_rate_per_step,gamma_lev,0.16,dgp,0,1399800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+A,clamp_rate_per_stream,gamma_lev,0.16,dgp,0,200,control C10
+A,max_sigma2_over_unc,gamma_lev,0.16,dgp,87.71831088639172,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+A,clamp_rate_per_step,gamma_lev,0.17999999999999999,dgp,0,1399800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+A,clamp_rate_per_stream,gamma_lev,0.17999999999999999,dgp,0,200,control C10
+A,max_sigma2_over_unc,gamma_lev,0.17999999999999999,dgp,125.85317921539378,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+A,clamp_rate_per_step,gamma_lev,0.20000000000000001,dgp,0,1399800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+A,clamp_rate_per_stream,gamma_lev,0.20000000000000001,dgp,0,200,control C10
+A,max_sigma2_over_unc,gamma_lev,0.20000000000000001,dgp,232.81755989466814,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+A,clamp_rate_per_step,gamma_lev,0.22,dgp,0,1399800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+A,clamp_rate_per_stream,gamma_lev,0.22,dgp,0,200,control C10
+A,max_sigma2_over_unc,gamma_lev,0.22,dgp,576.807330516246,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+A,clamp_rate_per_step,gamma_lev,0.23999999999999999,dgp,0,1399800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+A,clamp_rate_per_stream,gamma_lev,0.23999999999999999,dgp,0,200,control C10
+A,max_sigma2_over_unc,gamma_lev,0.23999999999999999,dgp,1380.7023702381009,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+A,clamp_rate_per_step,gamma_lev,0.26000000000000001,dgp,0,1399800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+A,clamp_rate_per_stream,gamma_lev,0.26000000000000001,dgp,0,200,control C10
+A,max_sigma2_over_unc,gamma_lev,0.26000000000000001,dgp,2988.0830459150502,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+A,clamp_rate_per_step,gamma_lev,0.28000000000000003,dgp,0,1399800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+A,clamp_rate_per_stream,gamma_lev,0.28000000000000003,dgp,0,200,control C10
+A,max_sigma2_over_unc,gamma_lev,0.28000000000000003,dgp,4889.1617933524285,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+B,clamp_rate_per_step,nu,10,dgp,0,1999800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+B,clamp_rate_per_stream,nu,10,dgp,0,200,control C10
+B,max_sigma2_over_unc,nu,10,dgp,7.0660222075212902,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+B,clamp_rate_per_step,nu,9,dgp,0,1999800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+B,clamp_rate_per_stream,nu,9,dgp,0,200,control C10
+B,max_sigma2_over_unc,nu,9,dgp,12.601465269526201,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+B,clamp_rate_per_step,nu,8,dgp,0,1999800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+B,clamp_rate_per_stream,nu,8,dgp,0,200,control C10
+B,max_sigma2_over_unc,nu,8,dgp,20.479612678258981,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+B,clamp_rate_per_step,nu,7.5,dgp,0,1999800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+B,clamp_rate_per_stream,nu,7.5,dgp,0,200,control C10
+B,max_sigma2_over_unc,nu,7.5,dgp,28.692164190423551,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+B,clamp_rate_per_step,nu,7,dgp,0,1999800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+B,clamp_rate_per_stream,nu,7,dgp,0,200,control C10
+B,max_sigma2_over_unc,nu,7,dgp,44.535672021471335,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+B,clamp_rate_per_step,nu,6.5,dgp,0,1999800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+B,clamp_rate_per_stream,nu,6.5,dgp,0,200,control C10
+B,max_sigma2_over_unc,nu,6.5,dgp,81.380878253427682,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+B,clamp_rate_per_step,nu,6,dgp,0,1999800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+B,clamp_rate_per_stream,nu,6,dgp,0,200,control C10
+B,max_sigma2_over_unc,nu,6,dgp,26.866633554953495,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+B,clamp_rate_per_step,nu,5.5,dgp,0,1999800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+B,clamp_rate_per_stream,nu,5.5,dgp,0,200,control C10
+B,max_sigma2_over_unc,nu,5.5,dgp,44.846059280489428,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+B,clamp_rate_per_step,nu,5,dgp,0,1999800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+B,clamp_rate_per_stream,nu,5,dgp,0,200,control C10
+B,max_sigma2_over_unc,nu,5,dgp,23.929684641540476,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+B,clamp_rate_per_step,nu,4.75,dgp,0,1999800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+B,clamp_rate_per_stream,nu,4.75,dgp,0,200,control C10
+B,max_sigma2_over_unc,nu,4.75,dgp,29.448121267866885,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+B,clamp_rate_per_step,nu,4.5,dgp,0,1999800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+B,clamp_rate_per_stream,nu,4.5,dgp,0,200,control C10
+B,max_sigma2_over_unc,nu,4.5,dgp,70.874573984565743,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+B,clamp_rate_per_step,nu,4.25,dgp,0,1999800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+B,clamp_rate_per_stream,nu,4.25,dgp,0,200,control C10
+B,max_sigma2_over_unc,nu,4.25,dgp,106.67321877016442,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+B,clamp_rate_per_step,nu,4.2000000000000002,dgp,0,1999800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+B,clamp_rate_per_stream,nu,4.2000000000000002,dgp,0,200,control C10
+B,max_sigma2_over_unc,nu,4.2000000000000002,dgp,129.3006696548037,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+B,clamp_rate_per_step,nu,4.0999999999999996,dgp,0,1999800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+B,clamp_rate_per_stream,nu,4.0999999999999996,dgp,0,200,control C10
+B,max_sigma2_over_unc,nu,4.0999999999999996,dgp,201.76287859143821,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+B,clamp_rate_per_step,nu,4.0499999999999998,dgp,0,1999800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+B,clamp_rate_per_stream,nu,4.0499999999999998,dgp,0,200,control C10
+B,max_sigma2_over_unc,nu,4.0499999999999998,dgp,261.8354487960134,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+B,clamp_rate_per_step,nu,4.0099999999999998,dgp,0,1999800,"control C10: sigma2[t] = min(sigma2[t], 1e4 * sigma2_unc), witness l.106"
+B,clamp_rate_per_stream,nu,4.0099999999999998,dgp,0,200,control C10
+B,max_sigma2_over_unc,nu,4.0099999999999998,dgp,202.59334593452843,200,"control C10: largest unclamped sigma2 in units of sigma2_unc, ceiling 1e4"
+A,kish_design_effect,grid,NaN,expA:fp_concept,15.001500150015001,150000,control C8: 15 by construction on the CRN arm
+A,kish_design_effect,grid,NaN,expA_concept_indep:fp_concept,1.0003502895662622,150000,control C8: the published arm; the key breaks the pairing
+A,kish_design_effect,grid,NaN,expA:lb_concept,15.001500150015005,150000,control C8: 15 by construction on the CRN arm
+A,kish_design_effect,grid,NaN,expA_concept_indep:lb_concept,0.98432738992508373,150000,control C8: the published arm; the key breaks the pairing
+A,lb_binom_p,gamma_lev,0,data,0.063067834177318899,10000,control C5: exact two-sided binomial p-value against the nominal 0.05
+A,lb_binom_p,gamma_lev,0,concept,0.33521271628171984,10000,control C5
+A,fpr_data_independent_key,gamma_lev,0,expA_concept_indep,3.3199999999999998,10000,unpublished second reading of the Data arm on the independent key
+A,lb_data_pct_independent_key,gamma_lev,0,expA_concept_indep,5.2299999999999995,10000,unpublished second reading of the Data arm on the independent key
+A,lb_binom_p,gamma_lev,0.02,data,0.051116220147088054,10000,control C5: exact two-sided binomial p-value against the nominal 0.05
+A,lb_binom_p,gamma_lev,0.02,concept,0.52058101562742554,10000,control C5
+A,fpr_data_independent_key,gamma_lev,0.02,expA_concept_indep,3.5499999999999998,10000,unpublished second reading of the Data arm on the independent key
+A,lb_data_pct_independent_key,gamma_lev,0.02,expA_concept_indep,4.9299999999999997,10000,unpublished second reading of the Data arm on the independent key
+A,lb_binom_p,gamma_lev,0.040000000000000001,data,0.0077643688358099601,10000,control C5: exact two-sided binomial p-value against the nominal 0.05
+A,lb_binom_p,gamma_lev,0.040000000000000001,concept,0.80077825662937685,10000,control C5
+A,fpr_data_independent_key,gamma_lev,0.040000000000000001,expA_concept_indep,4.5699999999999994,10000,unpublished second reading of the Data arm on the independent key
+A,lb_data_pct_independent_key,gamma_lev,0.040000000000000001,expA_concept_indep,5.21,10000,unpublished second reading of the Data arm on the independent key
+A,lb_binom_p,gamma_lev,0.059999999999999998,data,0.00028697282122806041,10000,control C5: exact two-sided binomial p-value against the nominal 0.05
+A,lb_binom_p,gamma_lev,0.059999999999999998,concept,0.38326674641105157,10000,control C5
+A,fpr_data_independent_key,gamma_lev,0.059999999999999998,expA_concept_indep,5.2800000000000002,10000,unpublished second reading of the Data arm on the independent key
+A,lb_data_pct_independent_key,gamma_lev,0.059999999999999998,expA_concept_indep,5.4800000000000004,10000,unpublished second reading of the Data arm on the independent key
+A,lb_binom_p,gamma_lev,0.080000000000000002,data,8.4245985890053901e-06,10000,control C5: exact two-sided binomial p-value against the nominal 0.05
+A,lb_binom_p,gamma_lev,0.080000000000000002,concept,0.90868369791138082,10000,control C5
+A,fpr_data_independent_key,gamma_lev,0.080000000000000002,expA_concept_indep,6.1100000000000003,10000,unpublished second reading of the Data arm on the independent key
+A,lb_data_pct_independent_key,gamma_lev,0.080000000000000002,expA_concept_indep,5.2699999999999996,10000,unpublished second reading of the Data arm on the independent key
+A,lb_binom_p,gamma_lev,0.10000000000000001,data,4.2720365925804504e-11,10000,control C5: exact two-sided binomial p-value against the nominal 0.05
+A,lb_binom_p,gamma_lev,0.10000000000000001,concept,0.69654700257308,10000,control C5
+A,fpr_data_independent_key,gamma_lev,0.10000000000000001,expA_concept_indep,7.5200000000000005,10000,unpublished second reading of the Data arm on the independent key
+A,lb_data_pct_independent_key,gamma_lev,0.10000000000000001,expA_concept_indep,6.0499999999999998,10000,unpublished second reading of the Data arm on the independent key
+A,lb_binom_p,gamma_lev,0.12,data,3.5391195186890412e-18,10000,control C5: exact two-sided binomial p-value against the nominal 0.05
+A,lb_binom_p,gamma_lev,0.12,concept,0.11335344574001796,10000,control C5
+A,fpr_data_independent_key,gamma_lev,0.12,expA_concept_indep,8.9800000000000004,10000,unpublished second reading of the Data arm on the independent key
+A,lb_data_pct_independent_key,gamma_lev,0.12,expA_concept_indep,6.3600000000000003,10000,unpublished second reading of the Data arm on the independent key
+A,lb_binom_p,gamma_lev,0.14000000000000001,data,5.9747395911172893e-31,10000,control C5: exact two-sided binomial p-value against the nominal 0.05
+A,lb_binom_p,gamma_lev,0.14000000000000001,concept,0.46280976474303565,10000,control C5
+A,fpr_data_independent_key,gamma_lev,0.14000000000000001,expA_concept_indep,10.08,10000,unpublished second reading of the Data arm on the independent key
+A,lb_data_pct_independent_key,gamma_lev,0.14000000000000001,expA_concept_indep,7.5600000000000005,10000,unpublished second reading of the Data arm on the independent key
+A,lb_binom_p,gamma_lev,0.16,data,1.4239354214766535e-52,10000,control C5: exact two-sided binomial p-value against the nominal 0.05
+A,lb_binom_p,gamma_lev,0.16,concept,0.14829477807130415,10000,control C5
+A,fpr_data_independent_key,gamma_lev,0.16,expA_concept_indep,11.959999999999999,10000,unpublished second reading of the Data arm on the independent key
+A,lb_data_pct_independent_key,gamma_lev,0.16,expA_concept_indep,8.6099999999999994,10000,unpublished second reading of the Data arm on the independent key
+A,lb_binom_p,gamma_lev,0.17999999999999999,data,3.1690992063981825e-92,10000,control C5: exact two-sided binomial p-value against the nominal 0.05
+A,lb_binom_p,gamma_lev,0.17999999999999999,concept,0.59775001882851964,10000,control C5
+A,fpr_data_independent_key,gamma_lev,0.17999999999999999,expA_concept_indep,14.01,10000,unpublished second reading of the Data arm on the independent key
+A,lb_data_pct_independent_key,gamma_lev,0.17999999999999999,expA_concept_indep,10.51,10000,unpublished second reading of the Data arm on the independent key
+A,lb_binom_p,gamma_lev,0.20000000000000001,data,3.1170675629917596e-152,10000,control C5: exact two-sided binomial p-value against the nominal 0.05
+A,lb_binom_p,gamma_lev,0.20000000000000001,concept,0.25129621770766608,10000,control C5
+A,fpr_data_independent_key,gamma_lev,0.20000000000000001,expA_concept_indep,15.09,10000,unpublished second reading of the Data arm on the independent key
+A,lb_data_pct_independent_key,gamma_lev,0.20000000000000001,expA_concept_indep,11.07,10000,unpublished second reading of the Data arm on the independent key
+A,lb_binom_p,gamma_lev,0.22,data,3.1726485892800355e-260,10000,control C5: exact two-sided binomial p-value against the nominal 0.05
+A,lb_binom_p,gamma_lev,0.22,concept,0.089574892156448899,10000,control C5
+A,fpr_data_independent_key,gamma_lev,0.22,expA_concept_indep,16.509999999999998,10000,unpublished second reading of the Data arm on the independent key
+A,lb_data_pct_independent_key,gamma_lev,0.22,expA_concept_indep,13.94,10000,unpublished second reading of the Data arm on the independent key
+A,lb_binom_p,gamma_lev,0.23999999999999999,data,0,10000,control C5: exact two-sided binomial p-value against the nominal 0.05
+A,lb_binom_p,gamma_lev,0.23999999999999999,concept,0.37091464170556943,10000,control C5
+A,fpr_data_independent_key,gamma_lev,0.23999999999999999,expA_concept_indep,18.469999999999999,10000,unpublished second reading of the Data arm on the independent key
+A,lb_data_pct_independent_key,gamma_lev,0.23999999999999999,expA_concept_indep,16.989999999999998,10000,unpublished second reading of the Data arm on the independent key
+A,lb_binom_p,gamma_lev,0.26000000000000001,data,0,10000,control C5: exact two-sided binomial p-value against the nominal 0.05
+A,lb_binom_p,gamma_lev,0.26000000000000001,concept,0.64631118952154509,10000,control C5
+A,fpr_data_independent_key,gamma_lev,0.26000000000000001,expA_concept_indep,19.609999999999999,10000,unpublished second reading of the Data arm on the independent key
+A,lb_data_pct_independent_key,gamma_lev,0.26000000000000001,expA_concept_indep,20.27,10000,unpublished second reading of the Data arm on the independent key
+A,lb_binom_p,gamma_lev,0.28000000000000003,data,0,10000,control C5: exact two-sided binomial p-value against the nominal 0.05
+A,lb_binom_p,gamma_lev,0.28000000000000003,concept,0.43532218375525322,10000,control C5
+A,fpr_data_independent_key,gamma_lev,0.28000000000000003,expA_concept_indep,20.949999999999999,10000,unpublished second reading of the Data arm on the independent key
+A,lb_data_pct_independent_key,gamma_lev,0.28000000000000003,expA_concept_indep,24.300000000000001,10000,unpublished second reading of the Data arm on the independent key
+B,SEM_Data_Raw,nu,10,data,52.66643810009613,825,control C2: dispersion of the conditional delay on the surviving streams
+B,censored,nu,10,data,0,1000,det_rate_data < 0.5
+B,SEM_Data_Raw,nu,9,data,54.156212405122446,781,control C2: dispersion of the conditional delay on the surviving streams
+B,censored,nu,9,data,0,1000,det_rate_data < 0.5
+B,SEM_Data_Raw,nu,8,data,59.598746168657776,719,control C2: dispersion of the conditional delay on the surviving streams
+B,censored,nu,8,data,0,1000,det_rate_data < 0.5
+B,SEM_Data_Raw,nu,7.5,data,65.69888722971676,666,control C2: dispersion of the conditional delay on the surviving streams
+B,censored,nu,7.5,data,0,1000,det_rate_data < 0.5
+B,SEM_Data_Raw,nu,7,data,69.167301227510748,621,control C2: dispersion of the conditional delay on the surviving streams
+B,censored,nu,7,data,0,1000,det_rate_data < 0.5
+B,SEM_Data_Raw,nu,6.5,data,74.510384452371241,562,control C2: dispersion of the conditional delay on the surviving streams
+B,censored,nu,6.5,data,0,1000,det_rate_data < 0.5
+B,SEM_Data_Raw,nu,6,data,84.766373199463743,518,control C2: dispersion of the conditional delay on the surviving streams
+B,censored,nu,6,data,0,1000,det_rate_data < 0.5
+B,SEM_Data_Raw,nu,5.5,data,93.56570714661575,471,control C2: dispersion of the conditional delay on the surviving streams
+B,censored,nu,5.5,data,1,1000,det_rate_data < 0.5
+B,SEM_Data_Raw,nu,5,data,100.43274668079236,421,control C2: dispersion of the conditional delay on the surviving streams
+B,censored,nu,5,data,1,1000,det_rate_data < 0.5
+B,SEM_Data_Raw,nu,4.75,data,103.91364821136314,390,control C2: dispersion of the conditional delay on the surviving streams
+B,censored,nu,4.75,data,1,1000,det_rate_data < 0.5
+B,SEM_Data_Raw,nu,4.5,data,109.73310157670052,363,control C2: dispersion of the conditional delay on the surviving streams
+B,censored,nu,4.5,data,1,1000,det_rate_data < 0.5
+B,SEM_Data_Raw,nu,4.25,data,112.64160092255152,341,control C2: dispersion of the conditional delay on the surviving streams
+B,censored,nu,4.25,data,1,1000,det_rate_data < 0.5
+B,SEM_Data_Raw,nu,4.2000000000000002,data,111.37656605821594,341,control C2: dispersion of the conditional delay on the surviving streams
+B,censored,nu,4.2000000000000002,data,1,1000,det_rate_data < 0.5
+B,SEM_Data_Raw,nu,4.0999999999999996,data,113.80002146428747,347,control C2: dispersion of the conditional delay on the surviving streams
+B,censored,nu,4.0999999999999996,data,1,1000,det_rate_data < 0.5
+B,SEM_Data_Raw,nu,4.0499999999999998,data,113.27282815605903,345,control C2: dispersion of the conditional delay on the surviving streams
+B,censored,nu,4.0499999999999998,data,1,1000,det_rate_data < 0.5
+B,SEM_Data_Raw,nu,4.0099999999999998,data,113.45279356962492,345,control C2: dispersion of the conditional delay on the surviving streams
+B,censored,nu,4.0099999999999998,data,1,1000,det_rate_data < 0.5
+B,paired_det_rate_difference,nu_pair,9,data,0.043999999999999928,1000,"control C4: nu 10.0 -> 9.0, paired SE 0.0084933, z +5.181, deff 0.2285, domain uncensored"
+B,paired_det_rate_difference,nu_pair,8,data,0.062000000000000055,1000,"control C4: nu 9.0 -> 8.0, paired SE 0.00970826, z +6.386, deff 0.2524, domain uncensored"
+B,paired_det_rate_difference,nu_pair,7.5,data,0.052999999999999936,1000,"control C4: nu 8.0 -> 7.5, paired SE 0.00895942, z +5.916, deff 0.1889, domain uncensored"
+B,paired_det_rate_difference,nu_pair,7,data,0.04500000000000004,1000,"control C4: nu 7.5 -> 7.0, paired SE 0.00900311, z +4.998, deff 0.1769, domain uncensored"
+B,paired_det_rate_difference,nu_pair,6.5,data,0.058999999999999941,1000,"control C4: nu 7.0 -> 6.5, paired SE 0.00977827, z +6.034, deff 0.1984, domain uncensored"
+B,paired_det_rate_difference,nu_pair,6,data,0.044000000000000039,1000,"control C4: nu 6.5 -> 6.0, paired SE 0.0104006, z +4.231, deff 0.2179, domain uncensored"
+B,paired_det_rate_difference,nu_pair,5.5,data,0.047000000000000042,1000,"control C4: nu 6.0 -> 5.5, paired SE 0.0102419, z +4.589, deff 0.2101, domain censored"
+B,paired_det_rate_difference,nu_pair,5,data,0.049999999999999989,1000,"control C4: nu 5.5 -> 5.0, paired SE 0.0123957, z +4.034, deff 0.3114, domain censored"
+B,paired_det_rate_difference,nu_pair,4.75,data,0.030999999999999972,1000,"control C4: nu 5.0 -> 4.75, paired SE 0.0106842, z +2.901, deff 0.2368, domain censored"
+B,paired_det_rate_difference,nu_pair,4.5,data,0.027000000000000024,1000,"control C4: nu 4.75 -> 4.5, paired SE 0.0105063, z +2.570, deff 0.2351, domain censored"
+B,paired_det_rate_difference,nu_pair,4.25,data,0.021999999999999964,1000,"control C4: nu 4.5 -> 4.25, paired SE 0.0111193, z +1.979, deff 0.2709, domain censored"
+B,paired_det_rate_difference,nu_pair,4.2000000000000002,data,0,1000,"control C4: nu 4.25 -> 4.2, paired SE 0.00547997, z +0.000, deff 0.0668, domain censored"
+B,paired_det_rate_difference,nu_pair,4.0999999999999996,data,-0.0059999999999999498,1000,"control C4: nu 4.2 -> 4.1, paired SE 0.00812589, z -0.738, deff 0.1462, domain censored"
+B,paired_det_rate_difference,nu_pair,4.0499999999999998,data,0.0020000000000000018,1000,"control C4: nu 4.1 -> 4.05, paired SE 0.00663627, z +0.301, deff 0.0972, domain censored"
+B,paired_det_rate_difference,nu_pair,4.0099999999999998,data,0,1000,"control C4: nu 4.05 -> 4.01, paired SE 0.00583387, z +0.000, deff 0.0752, domain censored"
+A,ks_statistic_all,grid,NaN,both,0.45331322092664872,30,"control C5: KS of the 30 p-values against Uniform(0,1)"
+A,ks_pvalue_all,grid,NaN,both,3.7672791173658829e-06,30,"control C5, reported and gating nothing"
+A,ks_statistic,grid,NaN,data,0.93693216582268113,15,"control C5, per arm"
+A,ks_pvalue,grid,NaN,data,1.9867752983182183e-18,15,"control C5, per arm, reported and gating nothing"
+A,ks_statistic,grid,NaN,concept,0.1701196640935867,15,"control C5, per arm"
+A,ks_pvalue,grid,NaN,concept,0.71711515346017429,15,"control C5, per arm, reported and gating nothing"
+A,invariance_slope,gamma_lev,NaN,expA_concept_indep,-0.92857142857142894,15,"control C9: OLS of fpr_concept on gamma_lev, percentage points"
+A,invariance_slope_se_ols,gamma_lev,NaN,expA_concept_indep,0.87974325496844796,15,control C9: analytic OLS standard error
+A,invariance_slope_se_bootstrap,gamma_lev,NaN,expA_concept_indep,0.80335390960826036,2000,control C9: seed-cluster bootstrap standard error
+A,invariance_slope_pvalue,gamma_lev,NaN,expA_concept_indep,0.24773497432816949,15,"control C9: two-sided, gate at 0.01"
+A,invariance_slope_crn,gamma_lev,NaN,expA,0,15,control C9 diagnostic: exactly zero on the degenerate arm
+A,extremum_bootstrap_low,gamma_lev,NaN,FprConceptMin,6.8500000000000005,2000,"S4bis fourth corollary: seed bootstrap envelope, descriptive, gating nothing"
+A,extremum_bootstrap_high,gamma_lev,NaN,FprConceptMin,7.5899999999999999,2000,S4bis fourth corollary
+A,extremum_point,gamma_lev,NaN,FprConceptMin,7.3800000000000008,2000,the published point value
+A,extremum_bootstrap_low,gamma_lev,NaN,FprConceptMax,8.3000000000000007,2000,"S4bis fourth corollary: seed bootstrap envelope, descriptive, gating nothing"
+A,extremum_bootstrap_high,gamma_lev,NaN,FprConceptMax,9.0700000000000003,2000,S4bis fourth corollary
+A,extremum_point,gamma_lev,NaN,FprConceptMax,8.4699999999999989,2000,the published point value
+A,extremum_bootstrap_low,gamma_lev,NaN,LbConceptMin,4.1799999999999997,2000,"S4bis fourth corollary: seed bootstrap envelope, descriptive, gating nothing"
+A,extremum_bootstrap_high,gamma_lev,NaN,LbConceptMin,4.7300000000000004,2000,S4bis fourth corollary
+A,extremum_point,gamma_lev,NaN,LbConceptMin,4.6500000000000004,2000,the published point value
+A,extremum_bootstrap_low,gamma_lev,NaN,LbConceptMax,5.3100000000000005,2000,"S4bis fourth corollary: seed bootstrap envelope, descriptive, gating nothing"
+A,extremum_bootstrap_high,gamma_lev,NaN,LbConceptMax,5.8700000000000001,2000,S4bis fourth corollary
+A,extremum_point,gamma_lev,NaN,LbConceptMax,5.3700000000000001,2000,the published point value
+B,extremum_bootstrap_low,nu,NaN,AddConceptMin,33.226949999999995,2000,"S4bis fourth corollary: seed bootstrap envelope, descriptive, gating nothing"
+B,extremum_bootstrap_high,nu,NaN,AddConceptMin,34.065049999999999,2000,S4bis fourth corollary
+B,extremum_point,nu,NaN,AddConceptMin,33.637999999999998,2000,the published point value
+B,extremum_bootstrap_low,nu,NaN,AddConceptMax,37.343000000000004,2000,"S4bis fourth corollary: seed bootstrap envelope, descriptive, gating nothing"
+B,extremum_bootstrap_high,nu,NaN,AddConceptMax,38.498024999999998,2000,S4bis fourth corollary
+B,extremum_point,nu,NaN,AddConceptMax,37.899999999999999,2000,the published point value
+B,extremum_bootstrap_low,nu,NaN,AddDataCensoredMin,2432.3277129315225,2000,"S4bis fourth corollary: seed bootstrap envelope, descriptive, gating nothing"
+B,extremum_bootstrap_high,nu,NaN,AddDataCensoredMin,2778.5352478650593,2000,S4bis fourth corollary
+B,extremum_point,nu,NaN,AddDataCensoredMin,2610.2314225053078,2000,the published point value
+B,extremum_bootstrap_low,nu,NaN,AddDataCensoredMax,2854.8243580060425,2000,"S4bis fourth corollary: seed bootstrap envelope, descriptive, gating nothing"
+B,extremum_bootstrap_high,nu,NaN,AddDataCensoredMax,3249.7076723560908,2000,S4bis fourth corollary
+B,extremum_point,nu,NaN,AddDataCensoredMax,2998.7712609970677,2000,the published point value
+B,extremum_bootstrap_low,nu,NaN,AddDataMin,1675.7767392059015,2000,"S4bis fourth corollary: seed bootstrap envelope, descriptive, gating nothing"
+B,extremum_bootstrap_high,nu,NaN,AddDataMin,1877.3421315164614,2000,S4bis fourth corollary
+B,extremum_point,nu,NaN,AddDataMin,1774.270303030303,2000,the published point value
+B,extremum_bootstrap_low,nu,NaN,AddDataMax,2274.4757517083831,2000,"S4bis fourth corollary: seed bootstrap envelope, descriptive, gating nothing"
+B,extremum_bootstrap_high,nu,NaN,AddDataMax,2604.0009183673469,2000,S4bis fourth corollary
+B,extremum_point,nu,NaN,AddDataMax,2434.6100386100388,2000,the published point value

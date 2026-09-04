@@ -1,0 +1,25 @@
+# Streaming ML framework (Pinned to exact version from Section 3 of the paper)
+river==0.23.0
+
+# Core Data Science stack (Pinned to exact environment for bit-wise reproducibility)
+numpy==1.26.4
+pandas==2.3.2
+scipy==1.16.2
+
+# Visualization
+matplotlib==3.10.6
+
+# Parallelization
+joblib==1.4.2
+
+# Parquet engine for pandas.to_parquet() and read_parquet()
+pyarrow==21.0.0
+
+# Progress Tracking / Utilities
+tqdm==4.67.1
+
+# Text formatting (Strictly required for pandas.DataFrame.to_markdown)
+tabulate==0.10.0
+
+# Testing & Reproducibility Validation
+pytest==9.0.3

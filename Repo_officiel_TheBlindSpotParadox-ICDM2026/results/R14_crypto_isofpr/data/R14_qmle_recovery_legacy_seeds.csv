@@ -1,0 +1,8 @@
+Metric,Value
+Median_Bias,0.033618304213452764
+Fallback_Frac,0
+Frozen_Frac,0
+N_Sims,20
+N_Converged,20
+Max_Bias,0.11555042548656333
+Min_Bias,0.011370706004586874

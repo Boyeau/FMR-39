@@ -1,0 +1,436 @@
+\documentclass[10pt,conference]{IEEEtran}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{cite} % Compression native des citations IEEE (Obligatoire)
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\definecolor{darkgreen}{HTML}{008000}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{placeins} % [section] RETIRÉ : Empêche la génération de trous blancs massifs
+\usepackage[hidelinks,colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\graphicspath{{figures/}}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{remark}[theorem]{Remark}
+
+% ─────────────────────────────────────────────────────────────────
+\IEEEoverridecommandlockouts
+\title{The Blind Spot Paradox: When Adaptive Classifiers Defeat Drift Detectors}
+\author{\IEEEauthorblockN{Anonymous Author(s)}
+\IEEEauthorblockA{\textit{Anonymous Affiliation(s)}\\
+Paper under Triple-Blind Review}}
+% ─────────────────────────────────────────────────────────────────
+
+\begin{document}
+\maketitle
+
+% ══════════════════════════════════════════════════════════════════
+% ABSTRACT
+% ══════════════════════════════════════════════════════════════════
+\begin{abstract}
+  Concept drift monitoring on data streams typically pairs an adaptive classifier with an external drift detector. We show that this standard architecture harbors a fundamental race condition: adaptive classifiers such as Adaptive Random Forests (ARF) absorb distributional changes before CUSUM-family monitors accumulate sufficient evidence, erasing the drift signal over the exploitable transient. Through direct instrumentation of the ARF's internal tree-swap dynamics we trace this blind spot paradox to a single root cause---internal ADWIN hyper-reactivity---with two regime-dependent faces: starvation (recall collapse) on stationary streams and false-alarm flooding (precision collapse) on non-stationary streams. A Starvation Effect renders the transient signal too brief for CUSUM accumulation, producing missed detections or alarms that fire only after adaptation; an ensemble-level Hydra Effect accelerates this adaptation 4 to 8 times over a single tree. We introduce the Decoupling Principle---external monitors must be strictly more reactive than internal classifiers---and expose a Fundamental Tension within the cumulative-evidence family: bounding false alarms under heteroscedastic volatility requires a high threshold that exceeds the upper bound required for reliable decoupling, leaving the admissible set empty. A distribution-based KSWIN monitor avoids this tension on the settings we test, recovering reliable detection at no predictive cost. Validation spans instrumented Bernoulli race experiments across a wide range of drift magnitudes, heteroscedastic ARMA--GARCH streams (ProteuS), and six real-world streams (BAF, INSECTS); standard benchmarks (SEA, Hyperplane) operate below the starvation threshold and mask the phenomenon.
+\end{abstract}
+
+\begin{IEEEkeywords}
+  Concept drift, Adaptive blind spot, ADWIN, Page-Hinkley, Adaptive Random Forest.
+\end{IEEEkeywords}
+
+% ══════════════════════════════════════════════════════════════════
+\section{Introduction}\label{sec:intro}
+% ══════════════════════════════════════════════════════════════════
+
+Machine-learning models deployed on non-stationary data streams must be monitored for distributional changes---a problem known as \emph{concept drift detection}~\cite{gama_survey_2014, lu_concept_drift_2018}.
+The dominant paradigm couples an adaptive classifier with an external drift detector~\cite{gomes_arf_2017, bifet_adwin_2007}: the classifier learns from the stream, the detector monitors its error rate, and an alarm signals that the model requires retraining.
+
+This paper reveals that the coupling itself creates a critical failure mode.
+Adaptive Random Forests (ARF)~\cite{gomes_arf_2017} maintain internal ADWIN detectors~\cite{bifet_adwin_2007} at every tree node.
+Upon detecting a shift, the ARF adapts by replacing active subtrees with pre-trained background trees, rapidly absorbing the drift.
+However, an external \emph{cumulative-evidence} monitor observing the ARF's binary error stream requires sustained deviation to trigger an alarm.
+When the ARF adapts \emph{faster} than such a monitor accumulates evidence, the drift signal is permanently erased---a phenomenon we term the \textbf{blind spot paradox}.
+
+The drift detection literature has overwhelmingly treated detection and adaptation as a single, cooperative pipeline.
+Surveys spanning two decades---from Klinkenberg \& Joachims~\cite{klinkenberg_2000} through Gama et al.~\cite{gama_survey_2014}, Lu et al.~\cite{lu_concept_drift_2018}, and Bayram et al.~\cite{bayram_2022}---consistently frame the detector as a module \emph{serving} the classifier: the detector fires, the classifier adapts.
+The reverse interaction---the classifier's adaptation \emph{destroying} the detector's evidence---has never been formally examined.
+
+This omission has practical consequences.
+Popular streaming frameworks (River~\cite{montiel_river_2021}, MOA) ship default configurations where the ARF's internal ADWIN evaluates at every step ($c = 1$) while an external ADWIN monitor uses the batched default ($c = 32$).
+As we show, this standard pipeline produces a systematic, deterministic blind spot: the stronger the drift, the \emph{less} likely the external monitor is to detect it.
+
+Stirling et~al.~\cite{stirling_2018} noted that the internal detector in a Hoeffding Adaptive Tree influences classification accuracy, but their analysis remains within the cooperative paradigm, evaluating only predictive performance. Our contribution differs fundamentally: we demonstrate that the classifier's internal dynamics can render an external monitoring pipeline \emph{entirely inoperative}, and we formalize the conditions for this failure.
+
+\noindent\textbf{Contributions.}
+We introduce three contributions, preceded by a preliminary technical finding:
+\begin{enumerate}[nosep, label=\textbf{(C\arabic*)}, start=1]
+  \item[\textbf{(P)}] \textbf{Preliminary: ADWIN Clock Artefact.} Batched evaluation in River's ADWIN~\cite{montiel_river_2021} induces a shifted uniform delay $\mathcal{U}\{\tau_{\mathrm{stat}},\, \tau_{\mathrm{stat}} + c - 1\}$.
+  \item \textbf{The Blind Spot Paradox.} We formalize the race condition and trace it to internal ADWIN hyper-reactivity, whose stationary \emph{Starvation Effect} defeats CUSUM and is amplified by the ensemble-level \emph{Hydra Effect}. We derive the critical ensemble size $M_{\mathrm{crit}}$ inducing structural failure.
+  \item \textbf{The Decoupling Principle.} A sufficient condition for reliable monitoring: the external monitor must be \emph{strictly more reactive} than the classifier's internal adaptation, exposing a \textbf{Fundamental Tension} with false-alarm control on heteroscedastic streams.
+  \item \textbf{Comprehensive Empirical Validation.} We validate the paradox across instrumented Bernoulli experiments ($\Delta e \in [0.02, 0.50]$), heteroscedastic ARMA--GARCH streams (ProteuS~\cite{suarez_cetrulo_proteus_2025}), and real-world data (BAF, INSECTS). Standard benchmarks (SEA, Hyperplane) operate below the starvation threshold, masking the phenomenon (Section~\ref{sec:limitations}).
+\end{enumerate}
+
+% ══════════════════════════════════════════════════════════════════
+\section{Background}\label{sec:background}
+% ══════════════════════════════════════════════════════════════════
+
+\subsection{Concept Drift vs. Data Drift}
+Drift monitoring splits into two paradigms~\cite{gama_survey_2014, lu_concept_drift_2018}: monitoring the input distribution $P(X)$ (Data Drift), or monitoring the posterior $P(Y|X)$ by observing a classifier's binary error stream $e_t \in \{0,1\}$ (Concept Drift). This paper focuses exclusively on Concept Drift monitoring, where an adaptive classifier mediates the detector's input.
+
+\subsection{Detectors and the Adaptive Random Forest}\label{sec:adwin}
+\textbf{ADWIN}~\cite{bifet_adwin_2007} maintains a sliding window split into two sub-windows and declares drift when their means diverge beyond a Hoeffding bound; evaluated only every $c$ steps (Remark~\ref{rem:clock}).
+
+\begin{remark}[Clock parameter]\label{rem:clock}
+  ADWIN in River~\cite{montiel_river_2021} evaluates its statistical test every $c$ steps ($c=32$ by default). By contrast, River's Page-Hinkley Test (PHT) evaluates at every step (no clock parameter).
+\end{remark}
+
+\noindent\textbf{The PHT}~\cite{page_1954} is a CUSUM detector~\cite{basseville_1993}: an alarm fires when the running maximum of its accumulated statistic exceeds a threshold $\lambda > 0$ (governing the false-alarm rate~\cite{tartakovsky_2014}), net of a minimum-magnitude tolerance $\delta_P > 0$. By Wald's equation, the expected accumulation time after an abrupt mean shift $\Delta\mu$ is $\tau_{\mathrm{det}} = \lambda / (\Delta\mu - \delta_P) = \mathcal{O}(1/\Delta e)$, where $\Delta e$ denotes the effective error jump.
+
+\noindent\textbf{Hoeffding Trees (HT)}~\cite{gama_survey_2014} are incremental decision trees, \emph{non-adaptive} once converged. \textbf{Adaptive Random Forests (ARF)}~\cite{gomes_arf_2017} maintain $M$ HTs, each paired with an internal ADWIN: upon an internal drift warning the ARF pre-trains a background tree and, upon confirmation, instantly replaces the active tree. This adaptive \emph{tree-swap} mechanism is central to the blind spot paradox.
+
+\subsection{Related Work}\label{sec:related}
+Concept drift detection has been extensively surveyed~\cite{gama_survey_2014, lu_concept_drift_2018}.
+Sequential change-point methods under independent observations are well understood: CUSUM achieves minimax optimality~\cite{moustakides_1986} and Lorden's criterion~\cite{lorden_1971} characterizes worst-case delay.
+Comparative benchmarks~\cite{goncalves_2014, lukats_2025} evaluate detectors under homoscedastic, i.i.d.\ conditions on standard generators (SEA, Hyperplane, RandomRBF).
+
+The closest prior observation to our race condition is~\cite{stirling_2018}, who studied internal-detector choices in Hoeffding Adaptive Trees but evaluated classification accuracy only.
+The two literatures are evaluated separately. Detector benchmarks~\cite{goncalves_2014, lukats_2025} run on pre-generated bitstreams (e.g., SINE1, MIXED) with no classifier in the loop; work introducing adaptive ensembles such as ARF~\cite{gomes_arf_2017} reports predictive accuracy only. Deployed pipelines must stack the two, and we show that this coupling lets the classifier's internal adaptation remove the evidence the external monitor needs. This destructive adaptation in Hoeffding-tree ensembles was flagged by Read~\cite{read_2018} as a \emph{classification} inefficiency, motivating detector-free continuous adaptation; our concern is its mirror image---the same mechanism, read from the monitoring side, is precisely what erases the detector's evidence. While we instantiate the analysis with PHT, the Starvation Effect derived in Section~\ref{sec:starvation} is, by construction, \emph{agnostic within the cumulative-evidence family}: any monitor that requires a persistent deviation with a stopping time scaling as $\Omega(\lambda / \Delta e)$---DDM~\cite{gama_ddm_2004}, EDDM~\cite{baena_eddm_2006}, ECDD~\cite{ross_ecdd_2012}---is defeated by an adaptation time $\tau_{\mathrm{ARF}} = \mathcal{O}((\Delta e)^{-\alpha})$ with $\alpha \approx 1$. We confirm this empirically for PHT (Sections~\ref{sec:blindspot}--\ref{sec:experiments}) and EDDM (Section~\ref{sec:proteus}); for the remaining family members the collapse follows from the same accumulation argument (Prop.~\ref{prop:starvation}). Windowed and distributional monitors (ADWIN~\cite{bifet_adwin_2007}, KSWIN~\cite{raab_kswin_2020}) escape by construction (Remark~\ref{rem:agnostic}).
+
+% ══════════════════════════════════════════════════════════════════
+\section{The Blind Spot Paradox}\label{sec:blindspot}
+% ══════════════════════════════════════════════════════════════════
+
+We formalize the blind spot paradox through direct instrumentation of the Adaptive Random Forest (ARF) in River 0.23.0~\cite{montiel_river_2021}.
+Rather than simulating the race condition with independent proxy streams, we monitor the exact time step of each internal tree swap via River's internal swap counter, and compare it against a concurrent external detector observing the \emph{same} correlated error stream.
+
+\subsection{Preliminary: The ADWIN Mechanical Phase Delay}\label{sec:clock}
+
+Because ADWIN evaluates its test only at multiples of the clock parameter $c$, the measured detection delay for any abrupt drift at unknown time $\tau^*$ satisfies:
+\begin{equation}\label{eq:clock}
+  \mathrm{ADD} = \bigl(c - 1 - (\tau^* \bmod c)\bigr) + \tau_{\mathrm{stat}}\,,
+\end{equation}
+where $\tau_{\mathrm{stat}}$ is the irreducible statistical delay. For large drifts, $\tau_{\mathrm{stat}}$ is a small constant and delay is dominated by phase alignment: for uniform $\tau^*$, $\mathrm{ADD} \sim \mathcal{U}\{\tau_{\mathrm{stat}},\, \tau_{\mathrm{stat}} + c - 1\}$ (mean ${\approx}23$ at $c{=}32$). This is a deterministic artefact of \emph{mismatched} clocks, not an ADWIN property.
+
+\subsection{The Race Condition}\label{sec:race}
+
+Concept Drift monitoring relies on the binary error stream of a classifier.
+When the classifier is adaptive (ARF), its internal mechanism reacts to drift by replacing subtrees.
+We formalize the resulting race condition.
+
+Let $N_{\mathrm{swap}}(t)$ denote the cumulative number of internal tree replacements (tree swaps) in the adaptive classifier up to time $t$. This quantity is directly observable via River's internal \texttt{\_drift\_tracker} counter.
+
+\begin{definition}[Adaptation Time \& Blind Spot]\label{def:tau_arf}
+  The \textbf{adaptation time} $\tau_{\mathrm{ARF}}$ is the delay from drift onset $\tau^*$ to the first internal tree swap: $\tau_{\mathrm{ARF}} := \inf\bigl\{t > \tau^* : N_{\mathrm{swap}}(t) > N_{\mathrm{swap}}(\tau^*) \bigr\} - \tau^*$.
+  A \textbf{blind spot} occurs when the classifier adapts before the external monitor $\tau_{\mathrm{det}}$ triggers: $\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}$.
+\end{definition}
+
+\noindent\textbf{Measurement Blindness.}
+We shift the classifier's decision boundary at time $\tau^*$ from $x_0 + x_1 > 0$ to $x_0 + x_1 > b$ ($b > 0$).
+For $x_0, x_1 \sim \mathcal{N}(0,1)$, the theoretical error jump is $\Delta e = \Phi(b/\sqrt{2}) - 0.5$. A naive empirical measurement of $\Delta e$ systematically fails because the ARF adapts \emph{during} the measurement window (e.g., at $b = 4.0$, empirical $\Delta e \approx 0.02$ vs. theoretical $\Delta e_{\mathrm{th}} \approx 0.50$). All subsequent results use the theoretical $\Delta e$.
+
+\subsection{The Hydra Effect: Ensemble Acceleration}\label{sec:hydra}
+
+The ARF maintains $M$ trees, each equipped with an internal ADWIN detector.
+Upon drift, each tree $i$ independently detects and swaps at time $\tau_i$.
+The ensemble's effective adaptation time is:
+\begin{equation}\label{eq:hydra}
+  \tau_{\mathrm{ARF}} = \min_{1 \le i \le M} \tau_i\,.
+\end{equation}
+By order statistics~\cite{david_order_2003}, if individual detection times $\tau_i$ have CDF $F$, the expected minimum is $\mathbb{E}[\tau_{(1:M)}] = \int_0^{\infty} \bigl(1 - F(t)\bigr)^M \, dt$.
+The $M$-fold acceleration is exact for exponential $F$ ($\mathbb{E}[\tau_{(1:M)}] = \mathbb{E}[\tau_1]/M$), and the asymptotic scaling $\mathbb{E}[\tau_{(1:M)}] \sim 1/(M f(0))$ holds if the density $f(0)>0$. For heavy-tailed distributions, acceleration can exceed $M$-fold, as the minimum selects aggressively from the left tail.
+
+\textbf{Empirical validation.}
+Comparing a single Hoeffding Adaptive Tree (HAT, $M = 1$)~\cite{bifet_hat_2009} against the full ARF ($M = 10$), our instrumentation reveals an acceleration factor $\tau_{\mathrm{HAT}} / \tau_{\mathrm{ARF}}$ ranging from $4.1\times$ ($\Delta e = 0.14$) to $8.0\times$ ($\Delta e = 0.33$). The power-law fits (Figure~\ref{fig:pht_scenarios}) reveal that HAT and ARF share the \emph{same} complexity exponent ($\hat\alpha_{\mathrm{HAT}} \approx 1.02$, $\hat\alpha_{\mathrm{ARF}} \approx 0.98$), while the prefactor drops from $K_{\mathrm{HAT}} \approx 102$ to $K_{\mathrm{ARF}} \approx 18.5$. The Hydra Effect thus operates as a \emph{constant-factor} acceleration, not a complexity-class change.
+
+This phenomenon is structurally analogous to the multichart CUSUM of Tartakovsky~\cite{tartakovsky_2005_multichart}, where running $M$ parallel CUSUM charts and alarming on the first exceedance reduces detection delay by a factor approaching $M$.
+
+\subsection{The Starvation Effect: Transient Signal Erasure}\label{sec:starvation}
+
+When the ARF adapts in time $\tau_{\mathrm{ARF}}$, the external detector observes a \emph{transient} error signal: the error rate jumps from $p_0$ to $p_0 + \Delta e$ at $\tau^*$, then decays back to $p_0$ by $\tau^* + \tau_{\mathrm{ARF}}$.
+A CUSUM detector with threshold $\lambda$ and tolerance $\delta_P$ accumulates the statistic:
+\begin{equation}\label{eq:cusum}
+  S_t = \max\bigl(0,\, S_{t-1} + e_t - p_0 - \delta_P\bigr)\,.
+\end{equation}
+During the transient window $[\tau^*, \tau^* + \tau_{\mathrm{ARF}}]$, each increment contributes $\mathbb{E}[\Delta S] = \Delta e - \delta_P > 0$.
+After adaptation ($t > \tau^* + \tau_{\mathrm{ARF}}$), the increments become $\mathbb{E}[\Delta S] = -\delta_P < 0$, and the statistic decays toward zero.
+
+\begin{proposition}[Starvation: Finite-Horizon Boundary Crossing]\label{prop:starvation}
+  Write $W := \tau_{\mathrm{ARF}}$ for the transient length, $\mu := \Delta e - \delta_P > 0$, $S_{\tau^*} = s_0 \ge 0$, and $S^* := \sup_{t\in[\tau^*,\, \tau^* + W]} S_t$. Then
+  \begin{equation}\label{eq:markov_bound}
+    \mathbb{P}\bigl(S^* \ge \lambda\bigr) \;\le\; W \exp\!\Bigl(-\tfrac{2}{W}\bigl(\lambda - s_0 - \mu W\bigr)_{+}^{2}\Bigr)\,.
+  \end{equation}
+  Equivalently, the detector misses the transient with probability at least $1-\varepsilon$ as soon as
+  \begin{equation}\label{eq:starve_boundary}
+    \lambda \;\ge\; s_0 + \mu W + \sqrt{\tfrac{W}{2}\,\ln(W/\varepsilon)}\,.
+  \end{equation}
+  The second term is the mean accumulated evidence; the third is the fluctuation margin, and it dominates whenever $\mu\sqrt{W} \lesssim 1$.
+\end{proposition}
+
+\begin{proof}
+  Let $\xi_i := e_i - p_0 - \delta_P - \mu$ be the centered increments, of range at most $1$. Unrolling the reflection in~\eqref{eq:cusum} gives $S_t = \max\bigl(s_0 + \sum_{i \le t}(\xi_i + \mu),\ \max_{k < t}\sum_{k < i \le t}(\xi_i + \mu)\bigr)$, so $\{S^* \ge \lambda\}$ is contained in the union, over the at most $W$ restart points $k$, of the events $\bigl\{\max_{k < j \le \tau^*+W}\sum_{k < i \le j}\xi_i \ge \lambda - s_0 - \mu W\bigr\}$. Doob's maximal inequality applied to the exponential submartingale of the centered walk, with the Azuma--Hoeffding estimate for increments of range $1$~\cite{hoeffding_1963,tartakovsky_2014}, bounds each event by $\exp\bigl(-2(\lambda - s_0 - \mu W)_{+}^{2}/W\bigr)$; a union bound over $k$ gives~\eqref{eq:markov_bound}, and solving for $\lambda$ gives~\eqref{eq:starve_boundary}. No positive term is discarded: the fluctuation contribution survives as the $\sqrt{W \ln(W/\varepsilon)}$ margin, and the pre-drift value $s_0$ enters explicitly rather than being set to zero.
+\end{proof}
+
+\begin{remark}[Finite horizon, and what follows it]\label{rem:sufficient}
+  Eq.~\eqref{eq:markov_bound} bounds a crossing probability over the transient window only; it does not assert permanent erasure. Once the increments turn negative ($-\delta_P$) the reflected statistic stays positive recurrent and still crosses any finite $\lambda$ eventually. The correct post-transient statement is not a vanishing trigger probability but a mean time between false alarms growing exponentially in $\lambda$~\cite{tartakovsky_2014,page_1954}: an alarm raised after $\tau^* + W$ is uninformative about the drift, which is precisely the flooding regime (Remark~\ref{rem:flooding}). The $\sqrt{W}$ margin in~\eqref{eq:starve_boundary} also explains why the empirical crossover (Section~\ref{sec:crossover}) is a finite-width \emph{stochastic} transition rather than a sharp threshold, alongside the bimodal $\tau_{\mathrm{ARF}}$ in the Safe Zone and noise swaps (Remark~\ref{rem:bgswap}).
+\end{remark}
+
+\begin{remark}[Detector-agnosticity nuance]\label{rem:agnostic}
+  Proposition~\ref{prop:starvation} covers \emph{cumulative-evidence} monitors---the CUSUM/PHT family and the SPC charts DDM~\cite{gama_ddm_2004}, EDDM~\cite{baena_eddm_2006}, ECDD~\cite{ross_ecdd_2012}---all needing a \emph{persistent} deviation to fire and hence defeated by the transient erasure. It does not apply to \emph{distribution-based} detectors (e.g., KSWIN~\cite{raab_kswin_2020}): KSWIN tests the Kolmogorov-Smirnov distance between two sliding windows, immune to starvation while its reference window holds pre-drift data. We confirm this in Section~\ref{sec:proteus}.
+\end{remark}
+
+This is a concrete instance of the \emph{transient change detection} problem studied by Nikiforov~\cite{nikiforov_2012} and Tartakovsky~\cite{tartakovsky_2023_transient}: classical sequential tests are designed for \emph{persistent} changes ($\Delta\mu$ sustained indefinitely), and their performance degrades catastrophically when the post-change regime has finite duration.
+The ARF's internal adaptation burns the evidence of any persistent drift, collapsing it to a transient of duration $\tau_{\mathrm{ARF}}$ before the external monitor can react.
+
+\textbf{Empirical validation and the Zombie Alarm phase.}
+With the instrumented ARF ($M = 10$, $c_{\mathrm{int}} = 1$) and an external StrictCUSUM ($\lambda = 50$, $\delta_P = 0.01$), the external detector achieves exactly $0\%$ detection rate across 100 seeds for $\Delta e > 0.24$ (Figure~\ref{fig:pht_scenarios}(A)). This is the extreme manifestation: \emph{Total Starvation}.
+Crucially, continuous monitoring of the joint stopping times $(\tau_{\mathrm{ARF}}, \tau_{\mathrm{det}})$ reveals a transitional failure mode at standard operating thresholds (e.g., $\lambda = 25$). In this regime, the CUSUM reliably triggers an alarm (Detection Rate $>95\%$), but it does so \emph{after} the internal ARF has already swapped ($\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}$ in $88\%$ of runs). We term this a \textbf{Zombie Alarm}: the monitor fires for a drift the ensemble has \emph{already} neutralised by promoting a background tree. The danger is not the alarm but the standard MLOps reaction to it---a full retraining---which discards the self-healed model and resets it to a cold start, transiently \emph{degrading} accuracy instead of restoring it. Figure~\ref{fig:race_condition} maps this race condition.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.90\textwidth]{Fig_R1_race_condition.png}
+  \caption{Race condition between adaptive ($\tau_{\mathrm{ARF}}$) and external ($\tau_{\mathrm{det}}$) stopping times at $\Delta e{=}0.25$ across critical $\lambda$ ($200$ seeds/panel). \textcolor{darkgreen}{\textbf{Green}}: detector wins ($\tau_{\mathrm{det}}{\le}\tau_{\mathrm{ARF}}$). \textcolor{red}{\textbf{Red}}: blind spot / Zombie Alarms ($\tau_{\mathrm{ARF}}{<}\tau_{\mathrm{det}}$). \textcolor{gray}{\textbf{Gray $\times$}}: starvation ($\tau_{\mathrm{det}}$ censored at horizon $50{,}000$, offset in the broken right-hand zone). Axes: broken linear $x$, $y\le 600$. The transition $\lambda^*{\approx}15$--$25$ separates the detector-wins, blind-spot (Zombie-dominated) and total-starvation regimes (Prop.~\ref{prop:starvation_boundary}).}
+  \label{fig:race_condition}
+\end{figure*}
+
+\subsection{Regime 1: The Clock-Mismatch Artefact}\label{sec:hardware}
+
+We isolate the impact of the evaluation clock on the real ARF across three configurations ($100$ seeds $\times$ $20$ magnitudes). Under \emph{mismatched} clocks ($c_{\mathrm{int}}{=}1$, $c_{\mathrm{ext}}{=}32$---River's default), the Hydra-accelerated ARF preempts the batched external ADWIN: miss rates exceed $50\%$ for $\Delta e > 0.35$ and \emph{increase} with magnitude, the counter-intuitive artefact signature. This is \emph{not} a structural ADWIN vulnerability. Under \emph{matched} clocks ($c_{\mathrm{int}}{=}c_{\mathrm{ext}}{=}1$) the external ADWIN \emph{wins} for $\Delta e > 0.30$ (miss $<5\%$; the residual $\approx 11\%$ at $\Delta e{\approx}0.19$ is the tail of the weak-signal band), because it reads the \emph{ensemble} error averaged over $M{=}10$ trees---a higher-SNR signal than any single tree (the single-tree HAT stays at ${\approx}40\%$ miss under the same clock). The decoupled configuration ($c_{\mathrm{int}}{=}32$, $c_{\mathrm{ext}}{=}1$) confirms detection before adaptation for $\Delta e > 0.30$, validating the \hyperref[def:decoupling]{Decoupling Principle}.
+
+% Figure 4 merged with Figure 2 above to respect ICDM page limits.
+
+\subsection{Regime 2: Asymptotic Complexity Intersection}\label{sec:complexity}
+
+The blind spot is most devastating when the external detector is a CUSUM/PHT, due to the Starvation Effect (Section~\ref{sec:starvation}).
+Figure~\ref{fig:pht_scenarios} shows the instrumented race between the real ARF ($M = 10$, $c_{\mathrm{int}} = 1$) and an external StrictCUSUM at three thresholds.
+
+A high threshold ($\lambda = 50$) produces \emph{complete} starvation: the PHT detects in $<$1\% of runs across all $\Delta e$ (Figure~\ref{fig:pht_scenarios}A), as the ARF's Hydra-accelerated adaptation generates transients far shorter than the CUSUM accumulation time. An intermediate threshold ($\lambda = 25$) reveals partial detection at moderate $\Delta e$ but complete starvation at large $\Delta e$ (Figure~\ref{fig:pht_scenarios}B): miss rates rise from 60\% to 100\% as $\Delta e$ increases---the paradoxical signature. A hyper-reactive PHT ($\lambda = 8$) achieves a safe zone for $\Delta e > 0.15$ (Figure~\ref{fig:pht_scenarios}C), but sacrifices false-alarm robustness.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.31\textwidth]{Fig_R2_A_PHT_ARF.png}
+  \includegraphics[width=0.31\textwidth]{Fig_R2_B_PHT_ARF.png}
+  \includegraphics[width=0.31\textwidth]{Fig_R2_C_PHT_ARF.png}
+  \caption{Instrumented Asymptotic Complexity: ARF ($M{=}10$) vs.\ external StrictCUSUM (ARF fit $\approx 18.5(\Delta e)^{-0.98}$ vs.\ HAT $\approx 102(\Delta e)^{-1.02}$; the Hydra Effect converts partial into total starvation). (A)~$\lambda{=}50$: $100\%$ miss. (B)~$\lambda{=}25$: paradoxical miss increase with $\Delta e$. (C)~$\lambda{=}8$: safe zone at $\Delta e{>}0.15$.}
+  \label{fig:pht_scenarios}
+\end{figure*}
+
+\begin{remark}[Exponent revision]\label{rem:exponent}
+  The instrumented experiments yield $\hat\alpha_{\mathrm{ARF}} \approx 0.98$ and $\hat\alpha_{\mathrm{HAT}} \approx 1.02$, both consistent with $\mathcal{O}(1/\Delta e)$ rather than the Hoeffding bound $\mathcal{O}((\Delta e)^{-2})$.
+  This discrepancy arises because the Hoeffding bound governs sub-window splitting, while real tree-swap dynamics involve warning phases, background-tree pre-training, and Poisson-weighted bootstrap---mechanisms that accelerate adaptation beyond the concentration inequality.
+  The blind spot condition $\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}$ remains valid: the Hydra Effect reduces $K_{\mathrm{ARF}}$ by $4$--$8\times$ relative to a single tree, compensating for the shared exponent.
+\end{remark}
+
+\begin{remark}[Background swap rate]\label{rem:bgswap}
+  At very low drift magnitudes ($\Delta e < 0.10$), $\tau_{\mathrm{ARF}}$ exhibits non-monotonic behavior: the ARF occasionally swaps trees even under stationarity due to the high sensitivity of ADWIN at $c = 1$.
+  These ``noise swaps'' produce artifactually short $\tau_{\mathrm{ARF}}$ values and, paradoxically, provide \emph{additional} evidence that the ARF's continuous self-cleaning erases drift signals.
+\end{remark}
+
+\begin{remark}[False-alarm flooding: the non-stationary dual of starvation]\label{rem:flooding}
+  Starvation and flooding are two faces of one root cause---the hyper-reactive internal ADWIN at $c_{\mathrm{int}}{=}1$. A \emph{large, abrupt} change is absorbed one-shot before the external CUSUM accumulates (starvation, recall $\to 0$; Prop.~\ref{prop:starvation}). Under a \emph{weak per-step} signal (low SNR or a gradual onset, even at large aggregate $\Delta e$) it instead swaps continuously on noise (Remark~\ref{rem:bgswap}), injecting spurious post-reset transients read as alarms (precision $\to 0$): on \emph{gradual\_balanced} the $c_{\mathrm{int}}{=}1$ clock inflates the external alarm count to $86$ for a single true drift, against $7$ for the HT baseline (Section~\ref{sec:crossover}). Both deform the error stream---tracking a \emph{genuine} change (starvation) or a \emph{phantom} one (flooding). Crucially, flooding is parametrically controllable (raising $\lambda$ suppresses it), whereas starvation is structural: no CUSUM threshold escapes it (Section~\ref{sec:starvation_boundary}).
+\end{remark}
+
+\subsection{Theoretical Bounds: The Starvation Boundary}\label{sec:starvation_boundary}
+
+The Hydra Effect (Section~\ref{sec:hydra}) and the Starvation Effect (Section~\ref{sec:starvation}) combine to define a \emph{structural} boundary---in expectation---on the viability of external monitoring.
+We derive an upper bound on the probability of missed detection and a critical ensemble size $M_{\mathrm{crit}}$ beyond which external detection fails with probability exceeding $1 - \beta$.
+
+\paragraph{Correlation disclaimer.}
+The $M$ trees in the ARF are trained on the \emph{same} data stream via Poisson-weighted bootstrap (Oza bagging with $\lambda = 6$~\cite{gomes_arf_2017}).
+Consequently, the individual detection delays $\tau_1, \ldots, \tau_M$ are \emph{positively correlated}: a drift that is easy for tree $i$ to detect is also easy for tree $j$.
+The independence assumption $\tau_i \perp\!\!\!\perp \tau_j$ used below is therefore a simplification.
+Under conditional independence, $\tau_{\mathrm{ARF}} = \min_i \tau_i$ is stochastically \emph{smaller} than under the true positive correlation; Eq.~\eqref{eq:pmiss} therefore \emph{overestimates} $P_{\mathrm{miss}}$ and serves as an analytical \emph{upper bound} on blind-spot severity. Our claims accordingly rest on the directly measured adaptation time $\tau_{\mathrm{ARF}}$ (Section~\ref{sec:hydra}, a $4$--$8\times$ acceleration that already embeds inter-tree correlation), not on this approximation.
+
+\begin{proposition}[Starvation Boundary]\label{prop:starvation_boundary}
+  Let $\tau_1, \ldots, \tau_M$ denote the internal detection delays of the $M$ trees in the ARF, and let $F$ denote the marginal CDF of a single $\tau_i$ (empirically estimated from the HAT configuration, $M = 1$).
+  Let $\tau_{\mathrm{det}}^* := \lambda / (\Delta e - \delta_P)$ denote the nominal CUSUM accumulation time.
+  Under conditional independence of the $\tau_i$, the probability of missed detection satisfies:
+  \begin{equation}\label{eq:pmiss}
+    P_{\mathrm{miss}} = \mathbb{P}\!\left(\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}^*\right) = 1 - \bigl[1 - F(\tau_{\mathrm{det}}^*)\bigr]^M\,.
+  \end{equation}
+\end{proposition}
+
+\begin{proof}
+  By Eq.~\eqref{eq:hydra}, $\tau_{\mathrm{ARF}} = \min_{1 \le i \le M} \tau_i$.
+  Proposition~\ref{prop:starvation} gives a sufficient condition under which the external CUSUM misses the drift; evaluated at the mean accumulation rate, it is met whenever $\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}^*$, which is the regime this proposition quantifies.
+  Under conditional independence:
+  \[
+    \mathbb{P}\!\left(\tau_{\mathrm{ARF}} \ge \tau_{\mathrm{det}}^*\right) = \prod_{i=1}^{M} \mathbb{P}\!\left(\tau_i \ge \tau_{\mathrm{det}}^*\right) = \bigl[1 - F(\tau_{\mathrm{det}}^*)\bigr]^M\,,
+  \]
+  and Eq.~\eqref{eq:pmiss} follows by complementation.
+\end{proof}
+
+\begin{corollary}[Critical Ensemble Size]\label{cor:mcrit}
+  For a target detection guarantee $P_{\mathrm{miss}} \le 1 - \beta$, the ensemble size must not exceed:
+  \begin{equation}\label{eq:mcrit}
+    M_{\mathrm{crit}} = \left\lfloor \frac{\ln \beta}{\ln\!\bigl[1 - F(\tau_{\mathrm{det}}^*)\bigr]} \right\rfloor\,.
+  \end{equation}
+  For $M > M_{\mathrm{crit}}$ this (conservative) certificate no longer holds, and reliability must be settled empirically rather than inferred from the bound.
+\end{corollary}
+
+\paragraph{Numerical example (distribution-free).}
+Corollary~\ref{cor:mcrit} requires the scalar $F(\tau_{\mathrm{det}}^*)$. A Kolmogorov--Smirnov test ($N{=}2000$ bootstrap) rejects an exponential fit of the single-tree delays $\tau_{\mathrm{HAT}}$ at every tested magnitude ($p<0.05$), so we evaluate $M_{\mathrm{crit}}$ directly from the empirical CDF $\widehat{F}$ of $\tau_{\mathrm{HAT}}$.
+At $\Delta e = 0.33$ ($\lambda=50$), instrumentation yields $\mathbb{E}[\tau_{\mathrm{HAT}}] = 463$, $\tau_{\mathrm{det}}^* = 155$, and $\widehat{F}(\tau_{\mathrm{det}}^*) = 0.49$, so the (conservative) independence bound~\eqref{eq:mcrit} yields $M_{\mathrm{crit}} = 0$ at the reliability target $\beta = 0.95$---it cannot certify reliable detection even for a single tree, a verdict that persists across the operative grid ($\Delta e \ge 0.24$).
+River's default ($M=10$) therefore starves the external CUSUM, as confirmed directly by the measured ${<}1\%$ detection rate in Figure~\ref{fig:pht_scenarios}(A).
+
+\subsection{The Decoupling Principle}\label{sec:decoupling}
+
+\begin{definition}[Decoupling Principle]\label{def:decoupling}
+
+  \smallskip
+  \emph{(i)~Formal condition.} A monitoring pipeline satisfies the \textbf{Decoupling Principle} if and only if the external monitor is configured to be \emph{strictly more reactive} than the classifier's internal adaptation:
+  \begin{equation}\label{eq:decoupling}
+    c_{\mathrm{ext}} < c_{\mathrm{int}} \quad \text{and} \quad \lambda < \lambda^*(\Delta e_{\min})\,,
+  \end{equation}
+  where $\lambda^*(\Delta e_{\min})$ is the critical threshold at which $\tau_{\mathrm{det}} = \tau_{\mathrm{ARF}}$ for the smallest expected drift $\Delta e_{\min}$.
+
+  \smallskip
+  \emph{(ii)~Operational calibration.} Condition~\eqref{eq:decoupling} is existential and circular as stated. The following procedure renders it constructive over an operational envelope $[\Delta e_{\min}, \Delta e_{\max}]$ of drift magnitudes to be guaranteed at reliability $1-\alpha$:
+
+  \textbf{(1)}~Fix the operational envelope $[\Delta e_{\min}, \Delta e_{\max}]$. \textbf{(2)}~For each $\Delta e$ on a grid spanning the envelope, inject a synthetic abrupt drift into the ARF during offline calibration and record the empirical distribution of internal adaptation times $\tau_{\mathrm{ARF}}(\Delta e)$. \textbf{(3)}~Extract the empirical $\alpha$-quantile $q_{\alpha}(\tau_{\mathrm{ARF}}(\Delta e))$ at each grid point. \textbf{(4)}~Set $\lambda_{\mathrm{op}} := \min_{\Delta e}\,\{\, q_{\alpha}(\tau_{\mathrm{ARF}}(\Delta e))\cdot(\Delta e - \delta_P) \,\}$, with $\delta_P$ the detector drift-tolerance.
+
+  The minimum over the envelope (rather than evaluation at $\Delta e_{\min}$ alone) is mandatory because $q_{\alpha}(\tau_{\mathrm{ARF}})$ is \emph{non-monotone} in $\Delta e$: a fine-magnitude sweep ($\Delta e \in [0.10,0.50]$, $200$ seeds, $\alpha = 0.05$) shows $q_{0.05}$ to be magnitude-\emph{independent} (constant at $\approx 13$) for $\Delta e \le 0.16$---the signature of noise-driven swaps (Remark~\ref{rem:bgswap}) rather than genuine adaptation, whose time $\tau_{\mathrm{ARF}}$ must decrease with signal strength. The envelope must therefore be floored above this noise-dominated band; for $[\Delta e_{\min}, \Delta e_{\max}] = [0.20, 0.50]$ the sweep yields $\lambda_{\mathrm{op}} \approx 4.2$ at the contaminated lower edge, while $\lambda_{\mathrm{op}}$ never exceeds $12.4$ at any magnitude in the envelope. The procedure requires only offline simulation of the target drift, bypassing analytical estimation of $K_{\mathrm{ARF}}$ and $F$.
+\end{definition}
+
+Default River configurations use $c_{\mathrm{int}} = 1$ and $c_{\mathrm{ext}} = 32$, violating Definition~\ref{def:decoupling} and producing the worst-case clock-mismatch artefact (Section~\ref{sec:hardware}).
+
+For cumulative-evidence monitors, the most architecturally robust alternative is to deploy a \textbf{non-adaptive classifier} (e.g., Hoeffding Tree). Since the HT has no internal drift mechanism, \textbf{no race condition is involved} and the Decoupling Principle is satisfied by construction.
+
+% ══════════════════════════════════════════════════════════════════
+\section{Empirical Validation}\label{sec:experiments}
+% ══════════════════════════════════════════════════════════════════
+
+We validate the paradox across two complementary regimes bracketing its operating range: a controlled one (instrumented Bernoulli, Section~\ref{sec:bernoulli_validation}; $\Delta e \in [0.02, 0.50]$) and a realistic financial one (ProteuS, Section~\ref{sec:proteus}; strong structural $\Delta e$). A pipeline-correctness check on standard benchmarks (Section~\ref{sec:crossover}) and their masking effect (Section~\ref{sec:limitations}) complete the picture. All experiments ran on an AMD EPYC 8224P (24 cores, 48 threads) with 192\,GB RAM in ${\approx}5$\,h total. The code to reproduce all experiments is available anonymously at: \url{https://github.com/TheBlindSpot-ICDM2026/The-Blind-Spot-Paradox-Experiments}.
+
+\subsection{Regime 1: Instrumented Bernoulli Race Validation}\label{sec:bernoulli_validation}
+
+The instrumented experiments of Sections~\ref{sec:hardware}--\ref{sec:complexity} (Figure~\ref{fig:pht_scenarios}) constitute the principal empirical validation of the blind spot paradox under controlled error-jump magnitudes. Each panel reports $100$ seeds $\times$ $20$ drift magnitudes $= 2{,}000$ runs, with the theoretical $\Delta e \in [0.02, 0.50]$ derived from the Gaussian boundary shift $\Delta e = \Phi(b/\sqrt{2}) - 0.5$ (Section~\ref{sec:race}).
+
+The ablations jointly establish: (i) the Hydra Effect quantitatively ($K_{\mathrm{HAT}}/K_{\mathrm{ARF}} \approx 5.5$), (ii) the Starvation Effect at high CUSUM thresholds ($\lambda = 50$, F1 $< 0.05$), and (iii) the Decoupling Principle in safe-zone configurations. The adaptation-time fits $\tau_{\mathrm{ARF}} \approx 18.5(\Delta e)^{-0.98}$ and $\tau_{\mathrm{HAT}} \approx 102(\Delta e)^{-1.02}$ provide direct empirical support for the Starvation Boundary derivation (Section~\ref{sec:starvation_boundary}).
+
+\subsection{Regime 2: Heteroscedastic ARMA-GARCH Streams}\label{sec:proteus}
+
+\paragraph{Experimental setup.}
+All experiments use the ProteuS financial generator~\cite{suarez_cetrulo_proteus_2025}, which simulates GARCH(1,1) streams with regime-switching drift between four reference ETFs (SPY, PFF, VNQ, BWX).
+We simulate 12 macro-transitions with drift widths $w \in \{100, 500, 1000\}$, using logistic interpolation of all parameters.
+Each stream has $n = 8000$ time steps with drift onset $\tau^* = 4000$.
+Three GARCH regimes are tested: IID (autocorrelation parameter $\alpha + \beta = 0$), Cal.~A ($\alpha + \beta \approx 0.95$), Cal.~B ($\alpha + \beta \approx 0.99$), with Student-$t_7$ innovations.
+
+Each (transition, detector, regime) combination is evaluated over \textbf{30 independent random seeds}, yielding 360 unique streams per table cell.
+The classification task uses log-return $r_t$ and 20-period rolling volatility as features to predict the binary regime label.
+Detection is evaluated using a tolerance window protocol ($\tau = \max(1000, w)$, first-match unilateral matching).
+
+\paragraph{Results.}
+Table~\ref{tab:results_concept} compiles the multi-seed Concept Drift results---now merged with the static-RF resolution rows (Section~\ref{sec:solution_rf})---across 14 pipeline configurations generated by a single aligned method (360 runs per cell: 12 transitions $\times$ 30 seeds; identical streams, seeds and ARF configuration).
+
+\input{tables/table1_proteus_summary.tex}
+
+\textbf{PHT + ARF: Complete detection failure at $c{=}1$.}
+Under continuous evaluation ($c{=}1$), the PHT fails completely when paired with an ARF ($\mathrm{ADD}{=}\infty$, F1${=}0.00$ across \emph{all} regimes).
+Strikingly, enforcing $c{=}32$ artificially throttles the ARF's internal speed, moving the system into the safe zone and allowing the PHT to detect drift (ADD ${\approx}19{\pm}1$, F1 ${\approx}0.56$--$0.68$).
+
+\textbf{ADWIN + ARF: windowed immunity, not a clock artefact.}
+At $c = 1$, ADWIN + ARF yields $\mathrm{ADD} = 9$ steps with near-perfect F1; at $c = 32$ the delay locks onto $\mathrm{ADD} = 31$ steps (worst-case phase alignment, Eq.~\eqref{eq:clock}) with \emph{zero} variance across all 360 runs.
+Unlike a cumulative-evidence monitor, ADWIN tests the mean error of a reference sub-window $\hat{\mu}_{W_0}$ against a recent sub-window $\hat{\mu}_{W_1}$ rather than accumulating evidence continuously~\cite{bifet_adwin_2007}.
+Since $W_0$ \emph{retains} the transient post-drift error peak, ADWIN remains immune to starvation as long as $W_0$ spans that transient---providing the persistence the PHT lacks.
+We nonetheless retain KSWIN as the principal detector-side resolution (Section~\ref{sec:discussion}): ADWIN at $c = 1$ pairs two equal-clock instances ($c_{\mathrm{ext}} = c_{\mathrm{int}}$, violating Definition~\ref{def:decoupling}) and survives only because it is a windowed rather than cumulative monitor (Remark~\ref{rem:agnostic}), at a clock-dependent delay ($\mathrm{ADD}: 9 \to 31$, Eq.~\eqref{eq:clock}). KSWIN, conversely, is a taxonomically pure, clock-insensitive distributional test ($\mathrm{ADD} = 14\,[0]$).
+
+\textbf{PHT + HT and ADWIN + HT: The safe configurations.}
+When paired with a non-adaptive Hoeffding Tree, both detectors avoid the blind spot entirely: PHT + HT yields consistent detection (F1 $\ge 0.75$, ADD $\approx 23 \pm 3$), and ADWIN + HT similarly (F1 $\ge 0.80$, ADD $\approx 13$--$18$).
+These results validate the Decoupling Principle.
+
+\textbf{EDDM confirms family-agnostic starvation.}
+Replacing PHT with EDDM---an SPC chart on inter-error distances, hence a \emph{different} detector sub-family---replicates the collapse at $c_{\mathrm{int}} = 1$: F1 $\to 0.00$ (complete separation, Table~\ref{tab:results_concept} caption). A CUSUM test (PHT) and an SPC chart (EDDM) collapsing independently show the Starvation Effect spans the cumulative-evidence family, as Proposition~\ref{prop:starvation} predicts for any persistence-dependent monitor.\footnote{We report EDDM rather than DDM: under River's default thresholds DDM degenerates into continuous false-alarm flooding on these streams (recall~$1$ on \emph{both} ARF and HT), which is the precision-collapse dual of starvation (Remark~\ref{rem:flooding}) rather than a clean recall test.}
+
+\textbf{Robustness across heteroscedastic regimes.}
+The blind spot signature (F1${=}0$ for PHT$+$ARF$|c{=}1$) is invariant across IID, Cal.~A, and Cal.~B, demonstrating that the phenomenon is architectural rather than dependent on input volatility-clustering structure.
+Concurrently, the PHT$+$HT and ADWIN$+$HT configurations exhibit notably stable Concept-Drift ADD across regimes ($23 \pm 3$ on IID vs.\ $23 \pm 3$ on Cal.~B for PHT$+$HT) despite the input streams' GARCH structure.
+All significance is assessed at the seed level (the unit of statistical independence) to avoid pseudo-replication~\cite{demsar_statistical_2006}; the complete separations and sign tests are centralised in the Table~\ref{tab:results_concept} caption.
+
+\textbf{SRP+PHT confirms the Hydra-driven generalization.}
+When testing the Streaming Random Patches (SRP)~\cite{gomes_srp_2019} ensemble paired with a PHT, we observe the exact same phenomenon: F1${=}0.00$ at $c_{\mathrm{int}}=1$ ($0/1080$ runs detected vs.\ $932/1080$ for PHT$+$HT; complete separation across all 30 seeds). This definitively confirms Corollary~\ref{cor:mcrit}: any bagging-based ensemble satisfying an adaptation time $\tau_{\mathrm{ARF}} = \mathcal{O}((\Delta e)^{-\alpha})$ with $\alpha \approx 1$ will structurally starve a cumulative-evidence external monitor.
+
+\textbf{KSWIN+ARF: A detector-side architectural resolution.}
+Conversely, pairing the ARF ($c_{\mathrm{int}}=1$) with an external KSWIN monitor~\cite{raab_kswin_2020} completely resolves the paradox (F1${=}1.00$, ADD${=}14$ [0]; $1080/1080$ runs detected vs.\ $0/1080$ for PHT$+$ARF, complete separation across all 30 seeds). KSWIN evaluates a \emph{distributional divergence} (Kolmogorov-Smirnov distance) between sliding windows rather than accumulating continuous binary evidence, rendering it structurally immune to transient signal erasure. The measured ADD${=}14$ stems entirely from the smoothing window's structural lag ($W/2=15$), yielding a lag-corrected true delay of $[0]$. Crucially, this resolution is hyper-parameter robust: an $\alpha$-sensitivity sweep ($\alpha \in [0.001, 0.05]$) maintains F1${=}1.00$ uniformly across all GARCH regimes without false-alarm flooding.
+
+\subsection{Bridging the Gap: The Regime Crossover}\label{sec:crossover}
+
+To reconcile our findings with the literature---which historically evaluates detectors on pre-generated bitstreams~\cite{goncalves_2014} or optimizes classifiers solely for prequential accuracy~\cite{gomes_arf_2017}---we conduct a continuous regime crossover experiment.
+Standard synthetic benchmarks (SEA, Hyperplane) operate at low effective error jumps ($\Delta e \lesssim 0.15$), masking the interaction dynamics. We reconstruct a continuous evaluation space via a controlled Gaussian boundary shift ($x_0, x_1 \sim \mathcal{N}(0,1)$), sweeping $\Delta e \in[0.02, 0.50]$ over 100 independent streams of 8,000 steps. An abrupt drift is injected at $t{=}4000$. The external PHT (standard threshold $\lambda=25$\footnote{The three PHT calibrations reflect distinct constraints: $\lambda \in \{8, 25, 50\}$ (Section~\ref{sec:complexity}) probes the threshold-sensitivity of starvation; $\lambda = 25$ here is the median of that range, a neutral operating point for the literature crossover; $\lambda = 15$ (Section~\ref{sec:proteus}) is calibrated against ProteuS pre-drift volatility to allow at most one false alarm per warm-up window. The signature manifests under all three.}) observes the binary error stream of both a baseline Hoeffding Tree (both pipelines monitored from the stream start; the monitor is re-armed after each alarm and pre-drift alarms are scored as false positives) and an ARF ($c_{\mathrm{int}}=1$). Detections use a strict $1000$-step post-drift tolerance.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.90\textwidth]{Fig_R3_Regime_Crossover.png}
+  \caption{The Regime Crossover and Architectural Resolution ($100$ streams/point, bands $=\pm 1$ SEM). \textbf{Left (Weak Signal):} models fail to trigger CUSUM. \textbf{Middle (Safe Zone, $\Delta e{\approx}0.15$):} ARF outperforms HT (literature consensus). \textbf{Right (Blind Spot, $\Delta e{\ge}0.25$):} ARF's hyper-reactive recovery starves the PHT ($100\%$ missed). A Non-Adaptive RF (yellow) inherits ARF's variance reduction (left) while keeping HT's persistent error signal (right), eradicating starvation (center).}
+  \label{fig:crossover_and_solution}
+\end{figure*}
+
+As demonstrated in Figure~\ref{fig:crossover_and_solution}, deconstructing the metrics provides the physical mechanism behind the paradox and bridges our discovery with the literature consensus.
+
+\textbf{1. The Weak Signal Zone ($\Delta e < 0.09$):} Models fail to accumulate sufficient signal within tolerance. The HT exhibits an artifactual $80\%$ miss rate due to \emph{stochastic resonance}: its high variance generates random error bursts breaching the CUSUM threshold ($\lambda=25$). The ARF (red curve) suppresses this noise via Bagging variance reduction, avoiding early alarms.
+
+\textbf{2. The Safe Zone ($\Delta e \in[0.09, 0.25]$):} In the magnitude zone typical of classic benchmarks, the ARF leverages \emph{background trees} to act as a powerful stochastic filter, perfectly stabilizing the CUSUM trajectory and halving pre-drift False Alarms compared to the HT (Fig.~\ref{fig:crossover_and_solution}, left).
+
+\textbf{3. The Blind Spot Regime ($\Delta e \ge 0.25$):} The \emph{Hydra Effect} hyper-accelerates ARF's post-drift recovery (Fig.~\ref{fig:crossover_and_solution}, right), triggering the \emph{Starvation Effect} (Fig.~\ref{fig:crossover_and_solution}, center): the transient error signal is purged before external CUSUM accumulation. The monitor is starved, driving Missed Detections to 100\% or producing delayed Zombie Alarms.
+
+\noindent\textbf{On the absence of a closed-form crossover prediction.}
+Classical first-passage bounds for transient CUSUM~\cite{tartakovsky_2023_transient,tartakovsky_2014} (Markov, Doob reflection, Siegmund ARL) predict a roughly \emph{uniform} missed-detection probability across $\Delta e \in [0.05, 0.50]$ under the canonical model ($\lambda{=}25$, $\delta_P{=}0.005$, $K_{\mathrm{ARF}}{\approx}18.5$, $\hat\alpha{\approx}0.98$), in contrast with the sharp transition of Fig.~\ref{fig:crossover_and_solution}. The empirical boundary thus does not reduce to canonical theory: it emerges from the joint dynamics of River's adaptive mean-tracking PHT~\cite{montiel_river_2021} (distinct from the fixed-$p_0$ model of Eq.~\eqref{eq:cusum}), the bimodal $\tau_{\mathrm{ARF}}$ in the Safe Zone, and noise swaps (Remark~\ref{rem:bgswap}). A derivation of $\Delta e_{\mathrm{crit}}$ jointly modelling these is left to future work.
+
+The Blind Spot Paradox is thus not a contradiction of the literature, but its asymptotic extension.
+
+\textbf{Validation on real-world data streams.}
+To validate the regime crossover boundary beyond synthetic distributions, we evaluated the paradox on six real-world streams: the Bank Account Fraud (BAF) tabular benchmark~\cite{jesus_baf_2022} in its three temporal-split variants (Base, Variant I, Variant II), and three variants of the INSECTS benchmark~\cite{souza_insects_2020} (\emph{abrupt\_balanced}, \emph{gradual\_balanced}, \emph{incremental\_reoccurring\_balanced}). We compute F1 over 30 random seeds per variant, evaluating true detections via a bipartite Hopcroft-Karp matching protocol~\cite{hopcroft_karp_1973}. The effective error jump $\Delta e$ is estimated drift-by-drift via an adaptive window protocol $w_k = \min(5000, \min(\Delta t_{\mathrm{left}}, \Delta t_{\mathrm{right}})/3)$ to avoid the overlapping-window artefact that fixed-window estimators produce on closely-spaced engineered drifts.
+
+\textbf{Empirical frontier calibration.}
+The six streams populate the regime-crossover boundary of Section~\ref{sec:crossover} continuously (Table~\ref{tab:real_data_summary}); all INSECTS positions follow Souza et al.~\cite{souza_insects_2020}, Table~2. The three BAF variants sit at $\Delta e \approx 0$ (Weak Signal zone), where the blind spot is dormant and the HT/ARF F1 ratio is indistinguishable from unity. INSECTS \emph{abrupt\_balanced} ($\Delta e \approx 0.07$) is a \emph{weak witness}: its five canonical jumps are heterogeneous and partly negative ($\Delta e \in \{0.68, -0.15, 0.24, -0.27, -0.13\}$) and both detectors fire near their false-alarm rate, so its marginal ARF advantage is not mechanistically attributable. The effect appears on the two high-magnitude variants, and through \emph{false-alarm flooding}, not starvation. On \emph{gradual\_balanced} ($\Delta e \approx 0.45$, single transition) PHT+HT detects genuinely ($7$ alarms, precision $0.14$, F1 $0.25$) whereas PHT+ARF($c{=}1$) sprays $86$ alarms (precision $0.012$, F1 $0.02$)---a $10.57\times$ F1 gap (sign test $p \approx 2 \times 10^{-9}$) driven entirely by precision; \emph{incremental\_reoccurring\_balanced} ($\Delta e \approx 0.39$) confirms the same mode more moderately ($1.61\times$, $p \approx 2 \times 10^{-9}$). We state this plainly: the predicted \emph{starvation} (recall $\to 0$) is observed only on the synthetic stationary streams (Bernoulli, ProteuS), while the real non-stationary streams exhibit its dual, \emph{flooding} (precision $\to 0$; Remark~\ref{rem:flooding}).\footnote{Two further INSECTS variants are excluded: \emph{incremental\_balanced} has no discrete drift positions (change throughout the stream~\cite{souza_insects_2020}), precluding tolerance matching; \emph{incremental\_abrupt\_balanced} has a negative aggregate $\Delta e$ ($-0.094$), an easier-task transition rather than a difficulty onset.}
+
+\input{tables/table2_real_data_summary.tex}
+
+\subsection{A Constructive Solution: The Non-Adaptive Ensemble}\label{sec:solution_rf}
+
+The rigorous evaluation in Section~\ref{sec:crossover} reveals that the root cause of the Starvation Effect is not the ensemble itself (Bagging), but its auto-adaptive mechanics (tree-swapping). This implies that a \emph{Non-Adaptive Random Forest} (RF)---a static Bagging of Hoeffding Trees operating without internal ADWINs---is the architecture that dissolves the starvation regime wherever a cumulative-evidence monitor would otherwise erase the transient.
+
+As demonstrated by the yellow curves in Figure~\ref{fig:crossover_and_solution}, deploying an RF fully resolves the paradox by decoupling variance reduction from adaptation. In the pre-drift phase (Fig.~\ref{fig:crossover_and_solution}, left), the RF provides the identical noise-filtering capability as the ARF, significantly reducing false alarms compared to the unstable HT baseline. In the post-drift phase (Fig.~\ref{fig:crossover_and_solution}, right), the RF's accuracy degrades in parallel with the HT, ensuring that the error signal remains persistent rather than transient. Consequently, the external PHT operates exactly as mathematically intended, completely eradicating the Starvation Effect and maintaining a flawless $0\%$ missed detection rate even under massive structural shifts ($\Delta e = 0.50$, Fig.~\ref{fig:crossover_and_solution}, center).
+
+To validate this architectural resolution under extreme realistic conditions, we evaluated both PHT and ADWIN monitors coupled with the static RF against the heteroscedastic ProteuS streams of Section~\ref{sec:proteus}; these rows now occupy the final block of Table~\ref{tab:results_concept}, generated under the same aligned method as the baselines. The empirical result is definitive \emph{for cumulative-evidence monitors}: while the default PHT + ARF systematically fails to detect any drift (F1 = 0.00) due to starvation, substituting the ARF with a static RF restores the pipeline. The PHT + RF achieves robust F1-scores from $0.73 \pm 0.05$ (IID Baseline) to $0.96 \pm 0.02$ (Cal. B)---the headline $0\%$ missed-detection figure above is a \emph{recall} statement, while this F1 ceiling is precision-limited by tolerance-window matching, not by any missed drift. A seed-level sign test confirms complete separation against the starved PHT + ARF ($913/1080$ vs $0/1080$ runs detected, all $30$ seeds favouring the RF, $p \approx 2 \times 10^{-9}$). The fix is therefore \emph{specific to the starvation regime}, not universal: for the windowed ADWIN monitor---already starvation-immune at $c = 1$ (Section~\ref{sec:crossover})---the adaptive ARF detects marginally \emph{more} than the static RF ($1063/1080$ vs $959/1080$; all $30$ seeds favouring the ARF, $p \approx 2 \times 10^{-9}$). The RF is thus the resolution where a cumulative monitor would otherwise starve, not a universal replacement for adaptation.
+
+Furthermore, the Non-Adaptive RF keeps a stable Average Detection Delay across all GARCH regimes ($\mathrm{ADD} \approx 19$--$20$ for PHT, $\approx 12$--$14$ for ADWIN), confirming that static ensembles yield an uncontaminated error stream insensitive to the input heteroscedasticity.
+
+This monitoring fidelity comes at a measurable predictive cost: as visible in Fig.~\ref{fig:crossover_and_solution} (right), the static RF's post-drift accuracy decays alongside HT and falls below ARF by up to $\sim 24$ percentage points at $\Delta e = 0.50$ (RF $\approx 0.745$ vs ARF $\approx 0.985$). The trade-off is therefore architectural rather than incidental: practitioners must size the ensemble for monitoring fidelity rather than predictive optimality. We treat this as a deliberate design choice and discuss extensions coupling static ensembles with dynamic CUSUM thresholds in Section~\ref{sec:limitations}.
+
+% ══════════════════════════════════════════════════════════════════
+\section{Discussion}\label{sec:discussion}
+% ══════════════════════════════════════════════════════════════════
+
+\subsection{Practical Implications}
+Default configurations (e.g., River's ARF at $c_{\mathrm{int}} = 1$) mask strong drifts from a cumulative monitor. Reliable monitoring requires either a non-adaptive classifier, or an external clock faster than the internal one ($c_{\mathrm{ext}} < c_{\mathrm{int}}$).
+
+\textbf{The Fundamental Tension.} On heteroscedastic streams, guaranteeing reliable detection caps the CUSUM threshold ($\lambda_{\mathrm{op}} \le 12.4$), whereas controlling GARCH-induced false alarms requires $\lambda \ge 15$. This empty admissible set ($\{\lambda \le 12.4\} \cap \{\lambda \ge 15\}$) forces a choice among three architectural fixes:
+\textbf{(S1) Detector-side:} Window-divergence monitors (e.g., KSWIN) do not accumulate evidence and are far less sensitive to a short transient; on the settings we test they restore detection at no predictive cost.
+\textbf{(S2) Classifier-side:} A Static Random Forest ($\tau_{\mathrm{ARF}} = \infty$) removes the CUSUM tension at a ${\sim}24\%$ post-drift accuracy cost, isolating internal adaptation as the driver.
+\textbf{(S3) Macro-architecture:} A two-tier protocol in which the external monitor commands the ensemble swap keeps S1's monitoring fidelity together with S2's long-term recovery.
+
+\subsection{Limitations and Future Work}\label{sec:limitations}
+\textbf{Limitations.} First, tracking internal swaps aggregates true detections with continuous background noise, preventing isolated ARL$_0$ comparisons. Second, evaluating adaptive pipelines on the canonical (ARL$_0$, ADD) plane confounds noise filtering with detection survival; resolving against the control threshold $\lambda$ is required to isolate the collapse. Third, the starvation boundary derivation assumes conditional independence among trees; shared training data induces positive correlation, explaining why empirical acceleration ($4$--$8\times$) falls short of the $M$-fold reference rate ($10\times$ for $M{=}10$). Finally, the phenomenon is regime-dependent: standard benchmarks (SEA, Hyperplane) operate at low magnitudes ($\Delta e \lesssim 0.15$), masking the starvation condition and shielding standard pipelines from the blind spot.
+
+\textbf{Future Work.} Three directions emerge. \emph{First}, evaluating other adaptive ensembles (Streaming Random Patches, Leveraging Bagging~\cite{bifet_leveraging_2010}) to map the universality of the race condition. \emph{Second}, formalizing the externalized two-tier architecture (S3) or exploring windowed-detector pairings (e.g., ADWIN+ARF) that retain the ensemble's variance-reduction benefits without starvation. \emph{Third}, developing a closed-form derivation of the transition threshold ($\lambda^* \approx 15$--$25$) from the joint $\tau_{\mathrm{ARF}}$/CUSUM dynamics.
+
+% ══════════════════════════════════════════════════════════════════
+\section{Conclusion}\label{sec:conclusion}
+% ══════════════════════════════════════════════════════════════════
+
+We formalized the \textbf{blind spot paradox}: adaptive classifiers systematically defeat external \emph{cumulative-evidence} drift detectors by absorbing distributional changes before the accumulator reaches its alarm threshold. We traced it to one root cause---internal ADWIN hyper-reactivity---whose stationary \emph{Starvation Effect} is amplified by the ensemble-level \emph{Hydra Effect}; we derived the critical size $M_{\mathrm{crit}}$ beyond which cumulative monitors structurally fail. Windowed and distributional monitors are spared by construction.
+
+To restore reliability, we introduced the \textbf{Decoupling Principle}: external monitors must be strictly more reactive than internal classifiers. Our empirical validation exposes a Fundamental Tension on heteroscedastic streams, where reliable decoupling and false-alarm control are mutually exclusive under CUSUM architectures. Consequently, the principal operational resolution is detector-side: substituting cumulative-evidence monitors with distribution-based tests like KSWIN escapes the starvation regime entirely, restoring perfect detection without sacrificing the adaptive ensemble's predictive power.
+
+% ──────────────────────────────────────────────────────────────────
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,articleA_biblio_v64}
+
+\end{document}
