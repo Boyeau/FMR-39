@@ -17,3 +17,5 @@ Groupe : Alexandre Boyer, Melaine Gouillou, Salomé Fonvielle, Ulysse Petit-Tich
 ## Environnement (pipeline `03_repo_officiel_...`)
 
 Python 3.12 requis. `river==0.23.0` n'a pas de wheel précompilé pour macOS x86_64/Python 3.12 : `pip install -r requirements.txt` compile depuis les sources et nécessite un compilateur Rust (`brew install rust` si absent). Voir `03_repo_officiel_TheBlindSpotParadox-ICDM2026/MODIFICATIONS_GROUPE.md` pour les écarts constatés par rapport au dépôt officiel (ex. `typing_extensions` manquant dans leur `requirements.txt`).
+
+Le venv local (`blindspot_env/`) n'est **pas déplaçable** : il contient des chemins absolus vers son dossier de création. Si vous déplacez/renommez le dossier du projet (comme lors de la réorganisation en dossiers numérotés), il faut recréer le venv (`rm -rf blindspot_env && python3.12 -m venv blindspot_env && pip install -r requirements.txt`) plutôt que de tenter de le réutiliser — sinon `source .../activate` échoue silencieusement (il retombe sur le Python système au lieu de river).
