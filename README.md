@@ -2,7 +2,7 @@
 
 Filière Métiers de la Recherche, sujet 39, encadrant Raphaël Minato.
 
-Groupe : Alexandre Boyer, Mélaine Gouillou, Salomé Fonvielle, Ulysse Petit-Tichanné.
+Groupe : Alexandre Boyer, Melaine Gouillou, Salomé Fonvielle, Ulysse Petit-Tichanné.
 
 ## Contenu du dépôt
 
