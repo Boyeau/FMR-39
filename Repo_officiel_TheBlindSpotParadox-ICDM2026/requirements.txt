@@ -1,6 +1,10 @@
 # Streaming ML framework (Pinned to exact version from Section 3 of the paper)
 river==0.23.0
 
+# Missing from the original requirements.txt: river's base module imports this
+# directly, install fails at runtime without it (added by our group, 2026-09-04)
+typing_extensions==4.16.0
+
 # Core Data Science stack (Pinned to exact environment for bit-wise reproducibility)
 numpy==1.26.4
 pandas==2.3.2

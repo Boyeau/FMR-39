@@ -9,3 +9,6 @@ __pycache__/
 *.gz
 # Mistral Vibe local session & config
 .vibe/
+
+# Group's local Python virtual environment (not portable, ~500MB)
+blindspot_env/
