@@ -89,7 +89,7 @@ def delta_e(boundary_shift):
     return float(norm.cdf(boundary_shift / np.sqrt(2)) - 0.5)
 
 
-def run_one(boundary_shift, seed, baseline_window):
+def run_one(boundary_shift, seed, baseline_window, n_models=N_MODELS):
     """Une execution. Renvoie (meta, trajectoire d'erreur, evenements de remplacement)."""
     safe_seed = int(seed % (2 ** 31 - 1))
     random.seed(safe_seed)
@@ -97,7 +97,7 @@ def run_one(boundary_shift, seed, baseline_window):
     rng = np.random.default_rng(safe_seed)
 
     arf = ARFClassifier(
-        n_models=N_MODELS, seed=safe_seed,
+        n_models=n_models, seed=safe_seed,
         drift_detector=drift.ADWIN(clock=C_INT),
         warning_detector=drift.ADWIN(clock=C_INT),
     )
@@ -146,6 +146,7 @@ def run_one(boundary_shift, seed, baseline_window):
         'seed': int(seed),
         'p_hat_0': p_hat_0,
         'baseline_window': int(baseline_window),
+        'n_models': int(n_models),
     }
     return meta, error_series, events, pre_series
 
@@ -161,6 +162,11 @@ def main():
     ap.add_argument('--tag', type=str, default=None,
                     help="suffixe des fichiers de sortie")
     ap.add_argument('--jobs', type=int, default=-1)
+    ap.add_argument('--models', type=int, default=N_MODELS,
+                    help="taille de la foret M (test C1 : la metrique depend-elle de M ?)")
+    ap.add_argument('--no-drift', action='store_true',
+                    help="controle negatif A1 : b = 0, aucune rupture. Une metrique "
+                         "d'adaptation ne doit alors rien signaler.")
     args = ap.parse_args()
 
     if args.full:
@@ -174,14 +180,21 @@ def main():
     if args.baseline != BASELINE_DEFAULT:
         tag = f"{tag}_base{args.baseline}"
 
+    if args.no_drift:
+        shifts = np.zeros(1)          # b = 0 : la regle ne change jamais
+        tag = f"{tag}_nodrift"
+    if args.models != N_MODELS:
+        tag = f"{tag}_M{args.models}"
+
     seeds = list(range(1, n_seeds + 1))
     grid = [(b, s) for b in shifts for s in seeds]
     print(f"[INFO] {len(shifts)} amplitudes x {n_seeds} graines = {len(grid)} executions "
-          f"de {T_DRIFT + H} pas | socle sur {args.baseline} pas | H = {H}")
+          f"de {T_DRIFT + H} pas | socle sur {args.baseline} pas | H = {H} | M = {args.models}"
+          + (" | SANS DRIFT (controle negatif)" if args.no_drift else ""))
 
     t0 = time.time()
     results = Parallel(n_jobs=args.jobs)(
-        delayed(run_one)(b, s, args.baseline) for b, s in tqdm(grid, desc=tag)
+        delayed(run_one)(b, s, args.baseline, args.models) for b, s in tqdm(grid, desc=tag)
     )
     elapsed = time.time() - t0
 
