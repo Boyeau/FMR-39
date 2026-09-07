@@ -183,8 +183,7 @@ def main():
     if args.no_drift:
         shifts = np.zeros(1)          # b = 0 : la regle ne change jamais
         tag = f"{tag}_nodrift"
-    if args.models != N_MODELS:
-        tag = f"{tag}_M{args.models}"
+    tag = f"{tag}_M{args.models}"     # toujours suffixe : sinon M par defaut se confond
 
     seeds = list(range(1, n_seeds + 1))
     grid = [(b, s) for b in shifts for s in seeds]

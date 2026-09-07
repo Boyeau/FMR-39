@@ -96,6 +96,24 @@ scénarios de `R2` produisent, une fois le `break` retiré, des exécutions iden
 près. **Une seule campagne remplace donc les trois**, et `λ` comme `δ_P` se balayent hors
 ligne. C'est ce qui fait tenir tout le travail en 15 minutes de calcul.
 
+### Tests de validation de la métrique
+
+Deux des quatre familles de tests du protocole ont été passées. Les deux disqualifient
+`τ_ARF`, par des voies indépendantes.
+
+**A1, le drift nul** — 100 exécutions sans aucune rupture. `τ_ARF` vaut 105 en médiane,
+la forêt renouvelle 9 arbres sur 10, et 24 % des forêts sont **entièrement** renouvelées
+en 2 000 pas. Comparé aux exécutions avec drift, la forêt sans drift réagit plus vite
+dans **54 %** des paires à `Δe = 0,028` : à cette amplitude, l'indicateur ne distingue
+pas un vrai drift de son absence. À forte amplitude il discrimine partiellement (21 %).
+
+**C1, la taille de la forêt** — `M` = 5, 10, 20, 50. Rapport de `τ_ARF` à sa valeur pour
+`M = 5` : **0,05** à `Δe = 0,028`, **0,83** à `Δe = 0,498`. L'indicateur n'est donc pas
+comparable entre configurations, et le degré de dépendance entre les délais d'arbres
+varie avec l'amplitude — quasi-indépendance sous bruit, forte dépendance sous drift
+franc. Ce dernier point déborde sur la question B, dont l'hypothèse d'indépendance ne
+prévoit pas cette variation.
+
 ---
 
 ## 3. Pistes explorées et abandonnées
@@ -204,13 +222,9 @@ gagnerait à être échantillonné).
 
 ## 7. Ce qui reste ouvert
 
-1. **A1 sur 100 graines** au lieu de 4, pour pouvoir écrire au rapport que `τ_ARF`
-   signale autant sans drift qu'avec.
-2. **C1, sensibilité à `M`** : `τ_ARF` est le minimum de `M` délais, il devrait décroître
-   mécaniquement quand la forêt grandit. Test simple et difficile à contester.
-3. **Le coût permanent du remplacement** (§2 b) mérite mieux que 12 exécutions.
-4. **`τ_erase`**, calculable sans relancer quoi que ce soit.
-5. **La conjecture de C.1 c** reste non testable aux deux plus faibles amplitudes : il
+1. **Le coût permanent du remplacement** (§2 b) mérite mieux que 12 exécutions.
+2. **`τ_erase`**, calculable sans relancer quoi que ce soit.
+3. **La conjecture de C.1 c** reste non testable aux deux plus faibles amplitudes : il
    faudrait de l'ordre de 1 800 graines à `Δe = 0,028` pour que le seuil domine le bruit.
 
 ## 8. Réserves à déclarer dans le rapport

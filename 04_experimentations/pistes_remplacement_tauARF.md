@@ -187,12 +187,23 @@ parfaitement s'accorder. Il faut des contrôles où la bonne réponse est connue
 **A1, le drift nul.** Relancer avec `b = 0` : la règle ne change jamais, donc aucune
 adaptation n'est possible. Une métrique d'adaptation ne doit rien signaler.
 
-> **Déjà mesuré, et concluant.** Sans le moindre drift, la forêt renouvelle 6 à 9 arbres
-> sur 10 en 2 000 pas, et `τ_ARF` vaut 54, 105, 108 et 560 selon la graine — contre 30
-> sous un drift fort. `τ_ARF` signale une adaptation du même ordre qu'il y ait rupture ou
-> non. C'est l'argument le plus court contre lui, et le plus difficile à contester.
-> Mesuré sur 4 exécutions seulement : à refaire sur 100 avant de l'écrire au rapport.
-> Commande : `python exp_QCD_campagne.py --no-drift`.
+> **Mesuré sur 100 exécutions.** Sans le moindre drift, `τ_ARF` vaut **105 en médiane**
+> (quartiles 43 à 172), et n'est jamais censuré. La forêt renouvelle **9 arbres sur 10**
+> en médiane, et **24 % des forêts sont entièrement renouvelées** en 2 000 pas — sans
+> qu'aucune règle n'ait changé.
+>
+> Pour situer, `τ_ARF` sous drift vaut 118 à la plus faible amplitude et 28 à la plus
+> forte. Le recouvrement des distributions se lit comme suit : la proportion de paires où
+> la forêt **sans** drift réagit plus vite que la forêt **avec** drift vaut
+>
+> | contre | Δe = 0,028 | Δe = 0,436 | Δe = 0,498 |
+> |---|---|---|---|
+> | proportion | **54 %** | 23 % | 21 % |
+>
+> À faible amplitude, 54 % équivaut au tirage à pile ou face : **`τ_ARF` ne distingue pas
+> un vrai drift de l'absence totale de drift.** À forte amplitude il discrimine
+> partiellement, mais une exécution sur cinq réagit plus vite sans drift qu'avec.
+> Commande : `python exp_QCD_campagne.py --no-drift --seeds 100`.
 
 **A2, la tâche facilitée.** Pousser `b` jusqu'à ce que la classe 1 disparaisse. La forêt
 n'a presque rien à apprendre, l'erreur tombe d'elle-même : une bonne métrique ne doit pas
@@ -215,10 +226,32 @@ séparer, une seule exécution sur 2 000 détecte.
 
 ### Famille C — robustesse : la métrique est-elle un artefact du dispositif ?
 
-**C1, sensibilité au nombre d'arbres.** Refaire avec `M` = 5, 10, 20, 50 à amplitude
-fixée. `τ_ARF` étant le minimum de `M` délais, il décroît mécaniquement quand la forêt
-grandit, sans qu'elle s'adapte plus vite. C'est le test qui devrait le disqualifier le
-plus nettement. Commande : `python exp_QCD_campagne.py --models 20`.
+**C1, sensibilité au nombre d'arbres.** Mesuré sur `M` = 5, 10, 20, 50, cinq amplitudes,
+20 graines chacune. Médiane de `τ_ARF`, en rapport à `M = 5` :
+
+| Δe | M=5 | M=10 | M=20 | M=50 |
+|---|---|---|---|---|
+| 0,028 | 1,00 | 0,35 | 0,13 | **0,05** |
+| 0,243 | 1,00 | 0,86 | 0,73 | 0,73 |
+| 0,416 | 1,00 | 1,06 | 0,96 | 0,86 |
+| 0,498 | 1,00 | 0,97 | 0,90 | **0,83** |
+
+**`τ_ARF` dépend bien de `M`, mais d'une façon qui change complètement selon
+l'amplitude.** À la plus faible, multiplier la forêt par dix divise `τ_ARF` par vingt ;
+à la plus forte, il ne bouge presque pas. Deux conséquences.
+
+D'abord, l'indicateur **n'est pas comparable entre configurations** : une forêt de
+50 arbres paraît s'adapter vingt fois plus vite qu'une de 5 sur un drift faible, sans
+qu'aucune preuve n'existe qu'elle s'adapte réellement mieux.
+
+Ensuite, et c'est un résultat qui déborde sur la question B : sous indépendance des
+délais, le minimum de `M` variables décroîtrait en `1/M`, soit un rapport de 0,10 entre
+`M = 5` et `M = 50`. On mesure 0,05 à faible amplitude — donc quasi-indépendance, les
+remplacements y étant surtout du bruit — mais 0,83 à forte amplitude, ce qui traduit une
+**dépendance très forte** entre arbres. Tous voient le même drift franc et réagissent
+presque ensemble. **Le degré de dépendance entre les `τ_i` varie donc avec l'amplitude**,
+ce que l'hypothèse d'indépendance du manuscrit ne prévoit pas.
+Commande : `python exp_QCD_campagne.py --models 20`.
 
 **C2, forme du drift.** Remplacer le saut brutal par une rampe. Une métrique qui ne
 fonctionne que sur un drift abrupt a un domaine de validité étroit, à déclarer comme tel.
@@ -236,10 +269,8 @@ Coûteux, à réserver si le temps le permet.
 
 ## 6. Ce qui reste à faire
 
-1. **A1 sur 100 graines** plutôt que 4, pour pouvoir l'écrire au rapport. Quelques
-   minutes de calcul, l'option existe déjà.
-2. **C1 sur quatre tailles de forêt.** Devrait disqualifier `τ_ARF` de façon simple à
-   défendre en soutenance.
+1. ~~A1 sur 100 graines~~ — **fait**, voir §5.
+2. ~~C1 sur quatre tailles de forêt~~ — **fait**, voir §5.
 3. **Mesurer le coût permanent du remplacement** proprement : l'écart de 0,0103 entre
    forêt normale et forêt témoin en régime stationnaire mérite mieux que 12 exécutions.
    C'est le résultat le plus original sorti de cette exploration, et il ne dépend
