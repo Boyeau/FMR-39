@@ -2,7 +2,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[french]{babel}
+\usepackage[english]{babel}
 \usepackage{amsmath,amssymb}
 \usepackage[top=1.2cm,bottom=1.5cm,left=2cm,right=2cm]{geometry}
 \usepackage{graphicx}
@@ -10,127 +10,127 @@
 \usepackage{hyperref}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue}
 
-\title{Question C.1 --- Hiérarchie déterministe des temps de bascule}
+\title{Question C.1 --- Deterministic Hierarchy of Swap Times}
 \author{Salomé Fonvielle}
 \date{}
 
 \begin{document}
 \maketitle
 
-\noindent Toutes les mesures numériques de cette section proviennent de la campagne
-instrumentée de 2\,000 exécutions (20 amplitudes $\times$ 100 graines, $H=2\,000$,
-socle $\hat p_0$ estimé sur 3\,000 pas pré-rupture) documentée dans
+\noindent All numerical measurements in this section come from the instrumented
+campaign of 2\,000 runs (20 amplitudes $\times$ 100 seeds, $H=2\,000$, baseline
+$\hat p_0$ estimated over the last 3\,000 pre-drift steps) documented in
 \texttt{04\_experimentations/ulysse/}.
 
-\section{Relation déterministe entre $\tau_{\mathrm{ARF}}$ et $\tau_{\mathrm{swap}}(q)$}
+\section{Deterministic Relation Between $\tau_{\mathrm{ARF}}$ and $\tau_{\mathrm{swap}}(q)$}
 
-Soit $N_t$ le nombre d'arbres distincts remplacés à l'instant $t$ depuis la rupture
-$\tau^*$, et
+Let $N_t$ be the number of distinct trees replaced at time $t$ since the drift
+$\tau^*$, and
 \[
   \tau_{\mathrm{swap}}(q) = \inf\{t > \tau^* : N_t/M \ge q\} - \tau^*.
 \]
-$N_t$ ne peut que croître (un arbre remplacé reste compté), donc $\tau_{\mathrm{swap}}$
-est croissante en $q$. Et comme $N_t$ est entier, la condition $N_t \ge 1$ équivaut à
-$N_t/M \ge 1/M$ : $\tau_{\mathrm{ARF}}$ est donc exactement $\tau_{\mathrm{swap}}(1/M)$,
-soit $\tau_{\mathrm{swap}}(0{,}10)$ pour $M=10$. D'où, pour tout $q \ge 1/M$~:
+$N_t$ can only increase (a replaced tree stays counted), so $\tau_{\mathrm{swap}}$ is
+increasing in $q$. And since $N_t$ is an integer, the condition $N_t \ge 1$ is
+equivalent to $N_t/M \ge 1/M$~: $\tau_{\mathrm{ARF}}$ is therefore exactly
+$\tau_{\mathrm{swap}}(1/M)$, i.e.\ $\tau_{\mathrm{swap}}(0.10)$ for $M=10$. Hence, for
+every $q \ge 1/M$~:
 \begin{equation}
-  \boxed{\tau_{\mathrm{ARF}} \le \tau_{\mathrm{swap}}(q)} \qquad \text{sur chaque
-  exécution, sans hypothèse probabiliste.}
+  \boxed{\tau_{\mathrm{ARF}} \le \tau_{\mathrm{swap}}(q)} \qquad \text{on every run,
+  with no probabilistic assumption.}
   \label{eq:relation}
 \end{equation}
 
-\paragraph{Vérification empirique.} Sur les 2\,000 exécutions de la campagne,
-$\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(10\%)$ exactement dans 100\% des cas
-(0 écart). L'inégalité~\eqref{eq:relation} est vérifiée sans exception sur les
-5\,795 comparaisons non censurées disponibles pour $q \in \{25\%, 50\%, 75\%\}$
-(0 violation).
+\paragraph{Empirical verification.} Across the campaign's 2\,000 runs,
+$\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(10\%)$ exactly in 100\% of cases (0 gap).
+Inequality~\eqref{eq:relation} holds without exception across the 5\,795 uncensored
+comparisons available for $q \in \{25\%, 50\%, 75\%\}$ (0 violations).
 
-\paragraph{Sens du biais.} L'inégalité~\eqref{eq:relation} étant stricte dans la
-grande majorité des cas, utiliser $\tau_{\mathrm{ARF}}$ comme date d'adaptation de la
-forêt \emph{sous-estime systématiquement et unilatéralement} le temps nécessaire pour
-qu'une fraction réellement significative de l'ensemble ait été renouvelée : c'est un
-biais à sens unique, optimiste, jamais compensé par une surestimation symétrique.
-\paragraph{Confirmé côté théorique (Q~B.2, \texttt{redaction\_QB\_biais\_independance.tex}).}
-Le résultat théorique va dans le même sens~: la dépendance positive entre arbres
-(tous soumis au même flux $S$) implique, par l'inégalité de Jensen sur $x\mapsto x^M$,
-que l'hypothèse d'indépendance de l'article surestime systématiquement la vitesse de
-réparation de la forêt. C'est exactement le biais optimiste à sens unique observé ici
-empiriquement --- deux voies indépendantes (une preuve sans donnée, une mesure sans
-hypothèse de loi) qui convergent sur le même signe.
+\paragraph{Direction of the bias.} Since inequality~\eqref{eq:relation} is strict in
+the vast majority of cases, using $\tau_{\mathrm{ARF}}$ as the forest's adaptation date
+\emph{systematically and one-sidedly underestimates} the time needed for a genuinely
+significant fraction of the ensemble to have been renewed~: this is a one-sided,
+optimistic bias, never offset by a symmetric overestimate.
 
-\section{Écart $\tau_{\mathrm{swap}}(q) - \tau_{\mathrm{ARF}}$ en fonction de $\Delta e$}
+\paragraph{Confirmed on the theoretical side (Q~B.2, \texttt{redaction\_QB\_biais\_independance.tex}).}
+The theoretical result points the same way~: positive dependence between trees (all
+exposed to the same stream $S$) implies, via Jensen's inequality on $x\mapsto x^M$,
+that the article's independence assumption systematically overestimates the forest's
+repair speed. This is exactly the one-sided, optimistic bias observed here
+empirically --- two independent routes (a data-free proof, a distribution-free
+measurement) converging on the same sign.
 
-L'inégalité~\eqref{eq:relation} ne renseigne que sur le signe de l'écart, pas sur son
-ampleur. La figure~\ref{fig:ecarts} (campagne complète, médiane inter-graines) trace
-$\tau_{\mathrm{swap}}(q) - \tau_{\mathrm{ARF}}$ en fonction de $\Delta e$, pour
-$q \in \{25\%, 50\%, 75\%\}$ ($q=10\%$ est omis : l'écart y est identiquement nul,
-puisque $\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(0{,}10)$).
+\section{Gap $\tau_{\mathrm{swap}}(q) - \tau_{\mathrm{ARF}}$ as a Function of $\Delta e$}
+
+Inequality~\eqref{eq:relation} only tells us the sign of the gap, not its magnitude.
+Figure~\ref{fig:ecarts} (full campaign, inter-seed median) plots
+$\tau_{\mathrm{swap}}(q) - \tau_{\mathrm{ARF}}$ as a function of $\Delta e$, for
+$q \in \{25\%, 50\%, 75\%\}$ ($q=10\%$ is omitted~: the gap there is identically zero,
+since $\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(0.10)$).
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.85\textwidth]{ulysse/resultats/figures/Fig_QC_ecarts_full.png}
-  \caption{Écart médian $\tau_{\mathrm{swap}}(q) - \tau_{\mathrm{ARF}}$ en fonction de
-  $\Delta e$, campagne complète (2\,000 exécutions). Trait pointillé : amplitude où
-  plus de 50\% des exécutions sont censurées pour ce quota.}
+  \caption{Median gap $\tau_{\mathrm{swap}}(q) - \tau_{\mathrm{ARF}}$ as a function of
+  $\Delta e$, full campaign (2\,000 runs). Dashed line~: amplitude beyond which more
+  than 50\% of runs are censored for that quota.}
   \label{fig:ecarts}
 \end{figure}
 
-\paragraph{Critère de substituabilité.} Fixé avant lecture des résultats finaux : un
-écart supérieur à 100 pas ($5\%$ de l'horizon $H=2\,000$) est jugé disqualifiant pour
-$\tau_{\mathrm{ARF}}$ comme substitut de $\tau_{\mathrm{swap}}(q)$.
+\paragraph{Substitutability criterion.} Fixed before reading the final results~: a gap
+exceeding 100 steps ($5\%$ of the horizon $H=2\,000$) is deemed disqualifying for
+$\tau_{\mathrm{ARF}}$ as a substitute for $\tau_{\mathrm{swap}}(q)$.
 %
-% Note méthodologique : le dossier d'Ulysse propose un second critère, l'écart est
-% jugé décisif s'il dépasse tau_det -- plus directement relié à l'objet de l'étude,
-% mais formulé après lecture des mesures (à signaler comme tel si on le reprend,
-% cf. sa réserve C.1b dans ulysse/README.md).
+% Methodological note: Ulysse's folder proposes a second criterion -- the gap is
+% deemed decisive if it exceeds tau_det -- more directly tied to the object of the
+% study, but formulated after reading the measurements (flag as such if reused,
+% cf. his reservation C.1b in ulysse/README.md).
 
-Avec ce critère, sur la grille complète~: pour $q=25\%$, l'écart redescend sous 100 pas
-dès $\Delta e \gtrsim 0{,}24$ (écart médian de 291 à $\Delta e=0{,}028$, contre 6,5--7
-pas au-delà de $\Delta e=0{,}48$) --- $\tau_{\mathrm{ARF}}$ y redevient un substitut
-acceptable. Pour $q=50\%$, le même seuil n'est franchi que vers $\Delta e \gtrsim 0{,}33$
-(écart de 633 à $\Delta e=0{,}028$, contre 18--19 pas en haut de grille). Pour
-$q=75\%$, l'écart ne descend \emph{jamais} sous 100 pas sur l'ensemble de la grille
-testée (167 à 1\,393 pas selon $\Delta e$, soit 6 à 15 fois $\tau_{\mathrm{ARF}}$
-lui-même) : $\tau_{\mathrm{ARF}}$ n'est à aucun moment un proxy acceptable pour
-« les trois quarts de la forêt ont été renouvelés ».
+With this criterion, on the full grid~: for $q=25\%$, the gap falls below 100 steps as
+soon as $\Delta e \gtrsim 0.24$ (median gap of 291 at $\Delta e=0.028$, versus
+6.5--7 steps beyond $\Delta e=0.48$) --- $\tau_{\mathrm{ARF}}$ becomes an acceptable
+substitute again there. For $q=50\%$, the same threshold is only crossed around
+$\Delta e \gtrsim 0.33$ (gap of 633 at $\Delta e=0.028$, versus 18--19 steps at the top
+of the grid). For $q=75\%$, the gap \emph{never} falls below 100 steps anywhere on the
+tested grid (167 to 1\,393 steps depending on $\Delta e$, i.e.\ 6 to 15 times
+$\tau_{\mathrm{ARF}}$ itself)~: $\tau_{\mathrm{ARF}}$ is at no point an acceptable
+proxy for ``three-quarters of the forest have been renewed''.
 
-\section{La conjecture $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{err}}(\rho)$}
+\section{The Conjecture $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{err}}(\rho)$}
 
-$e_t \in \{0,1\}$ n'a de sens statistique que moyenné sur les graines : sur une
-exécution isolée, la suite est trop bruitée pour qu'un franchissement de seuil
-signifie une véritable résorption. $\tau_{\mathrm{err}}(\rho)$ est donc calculé
-uniquement sur la courbe moyenne $\bar e_t$, une valeur par amplitude, jamais par
-exécution --- et comparé à la \emph{médiane} inter-graines de $\tau_{\mathrm{ARF}}$
-(seule grandeur comparable côté run-par-run).
+$e_t \in \{0,1\}$ is only statistically meaningful once averaged over seeds~: on a
+single run, the sequence is too noisy for a threshold crossing to signal genuine
+recovery. $\tau_{\mathrm{err}}(\rho)$ is therefore computed only on the mean curve
+$\bar e_t$, one value per amplitude, never per run --- and compared to the
+\emph{inter-seed median} of $\tau_{\mathrm{ARF}}$ (the only quantity comparable on a
+run-by-run basis).
 
-\paragraph{Conjecture.} L'apprentissage incrémental des arbres de Hoeffding
-non remplacés peut faire redescendre l'erreur d'ensemble sans qu'aucun arbre n'ait
-changé, en particulier aux faibles amplitudes où le choc est trop ténu pour nécessiter
-un remplacement. Sous cette hypothèse, $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{err}}(\rho)$
-ne serait pas vérifiée aux faibles $\Delta e$.
+\paragraph{Conjecture.} Incremental learning by the non-replaced Hoeffding trees can
+bring the ensemble error back down without any tree having changed, particularly at
+low amplitudes where the shock is too faint to require a replacement. Under this
+hypothesis, $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{err}}(\rho)$ would not hold at low
+$\Delta e$.
 
-\paragraph{Test et résultat.} Avec $\rho = 0{,}25$, un premier franchissement de seuil
-($\bar e_t - \hat p_0 \le \rho \Delta e$) sans condition de persistance fait apparaître
-2 violations apparentes, aux deux amplitudes les plus faibles de la grille
-($\Delta e = 0{,}028$ et $0{,}085$). Mais le bruit résiduel de la courbe moyenne
-($\sigma \approx 0{,}015$, estimé sur les 500 derniers pas) y est du même ordre de
-grandeur que le seuil $\rho \Delta e$ lui-même ($\rho\Delta e = 0{,}007$ et $0{,}021$
-respectivement) : le test n'y a statistiquement aucun pouvoir ($\rho \Delta e < 2\sigma$
-dans les deux cas). En exigeant que la condition tienne 20 pas consécutifs plutôt
-qu'un seul, les deux violations disparaissent : \textbf{0 violation sur les 18
-amplitudes interprétables, et le test perd toute validité statistique précisément sur
-les 2 amplitudes où il en indiquait une.}
+\paragraph{Test and result.} With $\rho = 0.25$, a first threshold crossing
+($\bar e_t - \hat p_0 \le \rho \Delta e$) with no persistence condition shows 2
+apparent violations, at the two lowest amplitudes of the grid ($\Delta e = 0.028$ and
+$0.085$). But the residual noise of the mean curve ($\sigma \approx 0.015$, estimated
+over the last 500 steps) is of the same order of magnitude as the threshold
+$\rho \Delta e$ itself ($\rho\Delta e = 0.007$ and $0.021$ respectively)~: the test has
+statistically no power there ($\rho \Delta e < 2\sigma$ in both cases). Requiring the
+condition to hold for 20 consecutive steps rather than one, both violations
+disappear~: \textbf{0 violations across the 18 interpretable amplitudes, and the test
+loses all statistical validity precisely at the 2 amplitudes where it indicated one.}
 
-\paragraph{Conclusion.} La conjecture n'est pas confirmée --- elle n'est pas non plus
-réfutée aux faibles amplitudes, où le dispositif expérimental manque de puissance.
-Il y faudrait davantage de graines : $\bar e_t$ étant une moyenne de $n$ tirages de
-Bernoulli indépendants, le bruit de la courbe moyenne décroît en $1/\sqrt{n}$, et
-atteindre $\rho\Delta e > 2\sigma$ demanderait de l'ordre de $200$ graines à
-$\Delta e = 0{,}085$, mais près de $1\,800$ à $\Delta e = 0{,}028$ --- et davantage
-encore en pratique, la précision sur un instant de franchissement dépendant aussi de
-la pente de la courbe au seuil, faible précisément à ces amplitudes. Sur les 18
-amplitudes où le test est interprétable, $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{err}}(\rho)$
-tient sans exception : le premier remplacement d'arbre précède toujours la résorption
-réelle de l'erreur, cohérent avec le biais optimiste établi en~\eqref{eq:relation}.
+\paragraph{Conclusion.} The conjecture is not confirmed --- nor is it refuted at low
+amplitudes, where the experimental setup lacks power. More seeds would be needed~:
+since $\bar e_t$ is a mean of $n$ independent Bernoulli draws, the noise of the mean
+curve decreases as $1/\sqrt{n}$, and reaching $\rho\Delta e > 2\sigma$ would require on
+the order of $200$ seeds at $\Delta e = 0.085$, but nearly $1\,800$ at
+$\Delta e = 0.028$ --- and more still in practice, since the precision of a crossing
+instant also depends on the slope of the curve at the threshold, which is shallow
+precisely at these amplitudes. Across the 18 amplitudes where the test is
+interpretable, $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{err}}(\rho)$ holds without
+exception~: the first tree replacement always precedes the actual recovery of the
+error, consistent with the optimistic bias established in~\eqref{eq:relation}.
 
 \end{document}

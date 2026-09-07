@@ -2,7 +2,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[french]{babel}
+\usepackage[english]{babel}
 \usepackage{amsmath,amssymb}
 \usepackage[top=1.2cm,bottom=1.5cm,left=2cm,right=2cm]{geometry}
 \usepackage{graphicx}
@@ -10,196 +10,201 @@
 \usepackage{hyperref}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue}
 
-\title{Question C.3 --- Invariance du budget de preuve}
+\title{Question C.3 --- Invariance of the Evidence Budget}
 \author{}
 \date{}
 
 \begin{document}
 \maketitle
 
-\noindent Toutes les mesures numériques de cette section proviennent de la campagne
-instrumentée de 2\,000 exécutions (20 amplitudes $\times$ 100 graines, $H=2\,000$,
-socle $\hat p_0$ estimé sur 3\,000 pas pré-rupture) documentée dans
-\texttt{04\_experimentations/ulysse/}. La hiérarchie déterministe
-$\tau_{\mathrm{ARF}} \le \tau_{\mathrm{swap}}(q)$ (Q~C.1) et l'analyse dimensionnelle
-avec son certificat de détection (Q~C.2) sont supposées acquises.
+\noindent All numerical measurements in this section come from the instrumented
+campaign of 2\,000 runs (20 amplitudes $\times$ 100 seeds, $H=2\,000$, baseline
+$\hat p_0$ estimated over the last 3\,000 pre-drift steps) documented in
+\texttt{04\_experimentations/ulysse/}. The deterministic hierarchy
+$\tau_{\mathrm{ARF}} \le \tau_{\mathrm{swap}}(q)$ (Q~C.1) and the dimensional analysis
+with its detection certificate (Q~C.2) are assumed established.
 
-\section{Expression du budget et exposant résiduel}
+\section{Budget Expression and Residual Exponent}
 
-Le modèle stylisé de l'article suppose qu'après la rupture l'erreur excède son socle
-d'une quantité $\Delta e$ pendant un transitoire de longueur $W = \tau_{\mathrm{ARF}}$,
-puis retombe au socle. L'aire d'erreur excédentaire offerte au détecteur vaut alors
-$\mathbb{E}[A] = \Delta e \cdot \mathbb{E}[\tau_{\mathrm{ARF}}]$, à condition que
-l'horizon couvre entièrement le transitoire, ce que $H = 2\,000$ garantit sur toute la
-grille --- l'amplitude la plus faible donne $3 \times 18{,}5/0{,}028 \approx 1\,982$. En y
-injectant l'ajustement empirique de l'article
-$\mathbb{E}[\tau_{\mathrm{ARF}}] \approx 18{,}5\,\Delta e^{-0,98}$~:
+The article's stylized model assumes that after the drift the error exceeds its
+baseline by an amount $\Delta e$ for a transient of length $W = \tau_{\mathrm{ARF}}$,
+then falls back to baseline. The excess-error area offered to the detector is then
+$\mathbb{E}[A] = \Delta e \cdot \mathbb{E}[\tau_{\mathrm{ARF}}]$, provided the horizon
+fully covers the transient, which $H = 2\,000$ guarantees across the whole grid ---
+the lowest amplitude gives $3 \times 18.5/0.028 \approx 1\,982$. Plugging in the
+article's empirical fit
+$\mathbb{E}[\tau_{\mathrm{ARF}}] \approx 18.5\,\Delta e^{-0.98}$~:
 \begin{equation}
-  \boxed{\mathbb{E}[A] \approx 18{,}5\,\Delta e^{\,1-0,98} = 18{,}5\,\Delta e^{\,0,02}}
+  \boxed{\mathbb{E}[A] \approx 18.5\,\Delta e^{\,1-0.98} = 18.5\,\Delta e^{\,0.02}}
   \label{eq:budget}
 \end{equation}
 
-\paragraph{Exposant résiduel et variation sur la grille.} L'exposant résiduel de
-$\Delta e$ vaut $0{,}02$. Sur $\Delta e \in [0{,}028\,;\,0{,}498]$, le rapport des
-extrêmes est $(0{,}498/0{,}028)^{0,02} = 1{,}059$~: le budget prédit varie de $5{,}9\%$,
-de $17{,}2$ à $18{,}2$, quand l'amplitude du choc varie d'un facteur $17{,}7$.
+\paragraph{Residual exponent and variation across the grid.} The residual exponent of
+$\Delta e$ is $0.02$. Over $\Delta e \in [0.028\,;\,0.498]$, the ratio of the extremes
+is $(0.498/0.028)^{0.02} = 1.059$~: the predicted budget varies by $5.9\%$, from
+$17.2$ to $18.2$, as the shock amplitude varies by a factor of $17.7$.
 
-\paragraph{Conclusion formelle.} L'amplitude et la durée se compensent presque
-exactement : la forêt se répare d'autant plus vite que le choc est fort, et le produit
-$\Delta e \times W$ reste quasi constant. Un choc macroéconomique violent ne laisse donc
-pas plus de preuve au détecteur qu'une dérive lente. Le budget se comporte comme une
-constante du couple forêt-détecteur, et non comme une caractéristique du drift observé.
+\paragraph{Formal conclusion.} Amplitude and duration nearly exactly offset each
+other~: the forest repairs itself all the faster the stronger the shock, and the
+product $\Delta e \times W$ stays close to constant. A violent macroeconomic shock
+therefore leaves the detector no more evidence than a slow drift. The budget behaves
+like a constant of the forest-detector pair, not as a characteristic of the observed
+drift.
 
-\section{Le budget réellement utilisable}
+\section{The Actually Usable Budget}
 
-Le détecteur ne consomme pas l'aire brute. Sa tolérance $\delta_P = 0{,}01$ est
-retranchée à chaque pas, si bien que le budget effectivement accumulable vaut
-$(\Delta e - \delta_P)\,W$ et non $\Delta e\,W$. La part confisquée est donc
-$\delta_P/\Delta e$, indépendante de la durée du transitoire.
+The detector does not consume the raw area. Its tolerance $\delta_P = 0.01$ is
+subtracted at every step, so the budget actually accumulable is
+$(\Delta e - \delta_P)\,W$ rather than $\Delta e\,W$. The confiscated share is
+therefore $\delta_P/\Delta e$, independent of the transient's duration.
 
 \begin{center}
 \begin{tabular}{lccc}
 \toprule
-$\Delta e$ & budget brut & part prélevée & budget utilisable \\
+$\Delta e$ & raw budget & share taken & usable budget \\
 \midrule
-$0{,}028$ (bas de grille) & $17{,}23$ & $\mathbf{35{,}5\%}$ & $11{,}11$ \\
-$0{,}498$ (haut de grille) & $18{,}24$ & $2{,}0\%$ & $17{,}88$ \\
+$0.028$ (bottom of grid) & $17.23$ & $\mathbf{35.5\%}$ & $11.11$ \\
+$0.498$ (top of grid) & $18.24$ & $2.0\%$ & $17.88$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\paragraph{Où la tolérance mord.} C'est à l'extrémité \emph{basse} de la grille que
-$\delta_P$ prélève une part non négligeable : plus d'un tiers du budget à
-$\Delta e = 0{,}028$, contre $2\%$ à l'autre extrémité. La tolérance étant un seuil
-absolu, elle pèse d'autant plus lourd que le signal est faible. Elle aggrave donc
-l'invariance au lieu de la corriger : le budget utilisable n'est plus constant, il
-décroît vers les faibles amplitudes --- là où le détecteur en aurait le plus besoin.
+\paragraph{Where the tolerance bites.} It is at the \emph{low} end of the grid that
+$\delta_P$ takes a non-negligible share~: more than a third of the budget at
+$\Delta e = 0.028$, versus $2\%$ at the other end. Since the tolerance is an absolute
+threshold, it weighs all the more heavily the weaker the signal. It therefore
+\emph{worsens} the invariance rather than correcting it~: the usable budget is no
+longer constant, it decreases toward low amplitudes --- exactly where the detector
+would need it most.
 
-\section{Confrontation au certificat en fenêtre entière}
+\section{Confrontation with the Full-Window Certificate}
 
-Le certificat établi en~Q~C.2 exige, sur la fenêtre complète, une aire brute d'au moins
-$\lambda + H\delta_P$. Avec $H = 2\,000$ et $\delta_P = 0{,}01$ le péage vaut $20$ quel
-que soit le seuil, d'où $28$, $45$ et $70$ pour $\lambda \in \{8, 25, 50\}$, à comparer
-au budget d'environ $18$ établi en~\eqref{eq:budget}. \textbf{Aucun des trois seuils
-n'est atteignable}, le plus bas exigeant déjà une fois et demie le budget disponible.
-La preuve requise n'existe pas dans le signal, quel que soit le réglage retenu.
+The certificate established in Q~C.2 requires, over the full window, a raw area of at
+least $\lambda + H\delta_P$. With $H = 2\,000$ and $\delta_P = 0.01$ the toll is $20$
+regardless of the threshold, giving $28$, $45$ and $70$ for
+$\lambda \in \{8, 25, 50\}$, to be compared to the budget of about $18$ established
+in~\eqref{eq:budget}. \textbf{None of the three thresholds is reachable}, the lowest
+already requiring one and a half times the available budget. The required evidence
+does not exist in the signal, whatever the setting chosen.
 
-\paragraph{Ce que devient le certificat quand l'horizon s'allonge.} Le seuil requis
-$\lambda + H\delta_P$ croît \emph{linéairement} en $H$, tandis que le budget reste
-\emph{constant} d'après~\eqref{eq:budget}. L'écart se creuse donc indéfiniment : une fois
-l'erreur résorbée, chaque pas d'observation supplémentaire ajoute $\delta_P$ au péage
-sans rien apporter au numérateur, si bien qu'observer plus longtemps dégrade le
-certificat au lieu de l'améliorer. D'où l'intérêt de l'ancrer sur une fenêtre courte
-$w = 3 \times 18{,}5/\Delta e$, taillée sur le transitoire de l'amplitude considérée.
+\paragraph{What happens to the certificate as the horizon lengthens.} The required
+threshold $\lambda + H\delta_P$ grows \emph{linearly} in $H$, while the budget stays
+\emph{constant} per~\eqref{eq:budget}. The gap therefore widens indefinitely~: once
+the error has recovered, every additional observation step adds $\delta_P$ to the toll
+without contributing anything to the numerator, so that observing longer degrades the
+certificate instead of improving it. Hence the value of anchoring it on a short window
+$w = 3 \times 18.5/\Delta e$, sized to the transient of the amplitude under
+consideration.
 
-\section{Vérification sur les mesures}
+\section{Verification Against the Measurements}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.8\textwidth]{ulysse/resultats/figures/Fig_QC_budget_full.png}
-  \caption{Aire d'erreur excédentaire mesurée en fonction de $\Delta e$, campagne
-  complète, comparée à la constante prédite par~\eqref{eq:budget}. En bleu l'aire sur la
-  fenêtre courte $A(w)$, en rouge l'aire sur l'horizon entier $A(H)$.}
+  \caption{Measured excess-error area as a function of $\Delta e$, full campaign,
+  compared to the constant predicted by~\eqref{eq:budget}. In blue the area over the
+  short window $A(w)$, in red the area over the full horizon $A(H)$.}
   \label{fig:budget}
 \end{figure}
 
-\paragraph{L'invariance tient dans son sens, pas dans son chiffre.} Sur
-$\Delta e \in [0{,}085\,;\,0{,}498]$, l'amplitude du choc varie d'un facteur $5{,}8$, et
-sans adaptation de la forêt l'aire varierait d'autant. Elle varie en réalité d'un facteur
-$\mathbf{1{,}78}$~: l'effet compensatoire est bien présent. Mais le modèle prédit un
-facteur $1{,}04$, et il sous-estime le budget au milieu de la grille, avec $30{,}8$
-mesuré contre $18{,}0$ prédit à $\Delta e = 0{,}243$. L'invariance est donc confirmée
-dans son principe et approximative dans ses valeurs.
+\paragraph{The invariance holds in sign, not in value.} Over
+$\Delta e \in [0.085\,;\,0.498]$, the shock amplitude varies by a factor of $5.8$, and
+absent forest adaptation the area would vary by as much. It actually varies by a
+factor of $\mathbf{1.78}$~: the compensating effect is indeed present. But the model
+predicts a factor of $1.04$, and it underestimates the budget in the middle of the
+grid, with $30.8$ measured against $18.0$ predicted at $\Delta e = 0.243$. The
+invariance is thus confirmed in principle and approximate in its values.
 
-\paragraph{L'aire en fenêtre entière devient négative.} $A(H)$ culmine à $38{,}3$ puis
-décroît, passe sous zéro à partir de $\Delta e = 0{,}482$ et descend jusqu'à $-20{,}8$.
-L'explication tient à la géométrie du problème plutôt qu'à la mesure. À grande amplitude
-la frontière post-rupture est $x_0 + x_1 > 4$ avec $x_0 + x_1 \sim \mathcal{N}(0,2)$~:
-la classe 1 devient quasi absente et la tâche post-drift se trouve être plus facile que
-la tâche initiale. L'erreur mesurée tombe de $0{,}024$ avant la rupture à $0{,}007$ en
-fin d'horizon, et ce déficit soustrait une trentaine d'unités à l'aire brute sur les
-$1\,900$ pas suivant la résorption. Le modèle stylisé est donc en défaut à forte
-amplitude, où l'erreur passe sous son socle initial au lieu d'y retomber. C'est une
-seconde raison, indépendante de celle donnée en~Q~C.2, de ne certifier que sur la
-fenêtre courte.
+\paragraph{The full-window area turns negative.} $A(H)$ peaks at $38.3$ then
+decreases, crosses zero from $\Delta e = 0.482$ onward and drops to $-20.8$. The
+explanation lies in the geometry of the problem rather than in the measurement. At
+large amplitude the post-drift boundary is $x_0 + x_1 > 4$ with
+$x_0 + x_1 \sim \mathcal{N}(0,2)$~: class 1 becomes nearly absent and the post-drift
+task turns out to be easier than the original one. The measured error falls from
+$0.024$ before the drift to $0.007$ at the end of the horizon, and this deficit
+subtracts about thirty units from the raw area over the $1\,900$ steps following
+recovery. The stylized model is therefore at fault at large amplitude, where the error
+drops below its initial baseline instead of returning to it. This is a second reason,
+independent of the one given in Q~C.2, to certify only on the short window.
 
-\paragraph{D'où vient l'écart : le socle, la censure, ou l'ajustement ?} Le sujet invite
-à regarder d'abord du côté de $\hat p_0$. Son erreur d'estimation se propage de façon
-parfaitement corrélée sur toute l'aire, avec un biais $-H(\hat p_0 - p_0)$~; estimé sur
-3\,000 pas, $\hat p_0$ a un écart-type inter-graines de $0{,}00298$, soit $\pm 6{,}0$ sur
-$A(H)$. C'est non négligeable devant un budget de $18$ --- mais insuffisant pour rendre
-compte de l'écart de $14{,}5$ constaté à $\Delta e = 0{,}028$, d'autant que ce biais est
-de signe aléatoire alors que l'écart observé est systématique.
+\paragraph{Where does the gap come from~: the baseline, the censoring, or the fit?}
+The subject invites us to look first at $\hat p_0$. Its estimation error propagates in
+a perfectly correlated way across the whole area, with a bias $-H(\hat p_0 - p_0)$~;
+estimated over 3\,000 steps, $\hat p_0$ has an inter-seed standard deviation of
+$0.00298$, i.e.\ $\pm 6.0$ on $A(H)$. This is non-negligible against a budget of $18$
+--- but insufficient to account for the gap of $14.5$ observed at $\Delta e = 0.028$,
+especially since this bias has a random sign while the observed gap is systematic.
 
-Le test qui départage vraiment consiste à comparer $\tau_{\mathrm{ARF}}$ mesuré à sa
-propre prédiction, puisque \eqref{eq:budget} superpose deux hypothèses distinctes~: le
-modèle $\mathbb{E}[A] = \Delta e\,\mathbb{E}[\tau_{\mathrm{ARF}}]$ d'une part, et
-l'ajustement en loi de puissance d'autre part.
+The test that truly settles it is to compare the measured $\tau_{\mathrm{ARF}}$ to its
+own prediction, since~\eqref{eq:budget} stacks two distinct hypotheses~: the model
+$\mathbb{E}[A] = \Delta e\,\mathbb{E}[\tau_{\mathrm{ARF}}]$ on one hand, and the
+power-law fit on the other.
 
 \begin{center}
 \begin{tabular}{lrrrrr}
 \toprule
-$\Delta e$ & $\tau_{\mathrm{ARF}}$ mesuré & prédit & ratio & $\Delta e \times \tau_{\mathrm{ARF}}$ & $A(w)$ mesuré \\
+$\Delta e$ & measured $\tau_{\mathrm{ARF}}$ & predicted & ratio & $\Delta e \times \tau_{\mathrm{ARF}}$ & measured $A(w)$ \\
 \midrule
-$0{,}028$ & $118$ & $611$ & $\mathbf{0{,}19}$ & $3{,}33$ & $2{,}71$ \\
-$0{,}141$ & $263$ & $126$ & $\mathbf{2{,}08}$ & $37{,}07$ & $27{,}09$ \\
-$0{,}287$ & $64$ & $63$ & $1{,}02$ & $18{,}37$ & $29{,}22$ \\
-$0{,}436$ & $34$ & $42$ & $0{,}81$ & $14{,}82$ & $23{,}16$ \\
-$0{,}498$ & $28$ & $37$ & $0{,}76$ & $13{,}93$ & $17{,}31$ \\
+$0.028$ & $118$ & $611$ & $\mathbf{0.19}$ & $3.33$ & $2.71$ \\
+$0.141$ & $263$ & $126$ & $\mathbf{2.08}$ & $37.07$ & $27.09$ \\
+$0.287$ & $64$ & $63$ & $1.02$ & $18.37$ & $29.22$ \\
+$0.436$ & $34$ & $42$ & $0.81$ & $14.82$ & $23.16$ \\
+$0.498$ & $28$ & $37$ & $0.76$ & $13.93$ & $17.31$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-À la plus faible amplitude, l'ajustement prédit le premier remplacement au pas $611$
-alors qu'il survient au pas $118$, cinq fois plus tôt. Le budget recalculé à partir du
-$\tau_{\mathrm{ARF}}$ mesuré vaut $3{,}33$, ce qui reproduit l'aire observée de $2{,}71$.
-Le modèle $\mathbb{E}[A] = \Delta e\,\mathbb{E}[\tau_{\mathrm{ARF}}]$ tient donc --- c'est
-la loi de puissance qui est en cause. L'écart n'est pas localisé : le rapport
-mesuré sur prédit vaut $0{,}19$ en bas de grille, dépasse $2$ vers
-$\Delta e = 0{,}141$, ne colle qu'autour de $\Delta e = 0{,}287$, puis retombe à $0{,}76$
-en haut.
+At the lowest amplitude, the fit predicts the first replacement at step $611$ whereas
+it occurs at step $118$, five times earlier. The budget recomputed from the measured
+$\tau_{\mathrm{ARF}}$ is $3.33$, which reproduces the observed area of $2.71$. The
+model $\mathbb{E}[A] = \Delta e\,\mathbb{E}[\tau_{\mathrm{ARF}}]$ therefore holds ---
+it is the power-law fit that is at fault. The gap is not localized~: the
+measured-over-predicted ratio is $0.19$ at the bottom of the grid, exceeds $2$ around
+$\Delta e = 0.141$, only matches around $\Delta e = 0.287$, then falls back to $0.76$
+at the top.
 
 \begin{center}
-\fbox{\parbox{0.93\textwidth}{\textbf{Conséquence pour le rapport.} L'invariance du
-budget repose sur deux hypothèses successives. La première, le modèle
-$\mathbb{E}[A] = \Delta e \cdot \mathbb{E}[\tau_{\mathrm{ARF}}]$, est confirmée par les
-mesures. La seconde, l'injection de $18{,}5\,\Delta e^{-0,98}$, ne l'est qu'au voisinage
-du milieu de la grille. La conclusion « un choc violent ne laisse pas plus de preuve
-qu'une dérive lente » reste valide, mais elle ne peut plus être justifiée par l'exposant
-$0{,}02$~: il faut l'appuyer sur la mesure directe de $\tau_{\mathrm{ARF}}$.}}
+\fbox{\parbox{0.93\textwidth}{\textbf{Consequence for the report.} The budget's
+invariance rests on two successive hypotheses. The first, the model
+$\mathbb{E}[A] = \Delta e \cdot \mathbb{E}[\tau_{\mathrm{ARF}}]$, is confirmed by the
+measurements. The second, plugging in $18.5\,\Delta e^{-0.98}$, only holds near the
+middle of the grid. The conclusion ``a violent shock leaves no more evidence than a
+slow drift'' remains valid, but it can no longer be justified by the $0.02$ exponent~:
+it must rest on the direct measurement of $\tau_{\mathrm{ARF}}$.}}
 \end{center}
 
-\paragraph{Le socle théorique.} La cible pré-rupture $y = \mathbf{1}\{x_0 + x_1 > 0\}$
-est une fonction \emph{déterministe} des entrées, sans bruit d'étiquetage : l'erreur de
-Bayes vaut exactement zéro. Le socle mesuré, $0{,}0231$, est donc intégralement de
-l'erreur d'approximation --- les arbres de Hoeffding découpant par coupes perpendiculaires
-aux axes une frontière oblique. Le détecteur surveille ainsi les écarts à un niveau de
-référence qui dépend du classifieur lui-même : une forêt mieux ajustée abaisserait le
-socle et modifierait le budget de preuve sans qu'aucune propriété du drift n'ait changé.
+\paragraph{The theoretical baseline.} The pre-drift target
+$y = \mathbf{1}\{x_0 + x_1 > 0\}$ is a \emph{deterministic} function of the inputs,
+with no label noise~: the Bayes error is exactly zero. The measured baseline,
+$0.0231$, is therefore entirely approximation error --- Hoeffding trees cutting an
+oblique boundary with axis-perpendicular splits. The detector thus monitors deviations
+from a reference level that depends on the classifier itself~: a better-fitted forest
+would lower the baseline and change the evidence budget with no property of the drift
+having changed.
 %
-% Note : le passage de 1000 a 3000 pas pour estimer p_0 divise le bruit par 1,68
-% (attendu sqrt(3)=1,73). Les conclusions agregees ne bougent pas -- mediane de tau_det
-% inchangee a 21 pas pour lambda=8 -- car les deux estimateurs sont non biaises, seule
-% leur variance differe. Le gain porte sur la mesure par execution, donc sur les
-% correlations de Q D.
+% Note: moving from 1000 to 3000 steps to estimate p_0 divides the noise by 1.68
+% (expected sqrt(3)=1.73). The aggregated conclusions do not move -- median tau_det
+% unchanged at 21 steps for lambda=8 -- since both estimators are unbiased, only
+% their variance differs. The gain is on the per-run measurement, hence on Q D's
+% correlations.
 
-\section{Ce que cette section établit}
+\section{What This Section Establishes}
 
-Le budget de preuve offert au détecteur est quasi indépendant de l'amplitude du drift :
-l'aire varie d'un facteur $1{,}8$ quand l'amplitude varie d'un facteur $5{,}8$, là où
-elle suivrait cette dernière en l'absence d'adaptation. La tolérance $\delta_P$ ampute
-ce budget aux faibles amplitudes --- et allonger l'horizon d'observation creuse encore
-le déficit.
+The evidence budget offered to the detector is nearly independent of the drift's
+amplitude~: the area varies by a factor of $1.8$ as the amplitude varies by a factor
+of $5.8$, where it would track the latter absent adaptation. The tolerance
+$\delta_P$ amputates this budget at low amplitudes --- and lengthening the observation
+horizon widens the deficit further.
 
-Deux réserves accompagnent ce résultat. L'ajustement en loi de puissance sur lequel
-l'article fonde l'invariance n'est valide qu'au voisinage du milieu de la grille, si bien
-que l'argument doit reposer sur la mesure directe de $\tau_{\mathrm{ARF}}$ plutôt que sur
-l'exposant $0{,}02$. Et le modèle stylisé lui-même est en défaut à forte amplitude, où
-l'erreur passe sous son socle initial.
+Two caveats accompany this result. The power-law fit on which the article bases the
+invariance is only valid near the middle of the grid, so the argument must rest on the
+direct measurement of $\tau_{\mathrm{ARF}}$ rather than on the $0.02$ exponent. And
+the stylized model itself is at fault at large amplitude, where the error drops below
+its initial baseline.
 %
-% TODO(a synchroniser) : cette section fournit les trois nombres (28, 45, 70) que Q C.2
-% confronte a son certificat, et la constante d'invariance que Q D mobilise pour
-% expliquer l'effondrement du tau_b global par agregation. Verifier la coherence des
-% renvois une fois les trois redactions reunies.
+% TODO(to sync): this section supplies the three numbers (28, 45, 70) that Q C.2
+% confronts with its certificate, and the invariance constant that Q D uses to
+% explain the global tau_b collapse under aggregation. Check the consistency of the
+% cross-references once the three writeups are combined.
 
 \end{document}
