@@ -1,160 +1,149 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[10pt,a4paper]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[french]{babel}
+\usepackage[english]{babel}
 \usepackage{amsmath,amssymb}
-\usepackage[top=1.2cm,bottom=1.5cm,left=2cm,right=2cm]{geometry}
+\usepackage[top=1.1cm,bottom=1.1cm,left=1.7cm,right=1.7cm]{geometry}
+\usepackage{titlesec}
 \usepackage{hyperref}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue}
 
-\title{Synthèse bibliographique --- Sujet 39\\[0.3em]
-\large Le paradoxe du point aveugle « Blind Spot »}
-\author{Alexandre Boyer \and Melaine Gouillou \and Salomé Fonvielle \and Ulysse Petit-Tichanné\\[0.3em]
-\normalsize Filière Recherche, CentraleSupélec\\
-\normalsize Encadrant~: Raphaël Minato}
+\setlength{\parskip}{0.15em}
+\titlespacing*{\section}{0pt}{0.7em}{0.3em}
+
+\title{\vspace{-1.2cm}Bibliographic Review, Topic 39\\[0.2em]
+\large The Blind Spot Paradox}
+\author{Alexandre Boyer \and Mélaine Gouillou \and Salomé Fonvielle \and Ulysse Petit-Tichanné\\[0.2em]
+\normalsize Research Track, CentraleSupélec. Supervisor: Raphaël Minato}
 \date{}
 
 \begin{document}
-
 \maketitle
+\vspace{-1.4em}
 
-\section{Contexte et problématique}
+\section{The problem setting}
 
-Un modèle de machine learning déployé sur un flux de données doit composer avec le \emph{concept drift}~: un changement, au cours du temps, de la relation $P(y \mid X)$ entre les variables d'entrée et la cible, à distinguer du \emph{data drift}, qui n'affecte que la distribution des entrées $P(X)$~\cite{moreno2012,gama2014}. En finance, prédire le sens du rendement d'un indice tel que le CAC~40 confronte ce phénomène à trois obstacles structurels~: changements de régime brusques, hétéroscédasticité, et absence de vérité terrain immédiate.
+A model deployed on a stream must cope with \emph{concept drift}, a change over time in
+the relation $P(y\mid X)$. Moreno-Torres et al.~\cite{moreno2012} separate it from a shift
+in $P(X)$ alone, in a taxonomy they build because the literature had been using the same
+words for different things. The two surveys that frame the field, Gama et al.~\cite{gama2014}
+and Lu et al.~\cite{lu2018}, describe the same deployed architecture: an adaptive classifier
+paired with an external detector watching its error rate. Both treat that pair as
+cooperative, and neither asks whether the classifier might destroy what the detector is
+trying to measure.
 
-L'architecture standard de surveillance combine deux briques. La première se répare elle-même~: l'\emph{Adaptive Random Forest}~\cite{gomes2017} est une forêt de Hoeffding Trees, le classifieur en ligne de référence pour l'apprentissage sur flux~\cite{domingos2000}, où chaque arbre embarque son propre détecteur interne à fenêtre adaptative, ADWIN~\cite{bifet2007}. La seconde prévient l'opérateur humain~: un détecteur externe cumulatif de type CUSUM ou Page-Hinkley~\cite{page1954,hinkley1971}, qui accumule l'excès d'erreur et alarme au-delà d'un seuil.
+Each block has its own reaction time. The Adaptive Random Forest~\cite{gomes2017} is a bag
+of Hoeffding Trees~\cite{domingos2000}, incremental and inert once converged, resampled by
+Poisson$(\lambda{=}6)$ weights, and every tree carries its own ADWIN. ADWIN~\cite{bifet2007}
+splits a variable-length window in two and declares a change when the sub-window means
+diverge past a Hoeffding bound; on a warning the ARF grows a background tree, and on a
+confirmation it swaps that tree in. The external block is a CUSUM~\cite{page1954} whose
+Page-Hinkley form accumulates $S_t=\max(0,\,S_{t-1}+e_t-p_0-\delta_P)$ and fires past
+$\lambda$. Hinkley~\cite{hinkley1971} supplies the companion result, the asymptotic law of
+the change point \emph{estimated} from that same statistic. By Wald's equation the
+accumulation time is $\tau^{*}_{\det}=\lambda/(\Delta e-\delta_P)=O(1/\Delta e)$.
 
-L'article source, \emph{The Blind Spot Paradox} (soumis IEEE ICDM 2026), montre que si la première brique répare plus vite que la seconde n'accumule de preuve, le signal d'erreur disparaît avant que l'alarme ne se déclenche~: le modèle s'est corrigé silencieusement, sans qu'aucune trace horodatée n'existe. Contre-intuitivement, plus le choc est violent, plus la réparation est rapide, donc plus le signal est bref et risque de passer inaperçu.
+Both blocks read the same binary error stream, and one erases what the other needs to see.
+The question matters in finance, where regime switches are abrupt and volatility clusters.
+ProteuS~\cite{suarez2025} fits ARMA--GARCH models to four ETFs and interpolates between
+them, producing synthetic returns with a known break date, the ground truth that real
+market data cannot supply.
 
-\section{Versant théorique --- poser correctement la course}
+\section{What the source paper establishes}
 
-L'article compare $\tau_{\mathrm{ARF}}$, le temps du premier remplacement d'arbre, à un temps de détection fixe, alors que le détecteur externe alarme lui aussi à un instant aléatoire --- voire jamais. Poser correctement cette course relève du cadre des risques concurrents avec censure~\cite{fine1999}~: on définit
+Working in River 0.23.0~\cite{montiel2021} and instrumenting the ARF's internal swap counter
+rather than simulating the race with proxy streams, the manuscript establishes three things.
 
-% Équation absente du texte source fourni (probablement une image ou un objet équation non converti
-% lors du collage) ; formule reconstruite à partir du contexte pour illustrer la définition de F_1 --
-% à vérifier / remplacer par la formule exacte de l'article avant diffusion.
-\begin{equation}
-  F_1(t) = \Pr(T \le t,\ \varepsilon = \text{réparation}), \qquad T = \min(\tau_{\mathrm{ARF}}, \tau_{\mathrm{alarme}}),
-\end{equation}
+\paragraph{A clock artefact, not an ADWIN flaw.} River evaluates ADWIN every $c$ steps,
+$c=32$ by default, while the ARF's internal detectors run at $c=1$. The measured delay is
+then $\mathrm{ADD}=c-1-(\tau^{*}\bmod c)+\tau_{\mathrm{stat}}$, uniform on
+$\{\tau_{\mathrm{stat}},\dots,\tau_{\mathrm{stat}}+c-1\}$ for an arbitrary drift date. The
+default pipeline handicaps the external monitor before any statistics are involved.
 
-où $F_1$ est la fonction d'incidence cumulée de la cause « réparation ». Cette quantité s'estime, sans hypothèse d'indépendance entre les deux horloges, par l'estimateur d'Aalen-Johansen~\cite{aalen1978}~:
+\paragraph{Starvation, amplified by the Hydra effect.} The forest adapts as soon as its
+fastest tree does, $\tau_{\mathrm{ARF}}=\min_{i\le M}\tau_i$, and the instrumentation
+measures that as $4$ to $8$ times faster than a single tree
+($\tau_{\mathrm{ARF}}\approx18.5\,\Delta e^{-0.98}$ against
+$\tau_{\mathrm{HAT}}\approx102\,\Delta e^{-1.02}$: same exponent, smaller prefactor). The
+error excess therefore lasts $O(1/\Delta e)$, and so does the CUSUM's accumulation
+requirement. The two scale together, so a violent shock is repaired faster and leaves the
+detector no more evidence than a slow one; a Doob maximal inequality over the transient
+window bounds the crossing probability away from~$1$. On ProteuS streams, a PHT paired with
+an ARF at $c_{\mathrm{int}}{=}1$ detects $0$ of $1{,}080$ runs, whereas throttling the
+forest to $c_{\mathrm{int}}{=}32$ restores $F_1\approx0.6$. The same collapse appears with
+EDDM and with Streaming Random Patches, which is what makes it a property of the
+cumulative-evidence family rather than of one detector.
 
-% Équation absente du texte source fourni ; forme standard de l'estimateur d'Aalen-Johansen
-% reconstruite pour le contexte -- à vérifier / remplacer par la formule exacte de l'article.
-\begin{equation}
-  \hat F_1(t) = \sum_{t_i \le t} \hat S(t_{i-1}) \, \frac{d_{1i}}{n_i},
-\end{equation}
+\paragraph{Consequences.} Under an assumption of independent trees,
+$P_{\mathrm{miss}}=1-\bigl(1-F(\tau^{*}_{\det})\bigr)^{M}$, whence a critical ensemble size
+$M_{\mathrm{crit}}=\lfloor\ln\beta/\ln(1-F(\tau^{*}_{\det}))\rfloor$ beyond which no
+guarantee survives. At $\Delta e=0.33$ it evaluates to $0$, so the certificate fails even
+for a single tree. The proposed fix, the Decoupling Principle, requires
+$c_{\mathrm{ext}}<c_{\mathrm{int}}$ and $\lambda<\lambda^{*}(\Delta e_{\min})$, and it runs
+straight into a negative result the authors state plainly: on heteroscedastic streams,
+decoupling caps $\lambda$ at $12.4$ while false-alarm control demands at least $15$, which
+leaves the admissible set empty. Detection is recovered by changing detector family rather
+than by tuning. KSWIN~\cite{raab2020}, a Kolmogorov--Smirnov test between sliding windows,
+keeps pre-drift data in its reference window and cannot be starved.
 
-plutôt que par un Kaplan-Meier naïf~: traiter les alarmes comme des censures indépendantes est ici invalide, puisque le déclenchement de l'alarme empêche structurellement d'observer la réparation dans le même run.
+\section{Where our reading departs from the manuscript}
 
-Une seconde lacune est imbriquée dans la première~: la forêt s'adapte dès que le premier de ses $M$ arbres se fait remplacer,
+\paragraph{The race is between two random times.} The manuscript compares
+$\tau_{\mathrm{ARF}}$ against the nominal $\tau^{*}_{\det}=\lambda/(\Delta e-\delta_P)$, a
+deterministic quantity, whereas the alarm is itself a stopping time that may never fire.
+The natural object is the cumulative incidence function of competing risks,
+$F_1(t)=\Pr(T\le t,\ \varepsilon=\text{repair})$ with
+$T=\min(\tau_{\mathrm{ARF}},\tau_{\det})$. Fine and Gray~\cite{fine1999} model its
+subdistribution hazard directly, their argument being that the cause-specific hazard
+carries no usable interpretation in terms of the probability of failing from that cause.
+Estimation goes through the competing-risks case of the Aalen--Johansen product-limit
+estimator~\cite{aalen1978}, not a Kaplan--Meier treating alarms as independent censoring:
+an alarm structurally prevents observing the repair in the same run, which is the
+dependence Kaplan--Meier assumes away.
 
-% Équation absente du texte source fourni ; définition standard du minimum d'ordre reconstruite
-% pour le contexte -- à vérifier / remplacer par la formule exacte de l'article.
-\begin{equation}
-  \tau_{\mathrm{ARF}} = \min(\tau_1, \tau_2, \dots, \tau_M),
-\end{equation}
+\paragraph{The independence assumption is optimistic, and the bias can be signed.} The
+$\tau_i$ enter through an order statistic~\cite{david2003}, but the $M$ trees share one
+stream and are not independent. Conditioning on the stream realization $S$ leaves only the
+per-tree Poisson weights and feature subspaces, which are i.i.d.\ across trees. Writing
+$G_S(s)=P(\tau_1>s\mid S)$ and applying Jensen's inequality to the convex map
+$x\mapsto x^{M}$ gives $P(\tau_{\mathrm{ARF}}>s)=\mathbb{E}_S[G_S(s)^M]\ge(1-F(s))^{M}$.
+The real repair is slower than the formula predicts, with equality only if the difficulty
+of adapting does not depend on which stream was drawn, a case that does not arise here
+since every seed produces a different post-drift noise trajectory. Esary, Proschan and
+Walkup~\cite{esary1967} reach the same place from the other side: their Theorem~5.1 gives
+$\Pr(\tau_1>s_1,\dots,\tau_M>s_M)\ge\prod_i\Pr(\tau_i>s_i)$ for associated variables, and
+the law of total covariance shows that the trees here can only be non-negatively
+associated. The manuscript concedes the point in a disclaimer; making it quantitative turns
+$M_{\mathrm{crit}}$ into a conservative floor rather than an estimate.
 
-dont la loi est calculée dans l'article sous hypothèse d'indépendance --- un résultat classique de statistiques d'ordre~\cite{david2003} --- alors que tous les arbres partagent le même flux de données. La référence~\cite{david2003} restant indisponible en ligne, le groupe s'est appuyé sur~\cite{esary1967}, qui établit que des variables positivement associées vérifient
+\paragraph{No standard metric exists for what has to be measured.} Both surveys enumerate
+the evaluation toolkit, prequential error, kappa and kappa-temporal statistics, prequential
+AUC, RAM-hours~\cite{gama2014,lu2018}, and neither offers a time-to-recovery measure. That
+gap is why the group instruments the swap fraction, the smoothed ensemble error and the
+detector's internal state together, and why $\tau_{\mathrm{ARF}}$, the date of the first
+swap alone, has to be validated as a proxy for ensemble recovery instead of assumed to be
+one.
 
-% Équation absente du texte source fourni ; inégalité d'association d'Esary-Proschan-Walkup
-% reconstruite pour le contexte -- à vérifier / remplacer par la formule exacte de l'article.
-\begin{equation}
-  \Pr(\tau_1 > t_1, \dots, \tau_M > t_M) \ \ge\ \prod_{i=1}^{M} \Pr(\tau_i > t_i),
-\end{equation}
-
-l'inégalité inverse de celle sous indépendance. Appliqué aux $\tau_i$, positivement associés car soumis au même flux, ce résultat implique que $\tau_{\mathrm{ARF}}$ survient statistiquement plus tard sous dépendance que sous l'hypothèse de l'article~: la formule sous-estime donc la vitesse de réparation réelle, et par voie de conséquence surestime la probabilité que le détecteur manque le drift.
-
-\section{Versant expérimental --- mesurer l'adaptation réelle}
-
-Remplacer un arbre ne guérit pas immédiatement la forêt entière~: il faut instrumenter le pipeline pour observer sa dynamique interne. Le groupe étend le script \texttt{exp\_R2\_instrumented\_blind\_spot.py} du dépôt officiel (\emph{The-Blind-Spot-Paradox-Experiments}) pour enregistrer conjointement la fraction d'arbres remplacés, l'erreur lissée de l'ensemble, et l'état interne du détecteur externe. La méthodologie d'évaluation --- test avant apprentissage et lissage par fenêtre glissante --- suit les standards du domaine~\cite{gama2014}, qui confirme au passage qu'aucune métrique usuelle de temps de retour à la normale n'existe dans la littérature~: il s'agit d'une lacune à combler, non d'une métrique déjà établie ailleurs.
-
-La relation observée dans l'article entre $\tau_{\mathrm{ARF}}$ et l'amplitude du drift $\Delta e$ suit une loi de puissance,
-
-% Équation absente du texte source fourni ; forme générique d'une loi de puissance reconstruite
-% pour le contexte -- à vérifier / remplacer par la formule exacte de l'article (exposant, constante).
-\begin{equation}
-  \tau_{\mathrm{ARF}} \sim C \cdot (\Delta e)^{-\gamma},
-\end{equation}
-
-ce qui justifie de mesurer la corrélation entre $\tau_{\mathrm{ARF}}$ et les indicateurs alternatifs (temps de retour effectif, erreur résiduelle cumulée) par le tau de Kendall plutôt que par Spearman ou Pearson --- seul à gérer correctement à la fois la censure à droite et la relation non linéaire.
-
-\section{Outils}
-
-Bibliothèque River~\cite{montiel2021}, version 0.23.0 épinglée, pour l'implémentation des flux et des modèles~; générateur ProteuS~\cite{suarez2025} pour des séries financières synthétiques à ruptures connues~; KSWIN~\cite{raab2020}, détecteur distributionnel étudié en comparaison de CUSUM/Page-Hinkley.
-
-\begin{thebibliography}{99}
-
-\bibitem{moreno2012}
-J.~G. Moreno-Torres, T.~Raeder, R.~Alaiz-Rodríguez, N.~V. Chawla, and F.~Herrera,
-``A unifying view on dataset shift in classification,''
-\emph{Pattern Recognition}, vol.~45, no.~1, pp.~521--530, 2012.
-
-\bibitem{gama2014}
-J.~Gama, I.~Žliobaitė, A.~Bifet, M.~Pechenizkiy, and A.~Bouchachia,
-``A survey on concept drift adaptation,''
-\emph{ACM Computing Surveys}, vol.~46, no.~4, 2014.
-
-\bibitem{gomes2017}
-H.~M. Gomes, A.~Bifet, J.~Read et al.,
-``Adaptive random forests for evolving data stream classification,''
-\emph{Machine Learning}, vol.~106, no.~9-10, pp.~1469--1495, 2017.
-
-\bibitem{domingos2000}
-P.~Domingos and G.~Hulten,
-``Mining high-speed data streams,''
-in \emph{Proc. KDD}, 2000.
-
-\bibitem{bifet2007}
-A.~Bifet and R.~Gavaldà,
-``Learning from time-changing data with adaptive windowing,''
-in \emph{Proc. SIAM SDM}, 2007.
-
-\bibitem{page1954}
-E.~S. Page,
-``Continuous inspection schemes,''
-\emph{Biometrika}, vol.~41, no.~1-2, pp.~100--115, 1954.
-
-\bibitem{hinkley1971}
-D.~V. Hinkley,
-``Inference about the change-point from cumulative sum tests,''
-\emph{Biometrika}, vol.~58, no.~3, pp.~509--523, 1971.
-
-\bibitem{fine1999}
-J.~P. Fine and R.~J. Gray,
-``A proportional hazards model for the subdistribution of a competing risk,''
-\emph{JASA}, vol.~94, no.~446, pp.~496--509, 1999.
-
-\bibitem{aalen1978}
-O.~O. Aalen and S.~Johansen,
-``An empirical transition matrix for non-homogeneous Markov chains based on censored observations,''
-\emph{Scandinavian Journal of Statistics}, vol.~5, no.~3, pp.~141--150, 1978.
-
-\bibitem{david2003}
-H.~A. David and H.~N. Nagaraja,
-\emph{Order Statistics}, 3rd ed. Wiley, 2003.
-
-\bibitem{esary1967}
-J.~D. Esary, F.~Proschan, and D.~J. Walkup,
-``Association of random variables, with applications,''
-\emph{Annals of Mathematical Statistics}, vol.~38, no.~5, pp.~1466--1474, 1967.
-
-\bibitem{montiel2021}
-J.~Montiel, M.~Halford, S.~M. Mastelini et al.,
-``River: machine learning for streaming data in Python,''
-\emph{JMLR}, vol.~22, 2021.
-
-\bibitem{suarez2025}
-A.~L. Suárez-Cetrulo, A.~Cervantes, and D.~Quintana,
-``ProteuS: a generative approach for simulating concept drift in financial markets,''
-arXiv:2509.11844, 2025.
-
-\bibitem{raab2020}
-C.~Raab, M.~Heusinger, and F.-M. Schleif,
-``Reactive soft prototype computing for concept drift streams,''
-\emph{Neurocomputing}, vol.~416, pp.~340--351, 2020.
-
+\vspace{-0.2em}
+{\footnotesize
+\begin{thebibliography}{99}\setlength{\itemsep}{0pt}
+\bibitem{moreno2012} J.~G. Moreno-Torres, T.~Raeder, R.~Alaiz-Rodríguez, N.~V. Chawla, and F.~Herrera, ``A unifying view on dataset shift in classification,'' \emph{Pattern Recognition}, vol.~45, no.~1, pp.~521--530, 2012.
+\bibitem{gama2014} J.~Gama, I.~Žliobaitė, A.~Bifet, M.~Pechenizkiy, and A.~Bouchachia, ``A survey on concept drift adaptation,'' \emph{ACM Computing Surveys}, vol.~46, no.~4, art.~44, 2014.
+\bibitem{lu2018} J.~Lu, A.~Liu, F.~Dong, F.~Gu, J.~Gama, and G.~Zhang, ``Learning under concept drift: a review,'' \emph{IEEE Trans. Knowl. Data Eng.}, vol.~31, no.~12, pp.~2346--2363, 2018.
+\bibitem{gomes2017} H.~M. Gomes, A.~Bifet, J.~Read, J.~P. Barddal, F.~Enembreck, B.~Pfahringer, G.~Holmes, and T.~Abdessalem, ``Adaptive random forests for evolving data stream classification,'' \emph{Machine Learning}, vol.~106, no.~9--10, pp.~1469--1495, 2017.
+\bibitem{domingos2000} P.~Domingos and G.~Hulten, ``Mining high-speed data streams,'' in \emph{Proc. KDD}, 2000, pp.~71--80.
+\bibitem{bifet2007} A.~Bifet and R.~Gavaldà, ``Learning from time-changing data with adaptive windowing,'' in \emph{Proc. SIAM SDM}, 2007, pp.~443--448.
+\bibitem{page1954} E.~S. Page, ``Continuous inspection schemes,'' \emph{Biometrika}, vol.~41, no.~1--2, pp.~100--115, 1954.
+\bibitem{hinkley1971} D.~V. Hinkley, ``Inference about the change-point from cumulative sum tests,'' \emph{Biometrika}, vol.~58, no.~3, pp.~509--523, 1971.
+\bibitem{suarez2025} A.~L. Suárez-Cetrulo, A.~Cervantes, and D.~Quintana, ``ProteuS: a generative approach for simulating concept drift in financial markets,'' arXiv:2509.11844, 2025.
+\bibitem{montiel2021} J.~Montiel, M.~Halford, S.~M. Mastelini et al., ``River: machine learning for streaming data in Python,'' \emph{JMLR}, vol.~22, pp.~1--8, 2021.
+\bibitem{raab2020} C.~Raab, M.~Heusinger, and F.-M. Schleif, ``Reactive soft prototype computing for concept drift streams,'' \emph{Neurocomputing}, vol.~416, pp.~340--351, 2020.
+\bibitem{fine1999} J.~P. Fine and R.~J. Gray, ``A proportional hazards model for the subdistribution of a competing risk,'' \emph{JASA}, vol.~94, no.~446, pp.~496--509, 1999.
+\bibitem{aalen1978} O.~O. Aalen and S.~Johansen, ``An empirical transition matrix for non-homogeneous Markov chains based on censored observations,'' \emph{Scand. J. Statist.}, vol.~5, no.~3, pp.~141--150, 1978.
+\bibitem{david2003} H.~A. David and H.~N. Nagaraja, \emph{Order Statistics}, 3rd ed. Wiley, 2003. (Not available online; the association argument of~\cite{esary1967} was used instead.)
+\bibitem{esary1967} J.~D. Esary, F.~Proschan, and D.~J. Walkup, ``Association of random variables, with applications,'' \emph{Ann. Math. Statist.}, vol.~38, no.~5, pp.~1466--1474, 1967.
 \end{thebibliography}
+}
 
 \end{document}
