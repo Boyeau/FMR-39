@@ -8,6 +8,12 @@
 
 > ⚠️ Cette section a été entièrement réécrite le 2026-09-06 après réception du document détaillé du prof, qui donne des définitions et un protocole précis — plus contraignants et plus utiles que ce qu'on avait improvisé avant. Les anciennes définitions (τ_warning, τ50%, τ_rec "jusqu'au retour à la normale", R "jusqu'à τ_rec") sont **remplacées** par celles ci-dessous.
 
+> ⚠️ **2026-09-07 — Deuxième correction, après réception du PDF complet du prof** (`Business_case_Filiere_Recherche_Blind_Spot_FIN.pdf`, pas juste un résumé) : deux paramètres qu'on avait mal calés depuis le début.
+> - **H = 2 000, pas 1 000.** Le doc est explicite et sans exception : "l'horizon est fixé pour tout le projet". Avec H=1000 on aurait tronqué le transitoire aux faibles amplitudes et fabriqué "une fausse dépendance en Δe dans absolument tous les résultats" (citation du doc) — sans le savoir. Le run lancé le 2026-09-06 avec H=1000 a été **jeté** (archivé dans `resultats/data/_archive_H1000_invalide/`), pas réutilisé.
+> - **Grille = 20 amplitudes** (`np.linspace(0.1, 4.0, 20)`, valeur donnée telle quelle par le doc), pas 21.
+> - **Socle p̂₀ estimé sur 3000 pas pré-drift** pour l'analyse (pas 1000) — le doc demande de garder 1000 pour validation et de rapporter les deux (`p_pre_1000_validation` et `p_pre_3000_main` dans le parquet).
+> - **τ_err(ρ) et τ_erase ajoutés** — ils manquaient entièrement du script précédent alors qu'ils font partie des indicateurs requis. ρ ∈ {0,50 ; 0,25 ; 0,10} est notre propre choix (le doc laisse ρ libre).
+
 ## Point vérifié : l'erreur de l'ensemble EST déjà observable dans nos scripts
 
 Le document du prof affirme : *"dans les expériences actuelles, l'appel à `predict_one()` a été retiré... l'erreur de l'ensemble n'est jamais observée dans ces scripts."* **Vérifié faux sur notre copie et sur un clone frais du 2026-09-06** : `exp_R2_instrumented_blind_spot.py` (et R1, R6, R7, R8, R9) appellent tous `predict_one()` et calculent `error`. R2 en a d'ailleurs besoin pour nourrir son propre CUSUM externe (`ext_pht.update(error)`) — sans ça, aucun signal n'existerait pour l'alarme externe.
