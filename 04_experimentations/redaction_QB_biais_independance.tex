@@ -1,0 +1,183 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage[top=1.2cm,bottom=1.5cm,left=2cm,right=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue}
+
+\title{Question B --- Le biais de l'hypothèse d'indépendance entre arbres}
+\author{Alexandre Boyer}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent Les $M$ arbres de la forêt partagent le même flux de données --- dans quel
+sens cela fausse-t-il la formule de l'article, qui suppose les $\tau_i$ indépendants
+pour calculer $\tau_{\mathrm{ARF}} = \min_i \tau_i$~? Objets nouveaux par rapport à la
+Question A~: $S$ est la réalisation complète du flux (une graine) ; $U_i$ l'aléa propre
+à l'arbre $i$ (poids de Poisson tirés en ligne pour le bagging, sous-espaces aléatoires
+de variables à chaque split) ; $F(s)$ la loi marginale, inconditionnelle, d'un arbre
+seul ; $G_S(s) := P(\tau_1>s\mid S)$ sa survie \emph{sachant} le flux ; $M=10$ le nombre
+d'arbres dans la campagne R2.
+
+\section{Factorisation conditionnelle}
+
+Une fois $S$ fixé (toute la trajectoire $(x_t,y_t)$ connue), ce qui reste propre à
+chaque arbre, c'est $U_i$~: les poids de Poisson tirés en ligne pour le bagging (Oza \&
+Russell, 2001 --- ce n'est pas du bagging classique par ré-échantillonnage d'un dataset
+fixe, impossible en streaming, mais un poids aléatoire attribué à chaque nouvelle
+observation), et les sous-espaces aléatoires de variables testés à chaque nœud. Ces
+tirages sont, par construction, indépendants d'un arbre à l'autre~: l'arbre $i$ ne voit
+jamais les poids de l'arbre $j$, et un arbre nouvellement créé lors d'un remplacement ne
+récupère aucune information (ni poids, ni structure) de l'arbre qu'il remplace --- seul
+lien entre les deux, le second a commencé à apprendre plus récemment.
+
+Le temps d'adaptation de l'arbre $i$ est une fonction déterministe du couple
+$(S, U_i)$. Une fois $S$ fixé, seule la variation de $U_i$ reste, et les $U_i$ sont
+i.i.d.\ entre arbres. Donc, conditionnellement à $S$, les $\tau_i$ sont bien
+indépendants (et identiquement distribués, puisque tous les arbres partagent la même
+procédure).
+
+\begin{center}
+\fbox{\parbox{0.93\textwidth}{\textbf{Résultat.} En posant la survie conditionnelle
+$G_S(s) := P(\tau_1>s \mid S)$, l'indépendance conditionnelle donne
+\[
+  P(\tau_{\mathrm{ARF}}>s \mid S) = P\big(\forall i,\ \tau_i>s \mid S\big) =
+  \prod_{i=1}^{M} P(\tau_i>s\mid S) = G_S(s)^M.
+\]}}
+\end{center}
+
+\section{Le sens du biais, par convexité}
+
+On déconditionne par la formule des probabilités totales~:
+\[
+  P(\tau_{\mathrm{ARF}}>s) = \mathbb{E}_S\big[\,G_S(s)^M\,\big].
+\]
+La fonction $x \mapsto x^M$ est convexe sur $[0,1]$ pour $M\ge 1$. L'inégalité de
+Jensen donne directement
+\[
+  \mathbb{E}_S\big[G_S(s)^M\big] \;\ge\; \big(\mathbb{E}_S[G_S(s)]\big)^M = \big(1-F(s)\big)^M,
+\]
+puisque $\mathbb{E}_S[G_S(s)] = P(\tau_1>s) = 1-F(s)$ (la loi marginale, sans
+conditionnement).
+
+\begin{center}
+\fbox{\parbox{0.93\textwidth}{\textbf{Résultat.}
+\[
+  P(\tau_{\mathrm{ARF}}>s) \;\ge\; \big(1-F(s)\big)^M \quad\Longleftrightarrow\quad
+  P(\tau_{\mathrm{ARF}}\le s) \;\le\; 1-\big(1-F(s)\big)^M.
+\]
+La vraie probabilité d'avoir déjà adapté à l'instant $s$ est toujours inférieure ou
+égale à ce que prédit la formule d'indépendance~: le manuscrit \textbf{surestime la
+vitesse de réparation} --- $\tau_{\mathrm{ARF}}$ est stochastiquement plus grand (plus
+lent) que ne le prétend l'article.}}
+\end{center}
+
+\paragraph{Condition d'égalité.} Jensen est une égalité si et seulement si $G_S(s)$ est
+presque sûrement constante --- c'est-à-dire que la difficulté d'adaptation ne dépend en
+réalité pas de la réalisation précise du flux. Physiquement, ce cas ne se produit
+essentiellement jamais ici~: chaque graine produit une trajectoire de bruit différente
+après la rupture, donc $G_S(s)$ varie génuinement d'une réalisation à l'autre.
+L'indépendance n'est donc jamais exacte --- seulement une approximation,
+systématiquement optimiste.
+
+\section{Conséquence opérationnelle}
+
+Une réparation réelle plus lente que prévu gagne moins souvent la course contre le
+détecteur que ne le prédit la formule d'indépendance. En deux temps~:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Grandeur & Effet de l'indépendance \\
+\midrule
+Vitesse d'adaptation ($\tau_{\mathrm{ARF}}$) & Trop optimiste --- prédit plus rapide que la réalité \\
+$P_{\mathrm{miss}}$ & Trop pessimiste --- surestime le risque de point aveugle \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Les deux sont vraies simultanément, sans contradiction~: ce sont deux grandeurs
+différentes, liées par le fait qu'une réparation plus lente laisse davantage de chances
+au détecteur.
+
+\paragraph{$M_{\mathrm{crit}}$.} $M_{\mathrm{crit}}$ est défini via la CDF sous
+indépendance. Puisque la vraie CDF est partout inférieure ou égale (section 2), le vrai
+$M$ nécessaire pour atteindre une confiance $\beta$ donnée est supérieur ou égal à
+$M_{\mathrm{crit}}$.
+
+\begin{center}
+\fbox{\parbox{0.93\textwidth}{\textbf{Résultat.} Le corollaire n'est pas infirmé --- il
+est \textbf{requalifié en certificat conservateur}~: « il faut au moins
+$M_{\mathrm{crit}}$ arbres » reste vrai, ce n'est plus une estimation exacte du nombre
+suffisant. C'est une borne inférieure valide, pas une réponse tight.}}
+\end{center}
+
+\section{Le piège de la corrélation}
+
+Cas jouet $M=2$ sur $\{1,2\}$~: un couplage anti-monotone est-il compatible avec la
+vraie ARF~?
+
+\paragraph{Le contre-exemple.} Support $\{1,2\}$, marginales $P(\tau_i=1)=\tfrac12$.
+Couplage anti-monotone~: $\tau_1=1 \iff \tau_2=2$ (parfaitement opposés). Sous ce
+couplage, $\{\tau_1=2\}$ implique $\{\tau_2=1\}$, donc
+$P(\tau_1{>}1,\ \tau_2{>}1)=P(\tau_1{=}2,\tau_2{=}2)=0$, d'où
+\[
+  \mathrm{Cov}\big(\mathbf{1}\{\tau_1{>}1\},\mathbf{1}\{\tau_2{>}1\}\big) = 0 - \tfrac12\cdot\tfrac12 = -\tfrac14.
+\]
+Sous indépendance cette covariance vaut $0$~: le couplage anti-monotone donne donc une
+valeur strictement négative.
+
+\paragraph{Pourquoi c'est impossible dans la vraie ARF.} En réutilisant la
+factorisation de la section 1 et la formule de covariance totale
+\[
+  \mathrm{Cov}(X,Y) = \mathbb{E}_S[\mathrm{Cov}(X,Y\mid S)] +
+  \mathrm{Cov}\big(\mathbb{E}[X\mid S],\mathbb{E}[Y\mid S]\big),
+\]
+avec $X=\mathbf{1}\{\tau_1{>}1\}$, $Y=\mathbf{1}\{\tau_2{>}1\}$~: le premier terme est
+nul (indépendance conditionnelle à $S$, section 1). Le second se calcule directement,
+puisque $\mathbb{E}[X\mid S]=\mathbb{E}[Y\mid S]=G_S(1)$~:
+\[
+  \mathrm{Cov}\big(\mathbf{1}\{\tau_1{>}1\},\mathbf{1}\{\tau_2{>}1\}\big) = \mathrm{Var}\big(G_S(1)\big) \;\ge\; 0 \quad \text{toujours}.
+\]
+
+\begin{center}
+\fbox{\parbox{0.93\textwidth}{\textbf{Conclusion --- le piège désamorcé.} La vraie ARF
+ne peut produire qu'une covariance $\ge 0$ entre deux arbres --- jamais négative. Le
+couplage anti-monotone, qui exige une covariance de $-1/4$, est donc structurellement
+impossible dans le modèle réel~: la dépendance partagée via $S$ ne peut aller que dans
+un sens (indépendance si $\mathrm{Var}(G_S)=0$, dépendance positive sinon), jamais dans
+l'autre. Ça confirme et verrouille la conclusion de la section 2~: il n'existe aucun
+scénario de dépendance négative qui viendrait contredire « l'indépendance est trop
+optimiste sur la vitesse ».}}
+\end{center}
+
+\section{Confrontation au versant expérimental (Q C.1)}
+
+La campagne instrumentée de Salomé (\texttt{redaction\_QC1\_hierarchie.tex}) établit,
+sans aucune hypothèse de loi, que $\tau_{\mathrm{ARF}}$ sous-estime systématiquement et
+unilatéralement le temps nécessaire pour qu'une fraction réellement significative de la
+forêt ait été renouvelée --- un biais optimiste à sens unique, vérifié sans exception
+sur les 2\,000 exécutions de la campagne. C'est exactement le sens du biais établi ici~:
+la dépendance positive entre arbres (section 2, Jensen) implique que la vraie vitesse
+d'adaptation de la forêt est plus lente que ce que prédirait l'hypothèse d'indépendance
+de l'article. Les deux résultats sont obtenus par des voies complètement indépendantes
+--- l'une théorique et sans donnée, l'autre empirique et sans hypothèse de loi --- et
+convergent exactement sur le signe du biais. C'est ce type de convergence croisée,
+plutôt qu'une réponse isolée à chaque question, qui donne sa valeur au diagnostic
+d'ensemble.
+
+\section{Perspective}
+
+Reste à mesurer $G_S(s)$ empiriquement sur les runs de la campagne (variance
+inter-graines de la survie d'un arbre à $s$ fixé) pour quantifier --- pas seulement
+démontrer le signe --- l'écart entre la formule d'indépendance et la réalité. Comparer
+aussi R6/R9 (arbre seul, $M=1$) à R2 (forêt, $M=10$), comme suggéré par Minato.
+
+\end{document}

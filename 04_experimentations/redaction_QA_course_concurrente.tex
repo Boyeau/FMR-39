@@ -1,0 +1,172 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage[top=1.2cm,bottom=1.5cm,left=2cm,right=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue}
+
+\title{Question A --- La course concurrente entre réparation et détection}
+\author{Alexandre Boyer}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent On formalise et on encadre $P(\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}})$ sans
+aucune hypothèse sur la dépendance entre les deux horloges. Rappel de notation~:
+$\tau^*$ est l'instant de rupture (connu) ; $\tau_{\mathrm{ARF}}$ le délai du premier
+arbre remplacé, $\min_i \tau_i$ sur $M$ arbres ; $\tau_{\mathrm{det}}$ le délai de la
+première alarme externe, éventuellement $+\infty$ ; $F_A$ et $F_D$ les fonctions de
+répartition respectives de $\tau_{\mathrm{ARF}}$ et $\tau_{\mathrm{det}}$ ; $H$ l'horizon
+d'observation post-rupture ($H = 2\,000$) ; $\mathrm{Miss}$ l'événement « point aveugle »,
+défini en section~1.
+
+\section{Espace probabiliste et cas limites}
+
+\paragraph{Le cas de double famine.} L'événement $\{\tau_{\mathrm{ARF}}=+\infty,\
+\tau_{\mathrm{det}}=+\infty\}$ décrit une exécution où ni la forêt ne s'est jamais
+réparée, ni l'alarme n'a sonné. C'est un régime qualitativement différent du paradoxe
+étudié~: le point aveugle repose sur l'idée qu'une réparation \emph{silencieuse} efface
+la preuve avant que l'alarme n'ait sa chance. Si la réparation elle-même n'a jamais eu
+lieu, il n'y a rien à effacer --- le modèle reste simplement cassé, sans qu'aucun
+mécanisme n'ait « triché ». Avec la définition naturelle
+$\mathrm{Miss} := \{\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}\}$ sur les réels étendus,
+l'inégalité stricte $\infty < \infty$ est fausse par convention~: la double famine est
+donc automatiquement exclue de $\mathrm{Miss}$, sans traitement particulier à ajouter.
+
+\paragraph{Inégalité stricte ou large~?} Le flux est discret~: deux processus peuvent
+légitimement tomber sur le même pas de temps, donc $P(\tau_{\mathrm{ARF}}=\tau_{\mathrm{det}})$
+peut être strictement positif --- la question n'est pas cosmétique. Interprétation
+physique d'une égalité $\tau_{\mathrm{ARF}}=\tau_{\mathrm{det}}=t$~: l'alarme sonne
+\emph{exactement} au moment où la forêt se répare, l'opérateur est informé au même
+instant, l'information n'est pas perdue contrairement au vrai point aveugle où l'alarme
+arrive trop tard ou jamais. Une égalité doit donc compter comme un succès de détection.
+
+\begin{center}
+\fbox{\parbox{0.93\textwidth}{\textbf{Convention adoptée.}
+\[ \mathrm{Miss} := \{\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}\} \qquad \text{(inégalité stricte)} \]
+Un ex æquo est classé du côté du détecteur. À vérifier empiriquement sur les
+trajectoires~: si la proportion de runs avec $\tau_{\mathrm{ARF}}=\tau_{\mathrm{det}}$
+exactement est négligeable (attendu, les deux processus dépendant de tirages continus
+sous-jacents), le choix de convention n'a aucun impact matériel sur les résultats.}}
+\end{center}
+
+\section{Identification sous horizon fini}
+
+La censure absolue est l'événement $C_H := \{\min(\tau_{\mathrm{ARF}},\tau_{\mathrm{det}}) > H\}$~:
+ni l'un ni l'autre n'a encore eu lieu à l'horizon, le vainqueur de la course est
+inobservable. À l'inverse $\{\tau_{\mathrm{ARF}}\le H\}$ et $\{\tau_{\mathrm{det}}\le H\}$
+sont observables.
+
+\paragraph{Partition en quatre régions.} Tout run tombe dans exactement une des quatre
+cases suivantes.
+
+\begin{center}
+\begin{tabular}{cccl}
+\toprule
+Région & $\tau_{\mathrm{ARF}}$ observé ? & $\tau_{\mathrm{det}}$ observé ? & Verdict \\
+\midrule
+1 & $\le H$ & $\le H$ & Miss tranché directement (comparaison directe) \\
+2 & $\le H$ & $> H$ & Miss certain --- $\tau_{\mathrm{ARF}} \le H < \tau_{\mathrm{det}}$ \\
+3 & $> H$ & $\le H$ & Jamais Miss --- $\tau_{\mathrm{det}} \le H < \tau_{\mathrm{ARF}}$ \\
+4 & $> H$ & $> H$ & Inconnu --- c'est $C_H$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Les régions 1 et 2 réunies forment exactement
+$\{\tau_{\mathrm{ARF}}\le H\}\cap\mathrm{Miss}$ --- une quantité entièrement calculable
+sur les données, sans aucune supposition sur ce qui se passe au-delà de $H$.
+
+\paragraph{L'encadrement.} En ignorant la région 4 (borne basse) puis en la comptant
+entièrement comme un Miss dans le pire cas (borne haute)~:
+\[
+  \underbrace{P(\{\tau_{\mathrm{ARF}}\le H\}\cap\mathrm{Miss})}_{\text{calculable, sans hypothèse}}
+  \;\le\; P_{\mathrm{miss}} \;\le\;
+  P(\{\tau_{\mathrm{ARF}}\le H\}\cap\mathrm{Miss}) + P(C_H)
+\]
+
+\begin{center}
+\fbox{\parbox{0.93\textwidth}{\textbf{Résultat.} La largeur de l'encadrement est
+exactement $P(C_H)$, la proportion d'exécutions doublement censurées~: c'est un
+encadrement de type Manski (identification partielle). Plus les runs se résolvent
+avant $H$, plus l'intervalle se resserre --- à calculer directement sur les 2\,000 (ou
+4\,000) exécutions de la campagne.}}
+\end{center}
+
+\section{Encadrement universel de Fréchet}
+
+On revient au cas sans horizon fini~: à partir des seules lois marginales $F_A$ et
+$F_D$, sans hypothèse de dépendance, on encadre $P_{\mathrm{miss}}$.
+
+\paragraph{Borne inférieure.} Pour un entier $s$ fixé, l'événement
+$\{\tau_{\mathrm{ARF}}\le s < \tau_{\mathrm{det}}\}$ implique toujours
+$\tau_{\mathrm{ARF}}<\tau_{\mathrm{det}}$ --- c'est donc un sous-ensemble de
+$\mathrm{Miss}$, quel que soit $s$. L'inégalité de Fréchet pour une intersection donne
+\[
+  P(\tau_{\mathrm{ARF}}\le s,\ \tau_{\mathrm{det}}>s) \;\ge\; \max\big(0,\ F_A(s) - F_D(s)\big),
+\]
+et comme l'inclusion tient pour tout $s$, on optimise en prenant le plus grand~:
+\[
+  P_{\mathrm{miss}} \;\ge\; \max\Big(0,\ \sup_{s\in\mathbb{Z}} \big[F_A(s)-F_D(s)\big]\Big).
+\]
+
+\paragraph{Borne supérieure.} On partitionne selon $\{\tau_{\mathrm{ARF}}\le s\}$ et
+$\{\tau_{\mathrm{ARF}}\ge s+1\}$. Si $\tau_{\mathrm{ARF}}\le s$, l'inclusion dans
+$\mathrm{Miss}$ est triviale. Si $\tau_{\mathrm{ARF}}\ge s+1$ et que $\mathrm{Miss}$ est
+vrai, alors $\tau_{\mathrm{det}}>\tau_{\mathrm{ARF}}\ge s+1$, donc
+$\tau_{\mathrm{det}}>s+1$. Dans les deux cas~:
+\[
+  \mathrm{Miss} \;\subseteq\; \{\tau_{\mathrm{ARF}}\le s\} \cup \{\tau_{\mathrm{det}}> s+1\}.
+\]
+La sous-additivité de Boole, puis l'optimisation sur $s$ (et la troncature triviale à
+1, une probabilité ne dépassant jamais 1) donnent
+\[
+  P_{\mathrm{miss}} \;\le\; \min\Big(1,\ \inf_{s\in\mathbb{Z}} \big[F_A(s) + 1 - F_D(s+1)\big]\Big).
+\]
+
+\begin{center}
+\fbox{\parbox{0.93\textwidth}{\textbf{Résultat --- encadrement final.}
+\[
+  \max\Big(0,\sup_s[F_A(s)-F_D(s)]\Big) \;\le\; P_{\mathrm{miss}} \;\le\;
+  \min\Big(1,\inf_s[F_A(s)+1-F_D(s+1)]\Big)
+\]
+Valable pour n'importe quelle dépendance entre $\tau_{\mathrm{ARF}}$ et
+$\tau_{\mathrm{det}}$ --- c'est ce qui en fait un encadrement \emph{universel}.}}
+\end{center}
+
+\paragraph{Vérification sur un cas jouet.} Support $\{1,2\}$, marginales uniformes~:
+$F_A(1)=F_D(1)=\tfrac12$, $F_A(2)=F_D(2)=1$.
+
+\begin{center}
+\begin{tabular}{llcl}
+\toprule
+Couplage & Description & $P(\mathrm{Miss})$ & Position \\
+\midrule
+Comonotone & $\tau_{\mathrm{ARF}} = \tau_{\mathrm{det}}$ toujours & $0$ & = borne inférieure \\
+Indépendant & tirages indépendants & $0{,}25$ & strictement à l'intérieur \\
+Anti-monotone & l'un vaut 1 quand l'autre vaut 2 & $0{,}5$ & = borne supérieure \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Calcul rapide~: $\sup_s[F_A(s)-F_D(s)]=0$ (marginales identiques) donne une borne basse
+de $0$, atteinte par le couplage comonotone. Et
+$\inf_s[F_A(s)+1-F_D(s+1)]=0{,}5$ (atteint en $s=0$ et $s=1$) donne une borne haute de
+$0{,}5$, atteinte par le couplage anti-monotone. La formule tient, et les deux bornes
+sont atteintes exactement~: l'encadrement est le meilleur possible sur ce cas jouet.
+
+\section{Perspective}
+
+Reste à appliquer l'encadrement des sections 2 et 3 aux données réelles de la campagne
+($\hat F_A$, $\hat F_D$ estimées empiriquement), et à vérifier si l'encadrement de
+Fréchet, très large en général, se resserre une fois qu'on utilise la structure connue
+du problème --- c'est tout l'enjeu de la Question B~: l'indépendance conditionnelle au
+flux donne une loi plus précise que la seule connaissance des marginales.
+
+\end{document}

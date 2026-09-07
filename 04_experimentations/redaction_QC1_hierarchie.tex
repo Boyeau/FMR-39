@@ -50,13 +50,13 @@ grande majorité des cas, utiliser $\tau_{\mathrm{ARF}}$ comme date d'adaptation
 forêt \emph{sous-estime systématiquement et unilatéralement} le temps nécessaire pour
 qu'une fraction réellement significative de l'ensemble ait été renouvelée : c'est un
 biais à sens unique, optimiste, jamais compensé par une surestimation symétrique.
-%
-% TODO(à synchroniser avec le versant théorique) : la question demande de comparer ce
-% sens de biais à celui établi en Q B. L'argument standard (Jensen sur la survie
-% conditionnelle G_S, si les tau_i sont positivement associés via le flux commun S)
-% pointe dans la même direction -- l'indépendance surestimerait, elle aussi, la
-% probabilité d'une adaptation rapide -- mais ce résultat appartient au livrable de
-% l'équipe théorique et doit être confirmé avec elle avant d'être affirmé ici.
+\paragraph{Confirmé côté théorique (Q~B.2, \texttt{redaction\_QB\_biais\_independance.tex}).}
+Le résultat théorique va dans le même sens~: la dépendance positive entre arbres
+(tous soumis au même flux $S$) implique, par l'inégalité de Jensen sur $x\mapsto x^M$,
+que l'hypothèse d'indépendance de l'article surestime systématiquement la vitesse de
+réparation de la forêt. C'est exactement le biais optimiste à sens unique observé ici
+empiriquement --- deux voies indépendantes (une preuve sans donnée, une mesure sans
+hypothèse de loi) qui convergent sur le même signe.
 
 \section{Écart $\tau_{\mathrm{swap}}(q) - \tau_{\mathrm{ARF}}$ en fonction de $\Delta e$}
 
@@ -68,7 +68,7 @@ puisque $\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(0{,}10)$).
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{../ulysse/resultats/figures/Fig_QC_ecarts_full.png}
+  \includegraphics[width=0.85\textwidth]{ulysse/resultats/figures/Fig_QC_ecarts_full.png}
   \caption{Écart médian $\tau_{\mathrm{swap}}(q) - \tau_{\mathrm{ARF}}$ en fonction de
   $\Delta e$, campagne complète (2\,000 exécutions). Trait pointillé : amplitude où
   plus de 50\% des exécutions sont censurées pour ce quota.}
