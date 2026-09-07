@@ -1,0 +1,136 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage[top=1.2cm,bottom=1.5cm,left=2cm,right=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue}
+
+\title{Question C.1 --- Hiérarchie déterministe des temps de bascule}
+\author{Salomé Fonvielle}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent Toutes les mesures numériques de cette section proviennent de la campagne
+instrumentée de 2\,000 exécutions (20 amplitudes $\times$ 100 graines, $H=2\,000$,
+socle $\hat p_0$ estimé sur 3\,000 pas pré-rupture) documentée dans
+\texttt{04\_experimentations/ulysse/}.
+
+\section{Relation déterministe entre $\tau_{\mathrm{ARF}}$ et $\tau_{\mathrm{swap}}(q)$}
+
+Soit $N_t$ le nombre d'arbres distincts remplacés à l'instant $t$ depuis la rupture
+$\tau^*$, et
+\[
+  \tau_{\mathrm{swap}}(q) = \inf\{t > \tau^* : N_t/M \ge q\} - \tau^*.
+\]
+$N_t$ ne peut que croître (un arbre remplacé reste compté), donc $\tau_{\mathrm{swap}}$
+est croissante en $q$. Et comme $N_t$ est entier, la condition $N_t \ge 1$ équivaut à
+$N_t/M \ge 1/M$ : $\tau_{\mathrm{ARF}}$ est donc exactement $\tau_{\mathrm{swap}}(1/M)$,
+soit $\tau_{\mathrm{swap}}(0{,}10)$ pour $M=10$. D'où, pour tout $q \ge 1/M$~:
+\begin{equation}
+  \boxed{\tau_{\mathrm{ARF}} \le \tau_{\mathrm{swap}}(q)} \qquad \text{sur chaque
+  exécution, sans hypothèse probabiliste.}
+  \label{eq:relation}
+\end{equation}
+
+\paragraph{Vérification empirique.} Sur les 2\,000 exécutions de la campagne,
+$\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(10\%)$ exactement dans 100\% des cas
+(0 écart). L'inégalité~\eqref{eq:relation} est vérifiée sans exception sur les
+5\,795 comparaisons non censurées disponibles pour $q \in \{25\%, 50\%, 75\%\}$
+(0 violation).
+
+\paragraph{Sens du biais.} L'inégalité~\eqref{eq:relation} étant stricte dans la
+grande majorité des cas, utiliser $\tau_{\mathrm{ARF}}$ comme date d'adaptation de la
+forêt \emph{sous-estime systématiquement et unilatéralement} le temps nécessaire pour
+qu'une fraction réellement significative de l'ensemble ait été renouvelée : c'est un
+biais à sens unique, optimiste, jamais compensé par une surestimation symétrique.
+%
+% TODO(à synchroniser avec le versant théorique) : la question demande de comparer ce
+% sens de biais à celui établi en Q B. L'argument standard (Jensen sur la survie
+% conditionnelle G_S, si les tau_i sont positivement associés via le flux commun S)
+% pointe dans la même direction -- l'indépendance surestimerait, elle aussi, la
+% probabilité d'une adaptation rapide -- mais ce résultat appartient au livrable de
+% l'équipe théorique et doit être confirmé avec elle avant d'être affirmé ici.
+
+\section{Écart $\tau_{\mathrm{swap}}(q) - \tau_{\mathrm{ARF}}$ en fonction de $\Delta e$}
+
+L'inégalité~\eqref{eq:relation} ne renseigne que sur le signe de l'écart, pas sur son
+ampleur. La figure~\ref{fig:ecarts} (campagne complète, médiane inter-graines) trace
+$\tau_{\mathrm{swap}}(q) - \tau_{\mathrm{ARF}}$ en fonction de $\Delta e$, pour
+$q \in \{25\%, 50\%, 75\%\}$ ($q=10\%$ est omis : l'écart y est identiquement nul,
+puisque $\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(0{,}10)$).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{../ulysse/resultats/figures/Fig_QC_ecarts_full.png}
+  \caption{Écart médian $\tau_{\mathrm{swap}}(q) - \tau_{\mathrm{ARF}}$ en fonction de
+  $\Delta e$, campagne complète (2\,000 exécutions). Trait pointillé : amplitude où
+  plus de 50\% des exécutions sont censurées pour ce quota.}
+  \label{fig:ecarts}
+\end{figure}
+
+\paragraph{Critère de substituabilité.} Fixé avant lecture des résultats finaux : un
+écart supérieur à 100 pas ($5\%$ de l'horizon $H=2\,000$) est jugé disqualifiant pour
+$\tau_{\mathrm{ARF}}$ comme substitut de $\tau_{\mathrm{swap}}(q)$.
+%
+% Note méthodologique : le dossier d'Ulysse propose un second critère, l'écart est
+% jugé décisif s'il dépasse tau_det -- plus directement relié à l'objet de l'étude,
+% mais formulé après lecture des mesures (à signaler comme tel si on le reprend,
+% cf. sa réserve C.1b dans ulysse/README.md).
+
+Avec ce critère, sur la grille complète~: pour $q=25\%$, l'écart redescend sous 100 pas
+dès $\Delta e \gtrsim 0{,}24$ (écart médian de 291 à $\Delta e=0{,}028$, contre 6,5--7
+pas au-delà de $\Delta e=0{,}48$) --- $\tau_{\mathrm{ARF}}$ y redevient un substitut
+acceptable. Pour $q=50\%$, le même seuil n'est franchi que vers $\Delta e \gtrsim 0{,}33$
+(écart de 633 à $\Delta e=0{,}028$, contre 18--19 pas en haut de grille). Pour
+$q=75\%$, l'écart ne descend \emph{jamais} sous 100 pas sur l'ensemble de la grille
+testée (167 à 1\,393 pas selon $\Delta e$, soit 6 à 15 fois $\tau_{\mathrm{ARF}}$
+lui-même) : $\tau_{\mathrm{ARF}}$ n'est à aucun moment un proxy acceptable pour
+« les trois quarts de la forêt ont été renouvelés ».
+
+\section{La conjecture $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{err}}(\rho)$}
+
+$e_t \in \{0,1\}$ n'a de sens statistique que moyenné sur les graines : sur une
+exécution isolée, la suite est trop bruitée pour qu'un franchissement de seuil
+signifie une véritable résorption. $\tau_{\mathrm{err}}(\rho)$ est donc calculé
+uniquement sur la courbe moyenne $\bar e_t$, une valeur par amplitude, jamais par
+exécution --- et comparé à la \emph{médiane} inter-graines de $\tau_{\mathrm{ARF}}$
+(seule grandeur comparable côté run-par-run).
+
+\paragraph{Conjecture.} L'apprentissage incrémental des arbres de Hoeffding
+non remplacés peut faire redescendre l'erreur d'ensemble sans qu'aucun arbre n'ait
+changé, en particulier aux faibles amplitudes où le choc est trop ténu pour nécessiter
+un remplacement. Sous cette hypothèse, $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{err}}(\rho)$
+ne serait pas vérifiée aux faibles $\Delta e$.
+
+\paragraph{Test et résultat.} Avec $\rho = 0{,}25$, un premier franchissement de seuil
+($\bar e_t - \hat p_0 \le \rho \Delta e$) sans condition de persistance fait apparaître
+2 violations apparentes, aux deux amplitudes les plus faibles de la grille
+($\Delta e = 0{,}028$ et $0{,}085$). Mais le bruit résiduel de la courbe moyenne
+($\sigma \approx 0{,}015$, estimé sur les 500 derniers pas) y est du même ordre de
+grandeur que le seuil $\rho \Delta e$ lui-même ($\rho\Delta e = 0{,}007$ et $0{,}021$
+respectivement) : le test n'y a statistiquement aucun pouvoir ($\rho \Delta e < 2\sigma$
+dans les deux cas). En exigeant que la condition tienne 20 pas consécutifs plutôt
+qu'un seul, les deux violations disparaissent : \textbf{0 violation sur les 18
+amplitudes interprétables, et le test perd toute validité statistique précisément sur
+les 2 amplitudes où il en indiquait une.}
+
+\paragraph{Conclusion.} La conjecture n'est pas confirmée --- elle n'est pas non plus
+réfutée aux faibles amplitudes, où le dispositif expérimental manque de puissance.
+Il y faudrait davantage de graines : $\bar e_t$ étant une moyenne de $n$ tirages de
+Bernoulli indépendants, le bruit de la courbe moyenne décroît en $1/\sqrt{n}$, et
+atteindre $\rho\Delta e > 2\sigma$ demanderait de l'ordre de $200$ graines à
+$\Delta e = 0{,}085$, mais près de $1\,800$ à $\Delta e = 0{,}028$ --- et davantage
+encore en pratique, la précision sur un instant de franchissement dépendant aussi de
+la pente de la courbe au seuil, faible précisément à ces amplitudes. Sur les 18
+amplitudes où le test est interprétable, $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{err}}(\rho)$
+tient sans exception : le premier remplacement d'arbre précède toujours la résorption
+réelle de l'erreur, cohérent avec le biais optimiste établi en~\eqref{eq:relation}.
+
+\end{document}
