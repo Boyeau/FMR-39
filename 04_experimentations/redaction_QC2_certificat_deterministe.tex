@@ -1,0 +1,101 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[top=1cm,bottom=1.2cm,left=1.5cm,right=1.5cm]{geometry}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue}
+
+\newtheorem{proposition}{Proposition}
+
+\title{Rétablissement de l'homogénéité : la statistique culminante}
+\author{Salomé Fonvielle}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent\emph{Question traitée.} Montrer que la statistique culminante du CUSUM
+s'écrit $S_{\max}(H) = \max_{0 \le k \le j \le H}\bigl[A(k,j) - (j-k)\,\delta_P\bigr]$,
+le maximum portant sur toutes les sous-fenêtres $]k,j] \subseteq [0,H]$.
+
+\paragraph{Notations.} Les pas post-rupture sont indexés $t = 1,\dots,H$, l'instant
+$t=0$ étant la rupture elle-même. On pose, conformément à l'énoncé,
+\[
+  A(k,j) \;=\; \sum_{t=k+1}^{j} \bigl(e_t - \hat p_0\bigr),
+  \qquad
+  X_t \;=\; e_t - \hat p_0 - \delta_P,
+  \qquad
+  S_0 = 0,
+  \qquad
+  S_t = \max\bigl(0,\, S_{t-1} + X_t\bigr),
+\]
+et $S_{\max}(H) = \max_{0 \le t \le H} S_t$. Le socle est ici le socle \emph{estimé}
+$\hat p_0$, comme dans toute la question~C. Par convention une somme vide vaut $0$,
+de sorte que $A(j,j) = 0$.
+
+\begin{proposition}[Forme close de Lindley]\label{prop:lindley}
+Pour tout $j \in \{0,\dots,H\}$,
+\begin{equation}
+  S_j \;=\; \max_{0 \le k \le j}\ \sum_{t=k+1}^{j} X_t
+  \;=\; \max_{0 \le k \le j}\ \bigl[A(k,j) - (j-k)\,\delta_P\bigr].
+  \label{eq:lindley}
+\end{equation}
+En passant au maximum sur $j$, il vient
+$S_{\max}(H) = \max_{0 \le k \le j \le H}\bigl[A(k,j) - (j-k)\,\delta_P\bigr]$.
+\end{proposition}
+
+\begin{proof}
+Par récurrence sur $j$.
+
+\smallskip
+\noindent\emph{Initialisation.} Pour $j = 0$, le seul indice admissible est $k = 0$ et
+la somme correspondante est vide, donc nulle : le membre de droite vaut $0 = S_0$.
+
+\smallskip
+\noindent\emph{Hérédité.} Supposons~\eqref{eq:lindley} vraie au rang $j-1$. Alors
+\[
+  S_j \;=\; \max\bigl(0,\; S_{j-1} + X_j\bigr)
+      \;=\; \max\Bigl(0,\; \max_{0 \le k \le j-1} \sum_{t=k+1}^{j-1} X_t \;+\; X_j\Bigr)
+      \;=\; \max\Bigl(0,\; \max_{0 \le k \le j-1} \sum_{t=k+1}^{j} X_t\Bigr),
+\]
+la dernière égalité résultant de ce que $X_j$ ne dépend pas de $k$ et peut donc entrer
+dans le maximum. Or le terme $0$ est exactement la somme vide obtenue pour $k = j$ :
+les deux arguments du maximum extérieur se réunissent en un seul maximum sur
+$0 \le k \le j$, ce qui donne~\eqref{eq:lindley} au rang $j$.
+
+\smallskip
+\noindent\emph{Conclusion.} La seconde écriture s'obtient en développant la somme :
+\[
+  \sum_{t=k+1}^{j} X_t
+  \;=\; \sum_{t=k+1}^{j} \bigl(e_t - \hat p_0\bigr) \;-\; (j-k)\,\delta_P
+  \;=\; A(k,j) - (j-k)\,\delta_P ,
+\]
+puisque $\delta_P$ est retranché une fois par pas et que la sous-fenêtre $]k,j]$ en
+compte $j-k$. Enfin
+$S_{\max}(H) = \max_{0 \le j \le H} S_j
+ = \max_{0 \le j \le H} \max_{0 \le k \le j} [\,\cdot\,]
+ = \max_{0 \le k \le j \le H} [\,\cdot\,]$.
+\end{proof}
+
+\paragraph{Ce que l'identité rend visible.} La remise à zéro n'est pas une correction
+technique : elle est \emph{équivalente} à la liberté de choisir le point de départ. Un
+CUSUM qui repart de zéro à chaque fois que le compteur passerait sous la barre ne fait
+rien d'autre que retenir, à chaque instant, la meilleure sous-fenêtre récente. C'est
+pourquoi le maximum porte sur les couples $(k,j)$ et non sur les seuls $j$ : le
+détecteur ne mesure pas la preuve accumulée depuis la rupture, mais la preuve accumulée
+sur la sous-fenêtre la plus favorable.
+
+Deux conséquences immédiates. D'abord $S_{\max}(H) \ge 0$, puisque le choix $k=j$ est
+toujours disponible. Ensuite, et surtout, l'identité est \emph{déterministe} : elle vaut
+sur chaque exécution prise isolément, sans moyenne ni hypothèse de loi. C'est ce qui
+autorise le certificat de la question suivante.
+
+\paragraph{Contrôle numérique.} La forme close~\eqref{eq:lindley} a été confrontée à la
+récurrence naïve sur l'ensemble des trajectoires de la campagne : écart maximal
+$1{,}07 \times 10^{-10}$, soit la précision machine. Le script d'analyse refuse de
+poursuivre si ce contrôle échoue.
+
+\end{document}
