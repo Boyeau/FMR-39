@@ -538,6 +538,39 @@ def figure_joint(df, error_mat, s_mat, phi_mat, target_de, tag):
     return out
 
 
+def figure_dispersion_swap(df, tag, quantiles=(25, 50, 75)):
+    """C.1a : nuage tau_ARF vs tau_swap(q) sur tous les runs, une couleur par
+    censure. Montre la dispersion individuelle (invisible dans figure_ecarts, qui ne
+    trace que la mediane) et confirme visuellement l'inegalite deterministe -- tous
+    les points au-dessus de la diagonale, sur les 2000 runs, pas seulement en moyenne.
+    """
+    fig, axes = plt.subplots(1, len(quantiles), figsize=(4.3 * len(quantiles), 4.3),
+                             sharex=True, sharey=True)
+    axes = np.atleast_1d(axes)
+    lim = H
+    for ax, q in zip(axes, quantiles):
+        col = f'tau_swap_{q}'
+        cens = df[f'censored_swap_{q}']
+        ax.scatter(df.loc[~cens, 'tau_arf'], df.loc[~cens, col], s=8, alpha=0.35,
+                  color='#04617B', label='uncensored')
+        if cens.any():
+            ax.scatter(df.loc[cens, 'tau_arf'], np.full(cens.sum(), lim), s=10,
+                      alpha=0.3, color='#C62828', marker='^',
+                      label='censored (quota never reached)')
+        ax.plot([0, lim], [0, lim], 'k--', lw=1, alpha=0.6)
+        ax.set_title(f"q = {q}%")
+        ax.set_xlabel(r"$\tau_{ARF}$")
+    axes[0].set_ylabel(r"$\tau_{swap}(q)$")
+    axes[0].legend(fontsize=8, loc='lower right')
+    fig.suptitle(r"$\tau_{ARF}$ vs. $\tau_{swap}(q)$ on every run --- dashed line: equality",
+                fontsize=11)
+    fig.tight_layout()
+    out = FIGURES_DIR / f"Fig_QC_dispersion_swap_{tag}.png"
+    fig.savefig(out, dpi=150)
+    plt.close(fig)
+    return out
+
+
 def figure_ecarts(df, tag):
     """C.1b : l'ecart tau_swap(q) - tau_ARF en fonction de Delta_e."""
     fig, ax = plt.subplots(figsize=(9, 5.2))
@@ -681,6 +714,7 @@ def main():
     f1 = figure_joint(df, error_mat, s_mat, phi_mat, args.figure_de, args.tag)
     f2 = figure_heatmap(corr, comparators, args.tag)
     f3 = figure_ecarts(df, args.tag)
+    f3b = figure_dispersion_swap(df, args.tag)
     f4 = figure_budget(budget, args.tag)
     f5 = figure_rg(rg, args.tag)
     f6 = figure_pouvoir_tauerr(df, error_mat, terr, args.tag)

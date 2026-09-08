@@ -54,7 +54,22 @@ three-quarters of the forest.
 \paragraph{Empirical verification.} Across the campaign's 2\,000 runs,
 $\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(10\%)$ exactly in 100\% of cases (0 gap).
 Inequality~\eqref{eq:relation} holds without exception across the 5\,795 uncensored
-comparisons available for $q \in \{25\%, 50\%, 75\%\}$ (0 violations).
+comparisons available for $q \in \{25\%, 50\%, 75\%\}$ (0 violations). Figure~\ref{fig:dispersion}
+shows this directly on every run rather than through an aggregate count~: every point
+lies on or above the equality line, and the spread around it --- invisible in a median
+alone --- grows sharply with $q$, together with the fraction of runs that never reach
+the quota at all (red triangles).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{resultats_R2/resultats/figures/Fig_QC_dispersion_swap_full.png}
+  \caption{$\tau_{\mathrm{ARF}}$ versus $\tau_{\mathrm{swap}}(q)$ on every one of the
+  2\,000 runs, for $q\in\{25\%,50\%,75\%\}$. Dashed line~: equality. No point ever
+  falls below it, confirming inequality~\eqref{eq:relation} run by run rather than
+  only in aggregate; red triangles mark runs where the quota was never reached before
+  $H$.}
+  \label{fig:dispersion}
+\end{figure}
 
 \paragraph{Direction of the bias.} Since inequality~\eqref{eq:relation} is strict in
 the vast majority of cases, using $\tau_{\mathrm{ARF}}$ as the forest's adaptation date
