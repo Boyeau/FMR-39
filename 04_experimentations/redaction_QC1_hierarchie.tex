@@ -40,6 +40,17 @@ every $q \ge 1/M$~:
   \label{eq:relation}
 \end{equation}
 
+\paragraph{Quotas actually achieved.} Since $N_t$ only takes integer values, a quota
+$q$ is only ever met once $N_t$ reaches $\lceil qM \rceil$. With $M=10$, this lands on
+an exact tree count for $q=10\%$ (1 tree) and $q=50\%$ (5 trees), but \emph{not} for
+$q=25\%$ or $q=75\%$~: the labels $\tau_{\mathrm{swap}}(25\%)$ and
+$\tau_{\mathrm{swap}}(75\%)$ used throughout this section actually correspond to the
+first integer counts $\ge 2.5$ and $\ge 7.5$, i.e.\ $3$ trees (a true fraction of
+$30\%$) and $8$ trees ($80\%$) respectively. The $25\%$/$75\%$ labels are kept for
+consistency with the quotas fixed for the campaign (also used in Q~C.2/D), but should
+be read as ``at least 3 (resp.\ 8) trees renewed'', not a literal quarter or
+three-quarters of the forest.
+
 \paragraph{Empirical verification.} Across the campaign's 2\,000 runs,
 $\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(10\%)$ exactly in 100\% of cases (0 gap).
 Inequality~\eqref{eq:relation} holds without exception across the 5\,795 uncensored
