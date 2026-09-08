@@ -1,0 +1,155 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage[top=1.1cm,bottom=1.1cm,left=1.7cm,right=1.7cm]{geometry}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue}
+
+\setlength{\parskip}{0.15em}
+\titlespacing*{\section}{0pt}{0.7em}{0.3em}
+
+\title{\vspace{-1.2cm}Bibliographic Review, Topic 39\\[0.2em]
+\large The Blind Spot Paradox}
+\author{Alexandre Boyer \and Mélaine Gouillou \and Salomé Fonvielle \and Ulysse Petit-Tichanné\\[0.2em]
+\normalsize Research Track, CentraleSupélec. Supervisor: Raphaël Minato}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-1.4em}
+
+\section{Defining and classifying drift}
+
+The vocabulary was unstable for years, and Moreno-Torres et al.~\cite{moreno2012} write
+their taxonomy to fix it: covariate shift when only $P(X)$ moves, prior probability shift
+when $P(y)$ does, and concept shift, the case usually called concept drift, when
+$P(y\mid X)$ changes. The contribution is terminological rather than algorithmic, and they
+say so.
+
+Two surveys map the field. Gama et al.~\cite{gama2014} organise adaptation into forgetting
+mechanisms, ensembles and explicit detectors; Lu et al.~\cite{lu2018} restructure the same
+material around detection, understanding and adaptation, and classify drift by shape.
+Both work from one assumption: the detector serves the classifier, the classifier reacts to
+the detector, and neither framework anticipates the two working against each other.
+
+\section{Adaptive learners on streams}
+
+Domingos and Hulten~\cite{domingos2000} introduced VFDT, a decision tree that reads each
+example once in constant time and memory, using a Hoeffding bound to decide when a node has
+seen enough data to split with confidence. It agrees asymptotically with a batch learner on
+stationary data, and it never undoes a split, so it does not adapt.
+
+ADWIN~\cite{bifet2007} adds the adaptivity VFDT lacks. It keeps a window of variable
+length, cuts it at every
+possible point, and declares a change when two sub-window means differ by more than a
+Hoeffding bound. Unlike most competing heuristics it comes with proven bounds on
+false positive and false negative rates, and its second version runs in $O(\log W)$ memory
+and update time.
+
+The Adaptive Random Forest~\cite{gomes2017} combines the two: $M$ Hoeffding trees,
+Poisson$(\lambda{=}6)$ resampling as in leveraging bagging, and per-tree detection with two
+thresholds, a permissive $\delta_w$ that starts a background tree and a stricter $\delta_d$
+that promotes it. ARF is evaluated on predictive accuracy alone, as is conventional for
+ensembles of this kind. River~\cite{montiel2021} is the Python library implementing these
+algorithms, and its defaults are what deployed pipelines inherit.
+
+\section{Detecting change from an error stream}
+
+Page~\cite{page1954} proposed the cumulative sum for industrial quality control, against
+moving averages whose window length forces a choice between reacting to large shifts and
+detecting small ones. CUSUM accumulates deviations from a reference level and fires when the
+running sum passes a threshold, so its delay grows as that threshold divided by the size of
+the shift. Hinkley~\cite{hinkley1971} takes the same statistic and asks where the change
+occurred rather than whether it did, deriving the asymptotic law of that estimate for normal
+observations with known initial mean and variance. Both assume a change that persists.
+
+KSWIN~\cite{raab2020} belongs to another family, comparing two sliding windows with a
+non-parametric Kolmogorov-Smirnov test and pairing detection with prototype-based
+adaptation. Its authors report more false positives than ADWIN or DDM, and argue they are
+harmless because the adaptation they trigger is cheap.
+
+\section{Evaluation and synthetic ground truth}
+
+Gama et al.~\cite{gama2014} describe three protocols: holdout, which needs a test set drawn
+from the concept active at time $t$ and is therefore restricted to synthetic data;
+prequential, where each instance is tested before training, over a landmark window, a
+sliding window or fading factors; and controlled permutations, which rerun the stream in
+randomised but locality-preserving orders. Lu et al.~\cite{lu2018} add the metrics: kappa
+and kappa-temporal for imbalanced or temporally dependent labels, prequential AUC,
+RAM-hours for cost. Neither lists a measure of how long a model takes to recover.
+
+Ground truth is the obstacle in finance, since nobody knows when a real regime actually
+changed. ProteuS~\cite{suarez2025} fits ARMA-GARCH models to four ETFs and simulates abrupt
+and gradual transitions between the fitted regimes with known break dates. Its authors' own
+analysis finds heavy overlap between the market states, so the task stays hard.
+
+\section{The source paper}
+
+\emph{The Blind Spot Paradox}~\cite{blindspot2026} attacks the cooperative assumption.
+Instrumenting the ARF's swap counter in River 0.23.0, it argues that an adaptive classifier
+can erase the evidence an external detector needs. The first mechanism is a clock artefact:
+River evaluates ADWIN every $c$ steps, 32 by default, while the ARF's internal detectors run
+at $c=1$, which handicaps the external monitor by construction. The second, named the Hydra
+effect, is that the forest adapts as soon as its fastest tree does, measured 4 to 8 times
+faster than a single tree. The third is starvation: the transient error excess and the CUSUM
+accumulation time both scale as $O(1/\Delta e)$, so a violent shock is repaired fast enough
+to leave no more evidence than a slow one. On heteroscedastic ProteuS streams a Page-Hinkley
+test paired with an ARF at $c_{\mathrm{int}}{=}1$ detects none of 1{,}080 runs. The proposed
+Decoupling Principle asks that the external monitor be strictly more reactive than the
+internal one, and the paper reports that on those streams this conflicts with false-alarm
+control, leaving no admissible threshold. A windowed KSWIN monitor escapes the effect
+altogether.
+
+The paper is explicit about what it leaves unsettled. The starvation boundary assumes
+conditional independence between trees, which the shared stream violates, and the authors
+note this is why the measured acceleration falls short of the $M$-fold reference. Swap
+tracking mixes genuine detections with background noise, which rules out isolated
+$\mathrm{ARL}_0$ comparisons. And the predicted starvation appears only on stationary
+synthetic streams: on real non-stationary data the failure inverts into a collapse of
+precision through false-alarm flooding.
+
+\section{Statistical background}
+
+For the law of $\min_i \tau_i$ the paper draws on classical order statistics~\cite{david2003},
+whose standard result gives the expected minimum of $M$ independent variables as
+$\int_0^\infty (1-F)^M$. That says nothing once the variables are dependent. Esary, Proschan
+and Walkup~\cite{esary1967} handle that case, defining association through
+$\mathrm{Cov}[f(T),g(T)]\ge 0$ for all non-decreasing $f$ and $g$, and proving that
+associated variables satisfy $\Pr(\tau_1>s_1,\dots,\tau_M>s_M)\ge\prod_i\Pr(\tau_i>s_i)$,
+the reverse of the independent case.
+
+A separate literature deals with two competing stopping times. Fine and Gray~\cite{fine1999}
+model the cumulative incidence function $F_1(t)=\Pr(T\le t,\ \varepsilon=1)$, the probability
+of failing from a given cause by $t$, arguing that the cause-specific hazard has no direct
+reading in those terms; their own caveat is that the corresponding risk set is artificial,
+since it keeps subjects who have already failed from another cause. Aalen and
+Johansen~\cite{aalen1978} give the estimator this needs, a product-limit estimator of the
+transition probabilities of a non-homogeneous Markov chain under censoring.
+
+\vspace{-0.2em}
+{\footnotesize
+\begin{thebibliography}{99}\setlength{\itemsep}{0pt}
+\bibitem{moreno2012} J.~G. Moreno-Torres, T.~Raeder, R.~Alaiz-Rodríguez, N.~V. Chawla, and F.~Herrera, ``A unifying view on dataset shift in classification,'' \emph{Pattern Recognition}, vol.~45, no.~1, pp.~521--530, 2012.
+\bibitem{gama2014} J.~Gama, I.~Žliobaitė, A.~Bifet, M.~Pechenizkiy, and A.~Bouchachia, ``A survey on concept drift adaptation,'' \emph{ACM Computing Surveys}, vol.~46, no.~4, art.~44, 2014.
+\bibitem{lu2018} J.~Lu, A.~Liu, F.~Dong, F.~Gu, J.~Gama, and G.~Zhang, ``Learning under concept drift: a review,'' \emph{IEEE Trans. Knowl. Data Eng.}, vol.~31, no.~12, pp.~2346--2363, 2018.
+\bibitem{domingos2000} P.~Domingos and G.~Hulten, ``Mining high-speed data streams,'' in \emph{Proc. KDD}, 2000, pp.~71--80.
+\bibitem{bifet2007} A.~Bifet and R.~Gavaldà, ``Learning from time-changing data with adaptive windowing,'' in \emph{Proc. SIAM SDM}, 2007, pp.~443--448.
+\bibitem{gomes2017} H.~M. Gomes, A.~Bifet, J.~Read, J.~P. Barddal, F.~Enembreck, B.~Pfahringer, G.~Holmes, and T.~Abdessalem, ``Adaptive random forests for evolving data stream classification,'' \emph{Machine Learning}, vol.~106, no.~9--10, pp.~1469--1495, 2017.
+\bibitem{montiel2021} J.~Montiel, M.~Halford, S.~M. Mastelini et al., ``River: machine learning for streaming data in Python,'' \emph{JMLR}, vol.~22, pp.~1--8, 2021.
+\bibitem{page1954} E.~S. Page, ``Continuous inspection schemes,'' \emph{Biometrika}, vol.~41, no.~1--2, pp.~100--115, 1954.
+\bibitem{hinkley1971} D.~V. Hinkley, ``Inference about the change-point from cumulative sum tests,'' \emph{Biometrika}, vol.~58, no.~3, pp.~509--523, 1971.
+\bibitem{raab2020} C.~Raab, M.~Heusinger, and F.-M. Schleif, ``Reactive soft prototype computing for concept drift streams,'' \emph{Neurocomputing}, vol.~416, pp.~340--351, 2020.
+\bibitem{suarez2025} A.~L. Suárez-Cetrulo, A.~Cervantes, and D.~Quintana, ``ProteuS: a generative approach for simulating concept drift in financial markets,'' arXiv:2509.11844, 2025.
+\bibitem{blindspot2026} Anonymous, ``The blind spot paradox: when adaptive classifiers defeat drift detectors,'' under triple-blind review, IEEE ICDM 2026.
+\bibitem{david2003} H.~A. David and H.~N. Nagaraja, \emph{Order Statistics}, 3rd ed. Wiley, 2003. (Not available online; the association results of~\cite{esary1967} were consulted instead.)
+\bibitem{esary1967} J.~D. Esary, F.~Proschan, and D.~J. Walkup, ``Association of random variables, with applications,'' \emph{Ann. Math. Statist.}, vol.~38, no.~5, pp.~1466--1474, 1967.
+\bibitem{fine1999} J.~P. Fine and R.~J. Gray, ``A proportional hazards model for the subdistribution of a competing risk,'' \emph{JASA}, vol.~94, no.~446, pp.~496--509, 1999.
+\bibitem{aalen1978} O.~O. Aalen and S.~Johansen, ``An empirical transition matrix for non-homogeneous Markov chains based on censored observations,'' \emph{Scand. J. Statist.}, vol.~5, no.~3, pp.~141--150, 1978.
+\end{thebibliography}
+}
+
+\end{document}

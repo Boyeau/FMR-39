@@ -1,0 +1,81 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage[top=1cm,bottom=1.2cm,left=1.5cm,right=1.5cm]{geometry}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue}
+
+\title{Analyse dimensionnelle et dynamique d'accumulation}
+\author{Salomé Fonvielle}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent\emph{Question traitée.} Quelle est l'unité physique de $\tau_{\mathrm{ARF}}$
+et celle du seuil $\lambda$ ? En quoi leur comparaison directe contourne-t-elle la
+nature séquentielle du détecteur ?
+
+\paragraph{Les deux unités.} Dans un flux, il n'existe pas d'horloge physique : la
+seule variable temporelle disponible est l'indice de l'exemple qui arrive, et
+$\tau_{\mathrm{ARF}}$ se mesure donc en \emph{observations}. Le seuil, lui, se lit sur
+la récurrence du détecteur cumulatif\footnote{Équation~(3) du manuscrit, section~III-D
+(« The Starvation Effect »), notation reprise telle quelle. Le protocole R2 crée le
+détecteur à la rupture, d'où $S_{\tau^*} = 0$ ; la Proposition~3 du manuscrit conserve
+au contraire $S_{\tau^*} = s_0 \ge 0$, poser $s_0 = 0$ est ici une spécialisation du
+protocole.}
+\begin{equation}
+  S_t = \max\bigl(0,\, S_{t-1} + e_t - p_0 - \delta_P\bigr)\,,
+  \label{eq:cusum}
+\end{equation}
+où $e_t \in \{0,1\}$ indique une erreur au pas $t$, $p_0$ le taux d'erreur normal avant
+la rupture et $\delta_P$ une tolérance retranchée à chaque pas. Comme $e_t$ vaut $0$ ou
+$1$, une erreur fait monter $S$ de près d'une unité tandis qu'un succès le fait à peine
+redescendre : à la tolérance près, $S_t$ compte les erreurs accumulées au-delà du socle.
+Puisque $\lambda$ n'apparaît que dans la comparaison $S_t \ge \lambda$, il se lit
+nécessairement dans la même unité --- $\lambda = 50$ ne signifie pas « attendre 50 pas »,
+mais « attendre qu'environ 50 erreurs excédentaires se soient accumulées ». Les deux
+quantités sont donc des comptes de natures différentes : écrire
+$\tau_{\mathrm{ARF}} < \lambda$ n'a aucun sens dimensionnel.
+
+\paragraph{Ce que la comparaison directe escamote.} Comparer les deux revient à traiter
+$\lambda$ comme une durée : « il faut $\lambda$ erreurs, donc tant de pas ». Ce raccourci
+suppose que la preuve s'accumule à un rythme fixe --- sans un nombre d'erreurs par pas,
+on ne passe pas d'une unité à l'autre --- et l'hypothèse est contenue dans le geste même
+de comparer, qu'on écrive la conversion ou non. Or ce rythme n'existe pas : le détecteur
+reçoit les erreurs une par une et ne produit pas un nombre, mais une date, celle où la
+trajectoire de $S_t$ franchit $\lambda$. Trois traits de cette trajectoire disparaissent
+lorsqu'on la remplace par une montée à pente constante.
+
+\emph{Le rythme ralentit.} Juste après la rupture, l'incrément du compteur a pour
+espérance $\Delta e - \delta_P$ ; mais la forêt se répare, l'excès d'erreur redescend
+vers le socle et ce gain s'épuise. Le manuscrit suppose au contraire un excès constant à
+$\Delta e$ pendant tout le transitoire, puis nul --- un rectangle, dont la hauteur est
+justement le rythme fixe qu'exige la comparaison.
+
+\emph{La preuve acquise peut être détruite.} Quand $S_t$ passerait sous zéro, le
+$\max(0,\cdot)$ de~\eqref{eq:cusum} le ramène à $0$ : ce n'est pas une mise en pause,
+tout ce qui avait été accumulé est perdu. Les mêmes erreurs, groupées juste après la
+rupture ou dispersées sur l'horizon, ne donnent donc pas la même date d'alarme, alors
+qu'un rythme moyen ne fait aucune différence entre les deux. C'est le sens précis de
+« séquentiel » : la date dépend de l'ordre d'arrivée, pas seulement du total.
+
+\emph{L'alarme peut ne pas venir.} Sur l'horizon $H = 2\,000$ de la campagne, le seuil
+peut n'être jamais franchi\footnote{Au-delà de l'horizon le franchissement finit par
+survenir, mais son délai moyen croît exponentiellement avec $\lambda$ (manuscrit,
+Remarque~4) : l'alarme ne porte alors plus sur la dérive.}.
+
+\paragraph{Conclusion.} Un compte d'erreurs et un compte d'observations ne se comparent
+pas en postulant un rythme. L'homogénéité se rétablit dans l'autre sens : en ramenant les
+deux grandeurs dans l'unité de preuve, où la comparaison se fait seuil contre évidence
+accumulée, sur chaque exécution et sans moyenne. C'est l'objet de la statistique
+culminante $S_{\max}(H)$ et du certificat déterministe qui en découle.
+
+% NOTE(coordination) : la conversion tau*_det = lambda/(Delta e - delta_P) et la
+% substitution du temps d'arret par cette constante relevent de la question A
+% (Proposition 9, versant theorique) : volontairement non traitees ici.
+
+\end{document}
