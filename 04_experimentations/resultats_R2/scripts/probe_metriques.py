@@ -31,6 +31,7 @@ import random
 import sys
 import time
 import warnings
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -43,7 +44,9 @@ from river.forest import ARFClassifier
 warnings.filterwarnings('ignore')
 
 T_DRIFT, H, N_MODELS, C_INT = 4000, 2000, 10, 1
-OUT = "/private/tmp/claude-501/-Users-ulyssepetit-Documents-Perso-ProjetsCode-FMR-39/a3cca83b-1d81-497b-b7b2-c3ad1631c74a/scratchpad"
+# Les sorties partaient dans un scratchpad de session, donc perime et non rejouable :
+# elles vont desormais dans le depot, comme toute matiere premiere de campagne.
+OUT = str(Path(__file__).resolve().parents[1] / "resultats" / "data")
 
 
 def delta_e(b):

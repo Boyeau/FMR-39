@@ -1,6 +1,10 @@
 """Analyse des tests A1 (drift nul) et C1 (sensibilite a M)."""
 import numpy as np, pandas as pd, glob, os
-D = "/Users/ulyssepetit/Documents/Perso/ProjetsCode/FMR-39/repo/04_experimentations/ulysse/resultats/data/"
+from pathlib import Path
+
+# Chemin relatif au script : le dossier a ete renomme `ulysse/` -> `resultats_R2/`,
+# et un chemin absolu rendait ce script inexecutable chez les trois autres membres.
+D = str(Path(__file__).resolve().parents[1] / "resultats" / "data") + "/"
 
 def tau_arf(tag):
     """Premier remplacement par execution, NaN si aucun."""
