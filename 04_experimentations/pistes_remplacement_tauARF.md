@@ -183,7 +183,7 @@ figé une conclusion fausse.**
 | désaccord `D(t)` | relation H1 infirmée | l'indicateur reste continu et non censuré ; il faudrait le corriger du désaccord de fond, mesurable sous `b = 0` |
 | masse de vote | peu utile | sature à forte amplitude, comme le comptage |
 | forêt témoin | invalide en l'état | utilisable si l'on corrige le handicap initial, mesurable et stable (−0,0103) |
-| `τ_erase` | non testé | date l'instant où plus aucun arbre d'avant la rupture ne subsiste. Ne prétend pas mesurer l'adaptation. Il ne date **pas** « la fin de l'alimentation du détecteur » : par le remplacement en deux temps de Gomes et al. (2017), un arbre qui substitue a déjà appris depuis son avertissement, et l'erreur continue d'alimenter le détecteur après `τ_erase` |
+| `τ_erase` | **testé le 8 sept., échoue D2** | censure de 9,5 % en médiane et jusqu'à 98 % en bas de grille, très au-dessus des 5 % exigés. Date l'instant où plus aucun arbre d'avant la rupture ne subsiste. Ne prétend pas mesurer l'adaptation. Il ne date **pas** « la fin de l'alimentation du détecteur » : par le remplacement en deux temps de Gomes et al. (2017), un arbre qui substitue a déjà appris depuis son avertissement, et l'erreur continue d'alimenter le détecteur après `τ_erase` |
 | retour de l'erreur | écarté | échoue au test de la tâche facilitée (voir §5, test A2) |
 
 ---
@@ -287,8 +287,9 @@ Coûteux, à réserver si le temps le permet.
    forêt normale et forêt témoin en régime stationnaire mérite mieux que 12 exécutions.
    C'est le résultat le plus original sorti de cette exploration, et il ne dépend
    d'aucune des pistes qui ont échoué.
-4. **`τ_erase`**, jamais testé, alors qu'il est déjà dans l'énoncé et calculable depuis
-   les traces existantes sans relancer aucune campagne.
+4. ~~**`τ_erase`**, jamais testé~~ — **fait le 8 septembre** : passé au banc sans relancer
+   de campagne, il échoue D2 (censure 9,5 % en médiane, 98 % en bas de grille). Son τ-b avec
+   l'étalon vaut +0,170 en médiane, 14 amplitudes sur 20 significatives.
 
 ## 7. Reproductibilité
 
