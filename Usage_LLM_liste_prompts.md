@@ -2,11 +2,25 @@
 
 Conformément à la consigne de la filière (*"Toute utilisation de LLM doit être signalée et la liste des prompts fournie"*, `01_consignes/Consignes_études_de_cas_2026-2027.pdf`).
 
-**Outil :** Claude Code (Anthropic), modèle Claude Sonnet 5, en session interactive dans l'éditeur. Les commits git portent la mention `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`, visible dans l'historique du dépôt.
+**Outil :** Claude Code (Anthropic), en session interactive dans l'éditeur. Deux modèles ont été utilisés selon les sessions, dans trois déclinaisons, et les commits en portent la trace :
 
-**Périmètre :** Questions C et D (versant expérimental) du Sujet 39, portées par Salomé Fonvielle au sein du groupe.
+| Modèle | Commits | Auteur | Dates |
+|---|---|---|---|
+| Claude Sonnet 5 | 7 | Salomé Fonvielle | 4 et 6 septembre |
+| Claude Sonnet 5 | 3 | Alexandre Boyer | 7 septembre |
+| Claude Opus 5 | 3 | Salomé Fonvielle | 7 et 8 septembre |
+| Claude Opus 5 (1M context) | 10 | Ulysse Petit-Tichanné | 7 et 8 septembre |
 
-## Résumé de la collaboration
+Soit 23 des 47 commits de l’historique. Le décompte se recalcule par croisement de
+`%an` et du `Co-Authored-By:` de chaque corps de commit.
+
+**Périmètre :** trois des quatre membres ont utilisé l'outil, sur trois versants du sujet.
+Salomé Fonvielle et Ulysse Petit-Tichanné sur les questions C et D (versant expérimental,
+parties 1 et 2 ci-dessous) ; Alexandre Boyer sur les questions A et B (versant théorique)
+et sur la traduction en anglais des rédactions — **partie 3 à rédiger par lui**, cette
+déclaration étant incomplète tant qu'elle manque.
+
+## Partie 1 — prototype et cadrage (Salomé Fonvielle, 4–6 septembre)
 
 L'outil a été utilisé en mode guidage : dès le deuxième échange, la consigne donnée à l'assistant a été explicite — construire ensemble, pas à pas, plutôt que produire une solution clé en main. Le travail s'est déroulé en cinq temps, sur trois jours (4-6 septembre 2026).
 
@@ -23,3 +37,33 @@ L'outil a été utilisé en mode guidage : dès le deuxième échange, la consig
 Tout au long de l'échange, l'assistant a été repris à plusieurs reprises pour simplifier ses explications, vérifier ses affirmations avant de les présenter comme acquises, et respecter le périmètre de travail de l'utilisatrice (Questions C/D uniquement, pas A/B).
 
 *Résumé reconstruit par Claude à partir du journal de la session — fidèle sur le fond ; la formulation exacte de quelques échanges courts peut différer à la marge du texte original.*
+
+---
+
+## Partie 2 — campagne unique et rédactions (Ulysse Petit-Tichanné, 7–8 septembre)
+
+*Section à compléter par Ulysse avec le détail des échanges. Ce qui suit est établi à
+partir de l'historique du dépôt seul, et ne remplace pas la liste des prompts.*
+
+Le travail de cette période, lisible dans les commits `56a48c5` à `c948a5e`, a porté sur
+quatre points.
+
+**1. Refonte du dispositif de campagne.** Constat que `lambda` n'agit pas sur la dynamique
+— le détecteur lit la trajectoire d'erreur sans jamais agir sur la forêt — donc qu'une
+campagne unique remplace les trois scénarios du dépôt officiel, les seuils se balayant hors
+ligne (`75eba29`). La simulation n'écrit plus que la matière première ; tout le dérivé se
+recalcule depuis les Parquet.
+
+**2. Rédaction de la question C.3** (invariance du budget de preuve) et du journal de
+recherche des questions C et D.
+
+**3. Protocole de validation de la métrique, et disqualification de `τ_ARF`** par deux voies
+indépendantes — le test à drift nul et la sensibilité à la taille de la forêt (`bbc4b9f`).
+
+**4. Critères du banc de candidats figés et commités avant toute mesure** (`c948a5e`), pour
+qu'ils soient datables d'avant les chiffres. Ce commit acte aussi la correction de trois
+affirmations antérieures qui s'étaient révélées fausses à la vérification.
+
+L'assistant a été employé en vérification adverse autant qu'en production : plusieurs de ses
+propres conclusions ont été infirmées par des contrôles ultérieurs et corrigées dans
+l'historique plutôt que retirées silencieusement.
