@@ -479,19 +479,22 @@ def figure_ecarts(df, tag):
         g = df.groupby('delta_e')
         med = g.apply(lambda x: np.nanmedian(x[col] - x['tau_arf']), include_groups=False)
         cens = g[f'censored_swap_{int(q * 100)}'].mean()
-        solid = cens <= 0.5
-        ax.plot(med.index[solid], med[solid], 'o-', color=c, lw=1.8, ms=4,
+        # une seule ligne continue -- eviter de tracer les points tres censures
+        # comme un second segment separe, qui se retrouve alors deconnecte du
+        # reste de la courbe (defaut visuel corrige le 08/09).
+        ax.plot(med.index, med.values, 'o-', color=c, lw=1.8, ms=4,
                 label=rf"$q = {q:.2f}$")
-        if (~solid).any():
-            ax.plot(med.index[~solid], med[~solid], 'o:', color=c, lw=1.2, ms=4,
-                    alpha=0.45)
+        heavy = cens > 0.5
+        if heavy.any():
+            ax.plot(med.index[heavy], med[heavy], 'o', color=c, ms=9,
+                    markerfacecolor='none', markeredgewidth=1.8, alpha=0.9)
     ax.set_xlabel(r"$\Delta e$ — amplitude du saut d'erreur")
     ax.set_ylabel(r"$\tau_{swap}(q) - \tau_{ARF}$  (pas)")
     ax.set_title(r"C.1b — de combien $\tau_{ARF}$ devance les quotas plus exigeants")
     ax.legend(fontsize=9, title="fraction d'arbres renouvelés", title_fontsize=8)
     ax.grid(alpha=0.18, lw=0.6)
-    ax.text(0.98, 0.04, "pointillé : médiane non interprétable (censure > 50 %)",
-            transform=ax.transAxes, ha='right', fontsize=7.5, color='#6A848D')
+    ax.text(0.98, 0.95, "cercle creux : >50 % des runs censurés à cette amplitude",
+            transform=ax.transAxes, ha='right', va='top', fontsize=7.5, color='#6A848D')
     fig.tight_layout()
     out = FIGURES_DIR / f"Fig_QC_ecarts_{tag}.png"
     fig.savefig(out, dpi=150)
