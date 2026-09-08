@@ -51,13 +51,22 @@ the vast majority of cases, using $\tau_{\mathrm{ARF}}$ as the forest's adaptati
 significant fraction of the ensemble to have been renewed~: this is a one-sided,
 optimistic bias, never offset by a symmetric overestimate.
 
-\paragraph{Confirmed on the theoretical side (Q~B.2, \texttt{redaction\_QB\_biais\_independance.tex}).}
-The theoretical result points the same way~: positive dependence between trees (all
-exposed to the same stream $S$) implies, via Jensen's inequality on $x\mapsto x^M$,
-that the article's independence assumption systematically overestimates the forest's
-repair speed. This is exactly the one-sided, optimistic bias observed here
-empirically --- two independent routes (a data-free proof, a distribution-free
-measurement) converging on the same sign.
+\paragraph{Relation to the theoretical side (Q~B.2) --- two distinct effects, not one.}
+It is tempting to read this result as a confirmation of Q~B.2
+(\texttt{redaction\_QB\_biais\_independance.tex}), but the two should not be
+conflated. Inequality~\eqref{eq:relation} is a purely combinatorial fact about the
+counting process $N_t$~: it holds pathwise, on every single run, regardless of any
+dependence structure between trees --- it would hold identically if the trees were
+independent, positively dependent, or anything else. Q~B.2, by contrast, is a
+statement about model misspecification~: it compares two different probability laws
+for $\tau_{\mathrm{ARF}}$ itself (the article's independence assumption versus the
+true, positively-dependent law), and says nothing about $\tau_{\mathrm{swap}}(q)$.
+The two results are independent and \emph{compounding}, not the same fact observed
+twice~: even with perfect knowledge of the true dependent law of
+$\tau_{\mathrm{ARF}}$, it would still underestimate real forest-wide recovery (this
+section) --- and, separately, the article's independence assumption additionally
+underestimates $\tau_{\mathrm{ARF}}$ itself (Q~B.2). Both push in the same practical
+direction, for unrelated reasons.
 
 \section{Gap $\tau_{\mathrm{swap}}(q) - \tau_{\mathrm{ARF}}$ as a Function of $\Delta e$}
 
