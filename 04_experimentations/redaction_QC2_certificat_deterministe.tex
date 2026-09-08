@@ -2,7 +2,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[french]{babel}
+\usepackage[english]{babel}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage[top=1cm,bottom=1.2cm,left=1.5cm,right=1.5cm]{geometry}
 \usepackage{hyperref}
@@ -10,19 +10,88 @@
 
 \newtheorem{proposition}{Proposition}
 
-\title{Rétablissement de l'homogénéité : la statistique culminante}
+\title{Question C.2 --- A Deterministic Certificate via the Peak Statistic}
 \author{Salomé Fonvielle}
 \date{}
 
 \begin{document}
 \maketitle
 
-\noindent\emph{Question traitée.} Montrer que la statistique culminante du CUSUM
-s'écrit $S_{\max}(H) = \max_{0 \le k \le j \le H}\bigl[A(k,j) - (j-k)\,\delta_P\bigr]$,
-le maximum portant sur toutes les sous-fenêtres $]k,j] \subseteq [0,H]$.
+\section{The Two Units, and What a Direct Comparison Erases}
 
-\paragraph{Notations.} Les pas post-rupture sont indexés $t = 1,\dots,H$, l'instant
-$t=0$ étant la rupture elle-même. On pose, conformément à l'énoncé,
+\noindent\emph{Question addressed.} What is the physical unit of
+$\tau_{\mathrm{ARF}}$, and that of the threshold $\lambda$? How does comparing them
+directly sidestep the sequential nature of the detector?
+
+\paragraph{The two units.} In a stream, there is no physical clock~: the only time
+variable available is the index of the incoming example, so $\tau_{\mathrm{ARF}}$ is
+measured in \emph{observations}. The threshold, meanwhile, is read off the recurrence
+of the cumulative detector\footnote{Equation~(3) of the manuscript, section~III-D
+(``The Starvation Effect''), notation kept as is. The R2 protocol creates the detector
+at the drift instant, hence $S_{\tau^*} = 0$~; the manuscript's Proposition~3 instead
+keeps $S_{\tau^*} = s_0 \ge 0$ --- setting $s_0 = 0$ here is a specialization of the
+protocol.}
+\begin{equation}
+  S_t = \max\bigl(0,\, S_{t-1} + e_t - p_0 - \delta_P\bigr)\,,
+  \label{eq:cusum}
+\end{equation}
+where $e_t \in \{0,1\}$ flags an error at step $t$, $p_0$ the normal pre-drift error
+rate, and $\delta_P$ a tolerance subtracted at every step. Since $e_t$ is $0$ or $1$,
+an error pushes $S$ up by nearly one unit while a success barely brings it down~: up to
+the tolerance, $S_t$ counts the errors accumulated beyond the baseline. Since
+$\lambda$ only ever appears in the comparison $S_t \ge \lambda$, it must be read in
+the same unit --- $\lambda = 50$ does not mean ``wait 50 steps'', but ``wait until
+roughly 50 excess errors have accumulated''. The two quantities are therefore counts
+of different natures~: writing $\tau_{\mathrm{ARF}} < \lambda$ makes no dimensional
+sense.
+
+\paragraph{What a direct comparison hides.} Comparing the two amounts to treating
+$\lambda$ as a duration~: ``it takes $\lambda$ errors, hence so many steps''. This
+shortcut assumes evidence accumulates at a fixed rate --- without an error-per-step
+rate, there is no way to convert one unit into the other --- and the assumption is
+baked into the very act of comparing, whether or not the conversion is written out.
+But no such rate exists~: the detector receives errors one at a time and does not
+output a number, but a date --- the one at which the trajectory of $S_t$ crosses
+$\lambda$. Three features of that trajectory disappear once it is replaced by a
+constant-slope ramp.
+
+\emph{The rate slows down.} Right after the drift, the counter's increment has
+expectation $\Delta e - \delta_P$~; but the forest repairs itself, the excess error
+drifts back toward the baseline, and this gain dries up. The manuscript instead
+assumes a constant excess of $\Delta e$ throughout the whole transient, then none at
+all --- a rectangle, whose height is precisely the fixed rate the comparison requires.
+
+\emph{Acquired evidence can be destroyed.} When $S_t$ would go below zero, the
+$\max(0,\cdot)$ in~\eqref{eq:cusum} resets it to $0$~: this is not a pause, everything
+accumulated so far is lost. The same errors, clustered right after the drift or spread
+out over the horizon, therefore do not yield the same alarm date, whereas an average
+rate makes no distinction between the two. This is the precise meaning of
+``sequential''~: the date depends on the order of arrival, not only on the total.
+
+\emph{The alarm may never come.} Over the campaign's horizon $H = 2\,000$, the
+threshold may never be crossed\footnote{Beyond the horizon the crossing eventually
+happens, but its mean delay grows exponentially with $\lambda$ (manuscript,
+Remark~4)~: the alarm then no longer bears on the drift.}.
+
+\paragraph{Conclusion.} An error count and an observation count cannot be compared by
+positing a rate. Homogeneity is restored the other way around~: by bringing both
+quantities into the unit of evidence, where the comparison is threshold against
+accumulated evidence, on each run and without averaging. That is the object of the
+peak statistic $S_{\max}(H)$ and the deterministic certificate that follows from it,
+developed in Section~2 below.
+
+% NOTE(coordination): the conversion tau*_det = lambda/(Delta_e - delta_P) and
+% substituting the stopping time with this constant belong to Question A
+% (Proposition 9, theoretical side): deliberately not treated here.
+
+\section{A Deterministic Certificate: The Peak Statistic}
+
+\noindent\emph{Question addressed.} Show that the CUSUM's peak statistic can be
+written $S_{\max}(H) = \max_{0 \le k \le j \le H}\bigl[A(k,j) - (j-k)\,\delta_P\bigr]$,
+the maximum ranging over all sub-windows $]k,j] \subseteq [0,H]$.
+
+\paragraph{Notation.} Post-drift steps are indexed $t = 1,\dots,H$, with $t=0$ the
+drift instant itself. Following the statement, set
 \[
   A(k,j) \;=\; \sum_{t=k+1}^{j} \bigl(e_t - \hat p_0\bigr),
   \qquad
@@ -32,70 +101,70 @@ $t=0$ étant la rupture elle-même. On pose, conformément à l'énoncé,
   \qquad
   S_t = \max\bigl(0,\, S_{t-1} + X_t\bigr),
 \]
-et $S_{\max}(H) = \max_{0 \le t \le H} S_t$. Le socle est ici le socle \emph{estimé}
-$\hat p_0$, comme dans toute la question~C. Par convention une somme vide vaut $0$,
-de sorte que $A(j,j) = 0$.
+and $S_{\max}(H) = \max_{0 \le t \le H} S_t$. The baseline here is the \emph{estimated}
+baseline $\hat p_0$, as throughout Question~C. By convention an empty sum is $0$, so
+$A(j,j) = 0$.
 
-\begin{proposition}[Forme close de Lindley]\label{prop:lindley}
-Pour tout $j \in \{0,\dots,H\}$,
+\begin{proposition}[Lindley's closed form]\label{prop:lindley}
+For every $j \in \{0,\dots,H\}$,
 \begin{equation}
   S_j \;=\; \max_{0 \le k \le j}\ \sum_{t=k+1}^{j} X_t
   \;=\; \max_{0 \le k \le j}\ \bigl[A(k,j) - (j-k)\,\delta_P\bigr].
   \label{eq:lindley}
 \end{equation}
-En passant au maximum sur $j$, il vient
+Taking the maximum over $j$ gives
 $S_{\max}(H) = \max_{0 \le k \le j \le H}\bigl[A(k,j) - (j-k)\,\delta_P\bigr]$.
 \end{proposition}
 
 \begin{proof}
-Par récurrence sur $j$.
+By induction on $j$.
 
 \smallskip
-\noindent\emph{Initialisation.} Pour $j = 0$, le seul indice admissible est $k = 0$ et
-la somme correspondante est vide, donc nulle : le membre de droite vaut $0 = S_0$.
+\noindent\emph{Base case.} For $j = 0$, the only admissible index is $k = 0$ and the
+corresponding sum is empty, hence zero~: the right-hand side equals $0 = S_0$.
 
 \smallskip
-\noindent\emph{Hérédité.} Supposons~\eqref{eq:lindley} vraie au rang $j-1$. Alors
+\noindent\emph{Inductive step.} Assume~\eqref{eq:lindley} holds at rank $j-1$. Then
 \[
   S_j \;=\; \max\bigl(0,\; S_{j-1} + X_j\bigr)
       \;=\; \max\Bigl(0,\; \max_{0 \le k \le j-1} \sum_{t=k+1}^{j-1} X_t \;+\; X_j\Bigr)
       \;=\; \max\Bigl(0,\; \max_{0 \le k \le j-1} \sum_{t=k+1}^{j} X_t\Bigr),
 \]
-la dernière égalité résultant de ce que $X_j$ ne dépend pas de $k$ et peut donc entrer
-dans le maximum. Or le terme $0$ est exactement la somme vide obtenue pour $k = j$ :
-les deux arguments du maximum extérieur se réunissent en un seul maximum sur
-$0 \le k \le j$, ce qui donne~\eqref{eq:lindley} au rang $j$.
+the last equality following from $X_j$ not depending on $k$, so it may enter the
+maximum. Now the term $0$ is exactly the empty sum obtained for $k = j$~: the two
+arguments of the outer maximum merge into a single maximum over $0 \le k \le j$,
+giving~\eqref{eq:lindley} at rank $j$.
 
 \smallskip
-\noindent\emph{Conclusion.} La seconde écriture s'obtient en développant la somme :
+\noindent\emph{Conclusion.} The second form follows by expanding the sum~:
 \[
   \sum_{t=k+1}^{j} X_t
   \;=\; \sum_{t=k+1}^{j} \bigl(e_t - \hat p_0\bigr) \;-\; (j-k)\,\delta_P
   \;=\; A(k,j) - (j-k)\,\delta_P ,
 \]
-puisque $\delta_P$ est retranché une fois par pas et que la sous-fenêtre $]k,j]$ en
-compte $j-k$. Enfin
+since $\delta_P$ is subtracted once per step and the sub-window $]k,j]$ contains
+$j-k$ of them. Finally
 $S_{\max}(H) = \max_{0 \le j \le H} S_j
  = \max_{0 \le j \le H} \max_{0 \le k \le j} [\,\cdot\,]
  = \max_{0 \le k \le j \le H} [\,\cdot\,]$.
 \end{proof}
 
-\paragraph{Ce que l'identité rend visible.} La remise à zéro n'est pas une correction
-technique : elle est \emph{équivalente} à la liberté de choisir le point de départ. Un
-CUSUM qui repart de zéro à chaque fois que le compteur passerait sous la barre ne fait
-rien d'autre que retenir, à chaque instant, la meilleure sous-fenêtre récente. C'est
-pourquoi le maximum porte sur les couples $(k,j)$ et non sur les seuls $j$ : le
-détecteur ne mesure pas la preuve accumulée depuis la rupture, mais la preuve accumulée
-sur la sous-fenêtre la plus favorable.
+\paragraph{What the identity makes visible.} The reset to zero is not a technical
+correction~: it is \emph{equivalent} to the freedom to choose the starting point. A
+CUSUM that restarts from zero whenever the counter would go below the line does
+nothing other than retain, at every instant, the best recent sub-window. This is why
+the maximum ranges over pairs $(k,j)$ rather than over $j$ alone~: the detector does
+not measure the evidence accumulated since the drift, but the evidence accumulated
+over the most favorable sub-window.
 
-Deux conséquences immédiates. D'abord $S_{\max}(H) \ge 0$, puisque le choix $k=j$ est
-toujours disponible. Ensuite, et surtout, l'identité est \emph{déterministe} : elle vaut
-sur chaque exécution prise isolément, sans moyenne ni hypothèse de loi. C'est ce qui
-autorise le certificat de la question suivante.
+Two immediate consequences. First, $S_{\max}(H) \ge 0$, since the choice $k=j$ is
+always available. Second, and more importantly, the identity is \emph{deterministic}~:
+it holds on each individual run, with no averaging or distributional assumption. This
+is what licenses the certificate used in Q~C.3.
 
-\paragraph{Contrôle numérique.} La forme close~\eqref{eq:lindley} a été confrontée à la
-récurrence naïve sur l'ensemble des trajectoires de la campagne : écart maximal
-$1{,}07 \times 10^{-10}$, soit la précision machine. Le script d'analyse refuse de
-poursuivre si ce contrôle échoue.
+\paragraph{Numerical check.} The closed form~\eqref{eq:lindley} was checked against
+the naive recurrence over every trajectory of the campaign~: maximal deviation
+$1.07 \times 10^{-10}$, i.e.\ machine precision. The analysis script refuses to
+proceed further if this check fails.
 
 \end{document}
