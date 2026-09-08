@@ -488,12 +488,12 @@ def figure_ecarts(df, tag):
         if heavy.any():
             ax.plot(med.index[heavy], med[heavy], 'o', color=c, ms=9,
                     markerfacecolor='none', markeredgewidth=1.8, alpha=0.9)
-    ax.set_xlabel(r"$\Delta e$ — amplitude du saut d'erreur")
-    ax.set_ylabel(r"$\tau_{swap}(q) - \tau_{ARF}$  (pas)")
-    ax.set_title(r"C.1b — de combien $\tau_{ARF}$ devance les quotas plus exigeants")
-    ax.legend(fontsize=9, title="fraction d'arbres renouvelés", title_fontsize=8)
+    ax.set_xlabel(r"$\Delta e$ — error jump amplitude")
+    ax.set_ylabel(r"$\tau_{swap}(q) - \tau_{ARF}$  (steps)")
+    ax.set_title(r"C.1b --- how far ahead of stricter quotas $\tau_{ARF}$ runs")
+    ax.legend(fontsize=9, title="fraction of trees renewed", title_fontsize=8)
     ax.grid(alpha=0.18, lw=0.6)
-    ax.text(0.98, 0.95, "cercle creux : >50 % des runs censurés à cette amplitude",
+    ax.text(0.98, 0.95, "hollow circle: >50% of runs censored at this amplitude",
             transform=ax.transAxes, ha='right', va='top', fontsize=7.5, color='#6A848D')
     fig.tight_layout()
     out = FIGURES_DIR / f"Fig_QC_ecarts_{tag}.png"
@@ -508,17 +508,17 @@ def figure_budget(budget, tag):
     de = budget['delta_e'].to_numpy()
     ax.axhline(0, color='#6A848D', lw=0.8)
     ax.plot(de, budget['A_predit_brut'], '--', color='#0F252D', lw=1.6,
-            label=r"prédit : $18{,}5 \cdot \Delta e^{0,02}$")
+            label=r"predicted: $18.5 \cdot \Delta e^{0.02}$")
     ax.plot(de, budget['A_w_mesure_median'], 'o-', color='#04617B', lw=1.8, ms=4,
-            label=r"mesuré, fenêtre courte $A(w)$")
+            label=r"measured, short window $A(w)$")
     ax.plot(de, budget['A_H_mesure_median'], 's-', color='#C62828', lw=1.8, ms=4,
-            label=r"mesuré, horizon entier $A(H)$")
+            label=r"measured, full horizon $A(H)$")
     ax.fill_between(de, budget['A_H_mesure_median'], 0,
                     where=budget['A_H_mesure_median'] < 0,
                     color='#C62828', alpha=0.12)
-    ax.set_xlabel(r"$\Delta e$ — amplitude du saut d'erreur")
-    ax.set_ylabel("aire d'erreur excédentaire")
-    ax.set_title(r"C.3f — budget de preuve : mesuré contre prédit")
+    ax.set_xlabel(r"$\Delta e$ — error jump amplitude")
+    ax.set_ylabel("excess error area")
+    ax.set_title(r"C.3f --- evidence budget: measured vs.\ predicted")
     ax.legend(fontsize=9)
     ax.grid(alpha=0.18, lw=0.6)
     fig.tight_layout()
