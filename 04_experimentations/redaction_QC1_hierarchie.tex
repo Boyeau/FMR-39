@@ -130,6 +130,21 @@ statistically no power there ($\rho \Delta e < 2\sigma$ in both cases). Requirin
 condition to hold for 20 consecutive steps rather than one, both violations
 disappear~: \textbf{0 violations across the 18 interpretable amplitudes, and the test
 loses all statistical validity precisely at the 2 amplitudes where it indicated one.}
+Figure~\ref{fig:tauerr-power} shows why~: at both amplitudes, the $\pm 2\sigma$ noise
+band around the mean curve entirely swallows the gap between the baseline and the
+threshold --- the shock is not visually distinguishable from noise, which is exactly
+the quantitative condition $\rho\Delta e < 2\sigma$ stated above.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{resultats_R2/resultats/figures/Fig_QC_tauerr_power_full.png}
+  \caption{Mean post-drift error curve $\bar e_t$ (100 seeds) with its $\pm 2\sigma$
+  band, against the baseline $\hat p_0$ and the recovery threshold
+  $\hat p_0 + \rho\Delta e$, at the two amplitudes flagged non-interpretable
+  ($\rho\Delta e \le 2\sigma$). The noise band covers the threshold at both
+  amplitudes, visually confirming the lack of statistical power.}
+  \label{fig:tauerr-power}
+\end{figure}
 
 \paragraph{Conclusion.} The conjecture is not confirmed --- nor is it refuted at low
 amplitudes, where the experimental setup lacks power. More seeds would be needed~:

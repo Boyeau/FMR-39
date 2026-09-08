@@ -378,6 +378,46 @@ def tau_err_table(df, error_mat, rho=RHO_ERR, persist=PERSIST):
     return pd.DataFrame(rows)
 
 
+def figure_pouvoir_tauerr(df, error_mat, terr, tag):
+    """Complement visuel a tau_err_table (C.1c) : trace la bande de bruit +-2 sigma
+    de la courbe moyenne contre le seuil rho*Delta_e, sur les amplitudes marquees
+    non interpretables (seuil <= 2 sigma). Objectif : montrer que le choc y est
+    noye dans le bruit plutot que de se contenter de l'affirmer en mots.
+    """
+    bad = terr.loc[~terr['interpretable'], 'delta_e'].to_numpy()
+    if bad.size == 0:
+        return None
+    fig, axes = plt.subplots(1, len(bad), figsize=(5.5 * len(bad), 4.3), sharey=True)
+    axes = np.atleast_1d(axes)
+    for ax, de in zip(axes, bad):
+        grp = df[df['delta_e'] == de]
+        runs = grp.index.to_numpy()
+        mat = error_mat[runs]
+        mean_curve = mat.mean(axis=0)
+        n = mat.shape[0]
+        se = np.sqrt(mean_curve * (1 - mean_curve) / n)
+        p0 = grp['p_hat_0'].mean()
+        thresh = p0 + RHO_ERR * de
+        t = np.arange(len(mean_curve))
+        ax.plot(t, mean_curve, color='#04617B', lw=1.3, label=r"$\bar e_t$ (mean over seeds)")
+        ax.fill_between(t, mean_curve - 2 * se, mean_curve + 2 * se, color='#04617B',
+                        alpha=0.2, label=r"$\pm 2\sigma$ band")
+        ax.axhline(p0, color='#555', ls=':', lw=1.1, label=r"baseline $\hat p_0$")
+        ax.axhline(thresh, color='#C62828', ls='--', lw=1.3,
+                   label=r"threshold $\hat p_0 + \rho\Delta e$")
+        ax.set_title(rf"$\Delta e = {de:.3f}$")
+        ax.set_xlabel("post-drift step")
+        ax.set_xlim(0, 400)
+    axes[0].set_ylabel("error rate")
+    axes[0].legend(fontsize=8, loc='upper right')
+    fig.suptitle("Why the recovery test lacks power at these amplitudes", fontsize=11)
+    fig.tight_layout()
+    out = FIGURES_DIR / f"Fig_QC_tauerr_power_{tag}.png"
+    fig.savefig(out, dpi=150)
+    plt.close(fig)
+    return out
+
+
 def fit_diagnosis(df, budget):
     """C.3f : l'ecart entre budget mesure et budget predit vient-il du socle, de la
     censure, ou de l'ajustement 18,5 * Delta_e^-0,98 lui-meme ?
@@ -615,6 +655,7 @@ def main():
     f3 = figure_ecarts(df, args.tag)
     f4 = figure_budget(budget, args.tag)
     f5 = figure_rg(rg, args.tag)
+    f6 = figure_pouvoir_tauerr(df, error_mat, terr, args.tag)
 
     print("\n[CENSURE] par seuil, toutes amplitudes confondues :")
     for lam in LAMBDAS:
