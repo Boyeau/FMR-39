@@ -126,14 +126,27 @@ apparent violations, at the two lowest amplitudes of the grid ($\Delta e = 0.028
 $0.085$). But the residual noise of the mean curve ($\sigma \approx 0.015$, estimated
 over the last 500 steps) is of the same order of magnitude as the threshold
 $\rho \Delta e$ itself ($\rho\Delta e = 0.007$ and $0.021$ respectively)~: the test has
-statistically no power there ($\rho \Delta e < 2\sigma$ in both cases). Requiring the
-condition to hold for 20 consecutive steps rather than one, both violations
-disappear~: \textbf{0 violations across the 18 interpretable amplitudes, and the test
-loses all statistical validity precisely at the 2 amplitudes where it indicated one.}
-Figure~\ref{fig:tauerr-power} shows why~: at both amplitudes, the $\pm 2\sigma$ noise
-band around the mean curve entirely swallows the gap between the baseline and the
-threshold --- the shock is not visually distinguishable from noise, which is exactly
-the quantitative condition $\rho\Delta e < 2\sigma$ stated above.
+statistically no power there ($\rho \Delta e < 2\sigma$ in both cases). Figure~\ref{fig:tauerr-signal}
+shows why, across the whole grid~: the threshold $\rho\Delta e$ grows linearly with
+$\Delta e$ while the noise floor $2\sigma$ stays roughly flat, and the two curves cross
+right around $\Delta e \approx 0.10$ --- exactly where the two flagged amplitudes sit.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{resultats_R2/resultats/figures/Fig_QC_tauerr_signal_bruit_full.png}
+  \caption{Threshold $\rho\Delta e$ (signal) versus $2\sigma$ (noise floor) across all
+  20 amplitudes. The two curves cross near $\Delta e \approx 0.10$, exactly where the
+  two non-interpretable amplitudes (circled) sit --- below the crossing, the shock is
+  smaller than the noise; above it, the test regains power.}
+  \label{fig:tauerr-signal}
+\end{figure}
+
+Requiring the condition to hold for 20 consecutive steps rather than one, both
+violations disappear~: \textbf{0 violations across the 18 interpretable amplitudes, and
+the test loses all statistical validity precisely at the 2 amplitudes where it
+indicated one.} Figure~\ref{fig:tauerr-power} zooms in on those two amplitudes~: the
+$\pm 2\sigma$ noise band around the mean curve entirely swallows the gap between the
+baseline and the threshold --- the shock is not visually distinguishable from noise.
 
 \begin{figure}[htbp]
   \centering

@@ -418,6 +418,34 @@ def figure_pouvoir_tauerr(df, error_mat, terr, tag):
     return out
 
 
+def figure_signal_bruit_tauerr(terr, tag):
+    """Vue d'ensemble complementaire a figure_pouvoir_tauerr : plutot que de zoomer
+    sur 2 amplitudes, trace le seuil rho*Delta_e (signal) contre 2*sigma (bruit) sur
+    toute la grille -- montre en un coup d'oeil ou et pourquoi le critere
+    d'interpretabilite (seuil > 2 sigma) bascule. Aucune resimulation necessaire,
+    tout vient de tau_err_table.
+    """
+    fig, ax = plt.subplots(figsize=(8.5, 4.8))
+    ax.plot(terr['delta_e'], terr['seuil'], 'o-', color='#C62828', lw=1.8, ms=4,
+            label=r"threshold $\rho\Delta e$ (signal)")
+    ax.plot(terr['delta_e'], 2 * terr['sigma_courbe'], 'o-', color='#04617B', lw=1.8,
+            ms=4, label=r"$2\sigma$ (noise floor)")
+    bad = terr[~terr['interpretable']]
+    ax.scatter(bad['delta_e'], bad['seuil'], s=140, facecolors='none',
+               edgecolors='#C62828', linewidths=1.8, zorder=5,
+               label="non-interpretable (signal < noise)")
+    ax.set_xlabel(r"$\Delta e$ — error jump amplitude")
+    ax.set_ylabel("magnitude")
+    ax.set_title("Signal vs. noise floor for the recovery test, across the full grid")
+    ax.legend(fontsize=9)
+    ax.grid(alpha=0.18, lw=0.6)
+    fig.tight_layout()
+    out = FIGURES_DIR / f"Fig_QC_tauerr_signal_bruit_{tag}.png"
+    fig.savefig(out, dpi=150)
+    plt.close(fig)
+    return out
+
+
 def fit_diagnosis(df, budget):
     """C.3f : l'ecart entre budget mesure et budget predit vient-il du socle, de la
     censure, ou de l'ajustement 18,5 * Delta_e^-0,98 lui-meme ?
@@ -656,6 +684,7 @@ def main():
     f4 = figure_budget(budget, args.tag)
     f5 = figure_rg(rg, args.tag)
     f6 = figure_pouvoir_tauerr(df, error_mat, terr, args.tag)
+    f7 = figure_signal_bruit_tauerr(terr, args.tag)
 
     print("\n[CENSURE] par seuil, toutes amplitudes confondues :")
     for lam in LAMBDAS:
