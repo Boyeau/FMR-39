@@ -122,7 +122,7 @@ Détail dans `../pistes_remplacement_tauARF.md`. En bref :
 
 | Piste | Verdict |
 |---|---|
-| désaccord fonctionnel `D(t)` avec une forêt gelée | relation à l'erreur **infirmée** (corrélations 0,28 à 0,49) |
+| désaccord fonctionnel `D(t)` avec une forêt gelée | relation à l'erreur **infirmée** (corrélations de −0,29 à 0,49, de signe non constant) |
 | masse de vote renouvelée | **sature** comme le comptage : 2 valeurs distinctes sur 20 exécutions |
 | forêt témoin comme étalon | **invalide en l'état** : le témoin s'adapte quand même, et part avec un avantage de 0,0103 |
 | retour de l'erreur à l'acceptable | **écarté** : échoue au test de la tâche facilitée |

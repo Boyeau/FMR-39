@@ -7,7 +7,7 @@ Note de travail, 7 septembre 2026. Fait suite à la question C, qui établit que
 Le principal résultat de cette note n'était pas prévu : il porte sur le coût permanent
 du mécanisme de remplacement lui-même.
 
-Scripts : `ulysse/scripts/`, où `probe_metriques.py` et `verif_biais.py` rejouent
+Scripts : `resultats_R2/scripts/`, où `probe_metriques.py` et `verif_biais.py` rejouent
 les mesures de cette note.
 
 ---
@@ -24,7 +24,14 @@ censurés. Ce qui suit ne concerne que le premier usage, mesurer l'adaptation.
 
 Critères qu'un tel indicateur devrait remplir, tels que C permet de les formuler :
 
-1. **continu** — `τ_ARF` compte des arbres, donc ne prend que 11 valeurs avec `M = 10` ;
+1. **granularité suffisante** — critère relatif, « au moins autant de valeurs distinctes que
+   `τ_ARF` sur la même strate », et non un seuil absolu.
+   > **Correction du 8 septembre 2026.** Ce critère affirmait : « continu — `τ_ARF` compte des
+   > arbres, donc ne prend que 11 valeurs avec `M = 10` ». C'est faux. `τ_ARF` est un **instant**
+   > (`analyse_QCD.py:137`), pas un comptage : il prend 30 à 93 valeurs distinctes par amplitude
+   > sur 100 graines, 321 au total. C'est `φ(t)` qui a `M+1` états. La motivation « il faut un
+   > indicateur continu » était donc mal fondée et est retirée. `τ_ARF` reste disqualifié par
+   > A1 et C1, **pas** par sa granularité ;
 2. **jamais censuré** — `τ_swap(75 %)` l'est jusqu'à 78 % du temps en bas de grille ;
 3. **indépendant de `M`** — sinon on mesure la taille de la forêt ;
 4. **regarde la forêt, pas son erreur** — sinon on explique le phénomène par lui-même ;
@@ -66,6 +73,11 @@ d'adaptation, ce qui relierait d'un trait C.1 et C.3.
 
 Les aires ne se correspondent pas non plus : à `Δe = 0,028`, `A(H)` mesurée vaut 3,02
 quand la somme des déficits vaut −11,18.
+
+Résumer ces quatre valeurs par « corrélations de 0,28 à 0,49 » escamote la première, qui est
+**négative** (−0,29). L'écart à H1 n'est donc pas un lien faible mais positif : à la plus faible
+amplitude, les deux courbes vont en sens **opposé**. La formulation correcte est « corrélations
+de −0,29 à 0,49, de signe non constant ».
 
 **Pourquoi ça échoue.** Le raisonnement supposait que les deux forêts ne peuvent
 diverger que dans la bande. C'est faux : la forêt vivante continue d'apprendre partout,
@@ -171,7 +183,7 @@ figé une conclusion fausse.**
 | désaccord `D(t)` | relation H1 infirmée | l'indicateur reste continu et non censuré ; il faudrait le corriger du désaccord de fond, mesurable sous `b = 0` |
 | masse de vote | peu utile | sature à forte amplitude, comme le comptage |
 | forêt témoin | invalide en l'état | utilisable si l'on corrige le handicap initial, mesurable et stable (−0,0103) |
-| `τ_erase` | non testé | reste le candidat le plus honnête : il ne prétend pas mesurer l'adaptation, il date la fin de l'alimentation du détecteur |
+| `τ_erase` | non testé | date l'instant où plus aucun arbre d'avant la rupture ne subsiste. Ne prétend pas mesurer l'adaptation. Il ne date **pas** « la fin de l'alimentation du détecteur » : par le remplacement en deux temps de Gomes et al. (2017), un arbre qui substitue a déjà appris depuis son avertissement, et l'erreur continue d'alimenter le détecteur après `τ_erase` |
 | retour de l'erreur | écarté | échoue au test de la tâche facilitée (voir §5, test A2) |
 
 ---
@@ -288,3 +300,74 @@ coûteux, et gagnerait à être échantillonné tous les 10 pas si l'on rejoue l
 `verif_biais.py` compare les erreurs avant et après rupture entre forêt normale et
 témoin, sur horizon court. C'est ce script qui a évité de figer une conclusion fausse ;
 tout étalon fondé sur une forêt de référence doit passer par cette vérification.
+
+---
+
+## 8. Critères de succès du banc — figés le 8 septembre 2026, avant toute mesure
+
+Cette section est recopiée du plan `candidats-metrique-reaction-foret.md` (v2, après double
+audit adverse) **avant** que le moindre chiffre du banc ait été calculé, et committée telle
+quelle. C'est ce commit qui rend le verdict opposable : sans lui, tout seuil pourrait être
+soupçonné d'avoir été choisi après avoir vu les résultats — reproche que le `JOURNAL.md` § 8
+porte déjà, à raison, sur le critère d'acceptabilité de C.1 b.
+
+### L'étalon
+
+L'adaptation réelle est mesurée contre la **vérité analytique**, que le dispositif connaît :
+après la rupture, `y*(x) = 1{x₀+x₁ > b}` et l'erreur de Bayes est nulle (`JOURNAL.md` § 2a).
+Aucune forêt de référence n'intervient. Trois jeux de sondes fixes, tirés d'avance par un
+générateur séparé, jamais appris, échantillonnés conditionnellement à leur région :
+
+| Région | Condition | Vérité avant | Vérité après | Ce qu'elle mesure |
+|---|---|---|---|---|
+| `R_bande` | `0 < x₀+x₁ ≤ b` | 1 | **0** | ce que la forêt doit réapprendre |
+| `R_haut` | `x₀+x₁ > b` | 1 | 1 | compétence à **conserver** |
+| `R_bas` | `x₀+x₁ ≤ 0` | 0 | 0 | compétence à **conserver** |
+
+**Étalon scalaire par run** : `Étalon = aire sous acc_bande(t) sur [0, W_e]`, avec `W_e = 500`
+pas, déclaré ici et jamais une date. Publiés à côté, jamais agrégés dedans :
+`min_t acc_haut(t)` et `min_t acc_bas(t)`. Un run dont la compétence conservée chute de plus de
+10 points est **signalé**, pas silencieusement compté — c'est ce contrôle qui rend visible
+l'effondrement dégénéré sur « toujours 0 », lequel saturerait `acc_bande` à 1.
+
+Le critère 5 du § 1 (« calculable en ligne ») est **explicitement abandonné pour l'étalon**,
+qui exige `b` ; il reste exigé des candidats.
+
+### Déclarations préalables, par candidat
+
+- son **orientation** (valeur haute = plus réactif, ou valeur basse) — sans quoi « AUC ≤ x »
+  n'a pas le même sens pour un temps et pour une aire ;
+- son **domaine de validité en Δe**, choisi *a priori* sur un argument de construction, jamais
+  d'après les résultats. Un domaine restreint après coup annule le pré-enregistrement.
+
+### Les huit tests, tous stratifiés par amplitude, tous avec IC bootstrap apparié sur les graines
+
+| Test | Critère figé |
+|---|---|
+| **A1 — se tait sans drift** | AUC contre `b = 0`, rapportée avec son plancher mécanique `0,5 × taux d'ex-æquo`. Disqualifie si `AUC > plancher + 10 points` |
+| **A2 — insensible à la facilitation** | le candidat ne doit pas indiquer une adaptation plus forte ou plus rapide en haut de grille (Δe ≥ 0,45) qu'au milieu (0,25–0,40), alors que l'étalon montre une compétence conservée qui chute. Opérationnalisé par le signe de la pente en Δe, comparé à celui de la pente de l'étalon |
+| **B1 — suit l'étalon** | Kendall τ-b avec l'étalon, à amplitude fixée, IC bootstrap excluant 0. Rapporté deux fois : imputation à l'horizon **et** cas complets seuls, avec le taux de censure. Un τ-b dont l'IC contient 0 disqualifie. Les candidats ne sont **pas** classés par τ-b brut entre eux : la censure le tire vers 0 et les régimes de censure diffèrent |
+| **B2 — validité prédictive** | `λ = 25` seulement. Test **secondaire et non disqualifiant** : bien prédire l'alarme récompense la contamination par la trajectoire d'erreur, motif exact pour lequel « retour de l'erreur » a été écarté comme circulaire |
+| **C1 — indépendant de M** | grandeurs extensives normalisées par `M` avant le test. Rapport des médianes M=5 → M=50 dans **[0,7 ; 1,4]**, avec IC bootstrap sur le rapport ; un IC qui chevauche la borne est déclaré **indécis**, pas disqualifié |
+| **D1 — fidélité** | écart interquartile rapporté à la médiane, à amplitude fixée. Rapporté **sans seuil** : sert à départager deux candidats qui passent le reste |
+| **D2 — censure** | ≤ 5 % sur le domaine déclaré |
+| **D3 — granularité** | nombre de valeurs distinctes sur 100 graines, par amplitude. Critère **relatif** : au moins autant que `τ_ARF` sur la même strate |
+
+**« Non disqualifié » ne se lit jamais « validé ».** Seul B1 stratifié départage ; les sept
+autres tests ne font qu'éliminer.
+
+### Livrable minimal, même si tous les candidats tombent
+
+La table de synthèse « candidat × test » avec IC, deux mesures alternatives définies et
+caractérisées, et un verdict écrit. Le sujet pose qu'un résultat négatif rigoureusement établi
+vaut une confirmation.
+
+### Interprétation pré-enregistrée du scénario le plus probable
+
+Le § 2 piste C ci-dessus établit que la forêt témoin, qui ne remplace **jamais** d'arbre,
+ramène son erreur de 0,522 attendu à 0,050 mesuré : l'adaptation passe surtout par
+l'apprentissage incrémental. Si tous les candidats fondés sur le comptage de remplacements
+échouent B1, ce n'est donc **pas** un échec de la recherche : c'est la confirmation
+quantitative, contre un étalon fonctionnel, que *le remplacement d'arbres n'est pas le
+mécanisme de l'adaptation*. C'est écrit ici avant mesure pour que ce résultat ne puisse pas
+être présenté après coup comme une trouvaille.
