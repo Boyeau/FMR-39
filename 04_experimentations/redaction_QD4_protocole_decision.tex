@@ -17,91 +17,55 @@
 \begin{document}
 \maketitle
 
-\noindent This section fixes the rule by which a coefficient of Q~D is called discernible,
-reports censoring by amplitude rather than in aggregate, and settles whether censoring
-drives any result. Figures come from the campaign of 2\,000 runs and are reproduced by
-\texttt{scripts/chiffres\_QD.py} and \texttt{scripts/derives\_QD.py}.
+\noindent Figures from the campaign of 2\,000 runs, reproduced by
+\texttt{resultats\_R2/scripts/chiffres\_QD.py} and \texttt{derives\_QD.py}.
 
-\section{A Reservation on the Status of the Criterion}
+\section{Status of the Criterion, and Which Rule Governs}
 
 The protocol asks for a decision criterion written down before any correlation is
-inspected. That claim cannot honestly be made here, so the reservation is stated rather
-than glossed.
+inspected, and that claim cannot honestly be made here. The pre-registered document of this
+work fixes the criteria of a \emph{benchmark}, the tests A1, A2, B1, B2, C1 and D1 to D3
+qualifying candidate replacements for $\tau_{\mathrm{ARF}}$ against an analytic reference.
+It contains neither the indicator evaluated here, nor its comparators, nor the decision
+domain $\Delta e \ge 0.10$, nor the threshold on $\tau_b$, nor the rule on interval bounds,
+and the columns \texttt{dans\_domaine\_decision}, \texttt{seuil\_detectabilite} and
+\texttt{discernable} come from the same analysis pass as the coefficients they qualify.
+Anteriority is therefore not claimed. The criterion is fixed here, applied uniformly, and
+no cell is reclassified afterwards.
 
-The pre-registered document of this work fixes the criteria of a \emph{benchmark}: the
-tests A1, A2, B1, B2, C1 and D1 to D3 that qualify candidate replacements for
-$\tau_{\mathrm{ARF}}$ against an analytic reference. It contains neither the indicator
-evaluated here, nor its comparators, nor the decision domain $\Delta e \ge 0.10$, nor the
-threshold on $\tau_b$, nor the rule on confidence-interval bounds. The columns
-\texttt{dans\_domaine\_decision}, \texttt{seuil\_detectabilite} and \texttt{discernable}
-are produced by the same analysis pass as the coefficients they qualify. Anteriority is
-therefore not claimed for the criterion of Q~D. It is fixed here, applied uniformly, and no
-cell is reclassified afterwards.
+Two rules coexist in this work: a \emph{threshold rule}, $|\tau_b| > 0.13295637$, and an
+\emph{interval rule}, the bootstrap interval excludes zero. They disagree on three cells
+out of $108$: at $\Delta e = 0.287$, $\tau_{\mathrm{swap}}(75\%)$ has $\tau_b = +0.1363$
+with interval $[-0.0068 ; +0.2704]$, discernible under the threshold rule only, while
+$S_{\max}(H)$ has $+0.1308$ with $[+0.0027 ; +0.2519]$, discernible under the interval rule
+only; at $\Delta e = 0.391$, $\tau_{\mathrm{swap}}(75\%)$ has $+0.1240$ with
+$[+0.0010 ; +0.2505]$, again interval only.
 
-\section{Two Incompatible Rules, and the One That Governs}
+\textbf{The interval rule governs.} A fixed threshold on $|\tau_b|$ ignores the precision
+of the estimate, treating a coefficient of $0.13$ with a wide interval like one measured
+tightly. It is also a function of $n$ alone, so it says nothing about the tie structure of
+the pair tested, and Q~D.2 established that this structure differs systematically between
+the $\tau_{\mathrm{swap}}(q)$ comparators and the never-censored $A(H)$ and $S_{\max}(H)$.
+The pre-registered benchmark already uses the interval rule for test B1, so adopting it
+keeps one rule across the project. Under it, $A(H)$ is discernible at $0$ of $18$
+amplitudes, unchanged since both rules agree on every $A(H)$ cell, and $S_{\max}(H)$ at
+$\mathbf{15}$ of $18$; the \texttt{discernable} column implements the threshold rule and
+would give $14$, differing on $\Delta e = 0.287$ alone. The count reported throughout Q~D
+is $15$, and none of the three disputed cells is quoted individually as a result.
 
-Two rules for calling an association discernible coexist in this work.
+\paragraph{What ranking censored runs last rests on.} The horizon $H = 2\,000$ is identical
+for every run, so a duration not reached genuinely exceeds every observed one and censored
+runs may take the last rank, tied among themselves. The argument depends entirely on that:
+under a variable horizon a censored value would only be known to exceed \emph{its own}
+horizon, a run censored at $H = 500$ and an observed run of $1\,200$ steps could not be
+ordered at all, and the correct tool would be a censoring-aware estimator such as Harrell's
+$C$ index. The convention used here rests on a property of this design and does not
+transfer.
 
-\begin{description}
-  \item[Threshold rule.] $|\tau_b| > 0.13295637$, the value in the
-    \texttt{seuil\_detectabilite} column, constant across the table.
-  \item[Interval rule.] The bootstrap confidence interval excludes zero. A $\tau_b$ whose
-    interval contains zero does not count.
-\end{description}
+\section{Censoring by Amplitude, and Whether It Drives Anything}
 
-They disagree on exactly three cells out of the $108$ in the decision domain.
-
-\begin{table}[htbp]
-  \centering
-  \begin{tabular}{lccccc}
-    \toprule
-    $\Delta e$ & comparator & $\tau_b$ & CI & threshold rule & interval rule \\
-    \midrule
-    $0.287$ & $\tau_{\mathrm{swap}}(75\%)$ & $+0.1363$ & $[-0.0068 ; +0.2704]$ & discernible & not \\
-    $0.287$ & $S_{\max}(H)$                & $+0.1308$ & $[+0.0027 ; +0.2519]$ & not & discernible \\
-    $0.391$ & $\tau_{\mathrm{swap}}(75\%)$ & $+0.1240$ & $[+0.0010 ; +0.2505]$ & not & discernible \\
-    \bottomrule
-  \end{tabular}
-  \caption{The three cells on which the two rules disagree.}
-  \label{tab:regles}
-\end{table}
-
-\paragraph{The interval rule governs.} Three reasons, of unequal weight. A fixed threshold
-on $|\tau_b|$ ignores the precision of the estimate, treating a coefficient of $0.13$
-measured on $100$ seeds with a wide interval exactly like one measured tightly, whereas the
-interval rule uses what the bootstrap actually provides. The threshold is also a function
-of $n$ alone, so it says nothing about the tie structure of the particular pair being
-tested, and Q~D.2 established that this structure differs systematically between the
-$\tau_{\mathrm{swap}}(q)$ comparators and the never-censored $A(H)$ and $S_{\max}(H)$.
-Finally, the pre-registered benchmark already uses the interval rule for test B1, so
-adopting it keeps one rule across the project instead of two.
-
-The counts of Q~D.3 are those this rule gives: $A(H)$ discernible at $0$ of $18$
-amplitudes, unchanged since the two rules agree on every $A(H)$ cell, and $S_{\max}(H)$ at
-$\mathbf{15}$ of $18$. The \texttt{discernable} column implements the threshold rule and
-would give $14$: the difference is the single cell $\Delta e = 0.287$, whose interval
-$[+0.0027 ; +0.2519]$ excludes zero while its $\tau_b$ of $0.1308$ falls just under the
-threshold. The count reported throughout Q~D is $15$, and the column is not used as the
-criterion. None of the three cells of Table~\ref{tab:regles} is quoted individually as a
-result.
-
-\section{Why Censored Runs May Be Ranked Last}
-
-The horizon $H = 2\,000$ is identical for every run, so a duration not reached within it
-genuinely exceeds every observed duration and censored runs may be placed at the last rank,
-tied among themselves. Kendall's $\tau_b$ then removes those pairs from the count on the
-side where the tie occurs, as Q~D.2 sets out.
-
-The argument depends entirely on the horizon being common. If $H$ varied from run to run, a
-censored value would only be known to exceed \emph{its own} horizon: a run censored at
-$H = 500$ and an observed run of $1\,200$ steps could not be ordered at all, and no
-imputation to a shared last rank would be licit. Under variable horizons the correct tool
-is a censoring-aware estimator such as Harrell's $C$ index. The convention used here rests
-on a property of this experimental design and does not transfer.
-
-\section{Censoring by Amplitude}
-
-Aggregate censoring rates conceal what matters.
+Aggregate rates conceal what matters, so both the grid and the decision domain are
+reported.
 
 \begin{table}[htbp]
   \centering
@@ -109,8 +73,7 @@ Aggregate censoring rates conceal what matters.
     \toprule
     Quantity & overall & worst on grid (at $\Delta e$) & worst in domain (at $\Delta e$) \\
     \midrule
-    $\tau_{\mathrm{ARF}}$        & $0.0000$ & $0.0000$ & $0.0000$ \\
-    $A(H)$, $S_{\max}(H)$        & $0.0000$ & $0.0000$ & $0.0000$ \\
+    $\tau_{\mathrm{ARF}}$, $A(H)$, $S_{\max}(H)$ & $0.0000$ & $0.0000$ & $0.0000$ \\
     $\tau_{\mathrm{swap}}(25\%)$ & $0.0005$ & $0.0100$ ($0.141$) & $0.0100$ ($0.141$) \\
     $\tau_{\mathrm{swap}}(50\%)$ & $0.0110$ & $0.1200$ ($0.085$) & $0.0600$ ($0.141$) \\
     $\tau_{\mathrm{swap}}(75\%)$ & $0.0910$ & $0.7800$ ($0.085$) & $0.5400$ ($0.141$) \\
@@ -119,116 +82,59 @@ Aggregate censoring rates conceal what matters.
     $\tau_{\mathrm{det}}$, $\lambda = 50$ & $0.9995$ & $1.0000$ & $1.0000$ \\
     \bottomrule
   \end{tabular}
-  \caption{Censoring overall, at its worst amplitude on the full grid, and at its worst
-  amplitude inside the decision domain. The columns differ because the two amplitudes below
+  \caption{The two right-hand columns differ because the two amplitudes below
   $\Delta e = 0.10$ carry most of the censoring and lie outside the domain on which the
-  criterion is declared. Baseline estimated over $3\,000$ pre-drift steps.}
+  criterion is declared. Baseline over $3\,000$ pre-drift steps.}
   \label{tab:censure}
 \end{table}
 
-\paragraph{$\tau_{\mathrm{swap}}(75\%)$ fails the group's own criterion.} The criterion
-adopted for the benchmark requires censoring of at most $5\%$ over the declared domain.
-Inside the decision domain, $\tau_{\mathrm{swap}}(75\%)$ reaches $54\%$ at
-$\Delta e = 0.141$, exceeding the criterion by a factor of $10.8$. Its worst value on the
-full grid is $78\%$, at $\Delta e = 0.085$, but that amplitude lies outside the decision
-domain and the figure is quoted as a grid measurement rather than as a breach of an
-in-domain criterion. Its coefficients are published in Q~D.3 because suppressing them would
-hide the comparator that most stresses the method, but they are published with this failure
-stated: at $\Delta e = 0.141$, the lowest amplitude of the decision domain, the $\tau_b$ of
-$\tau_{\mathrm{swap}}(75\%)$ rests on a minority of observed runs and is not quoted as
-evidence.
+The benchmark criterion of this work requires censoring of at most $5\%$ over the declared
+domain. Inside the decision domain $\tau_{\mathrm{swap}}(75\%)$ reaches $54\%$ at
+$\Delta e = 0.141$, exceeding it by a factor of $10.8$; its worst grid value, $78\%$ at
+$\Delta e = 0.085$, is quoted as a grid measurement since that amplitude is outside the
+domain. Its coefficients appear in Q~D.3 because suppressing them would hide the comparator
+that most stresses the method, but with the failure stated: at $\Delta e = 0.141$ its
+$\tau_b$ rests on a minority of observed runs and is not quoted as evidence. For the same
+reason no median detection delay is reported at $\lambda = 25$ or $\lambda = 50$, nor at
+$\lambda = 8$ for $\Delta e = 0.028$ where censoring reaches $90\%$: a median over
+surviving runs excludes the slowest by construction.
 
-\paragraph{No median delay beyond $50\%$ censoring.} At $\lambda = 25$ and $\lambda = 50$
-no median detection delay is reported anywhere in Q~D, and at $\lambda = 8$ none is
-reported at $\Delta e = 0.028$ where censoring reaches $90\%$. A median computed on the
-surviving runs excludes the slowest ones by construction and is not a median of the
-quantity of interest.
-
-\section{Does Censoring Drive the Results?}
-
-Each coefficient was recomputed twice, once with censored runs imputed to the last rank and
-once on complete cases only, then compared cell by cell.
-
-\begin{table}[htbp]
-  \centering
-  \begin{tabular}{lc}
-    \toprule
-    Comparator & max $|$imputed $-$ complete cases$|$ \\
-    \midrule
-    $\tau_{\mathrm{swap}}(10\%)$, $A(H)$, $S_{\max}(H)$ & $0.000000$ \\
-    $\tau_{\mathrm{swap}}(25\%)$ & $0.000228$ \\
-    $\tau_{\mathrm{swap}}(50\%)$ & $0.030591$ \\
-    $\tau_{\mathrm{swap}}(75\%)$ & $0.040259$ \\
-    \bottomrule
-  \end{tabular}
-  \caption{Sensitivity of $\tau_b$ to the treatment of censored runs.}
-  \label{tab:cascomplets}
-\end{table}
-
-\paragraph{Answer: no.} For the three never-censored comparators the two computations agree
-exactly, to $0.000000$, which is what they must do and serves as a control on the
-implementation. For the two materially censored comparators the largest disagreement
-anywhere in the table is $0.0403$, on $\tau_{\mathrm{swap}}(75\%)$, an order of magnitude
-below the coefficients that carry the conclusions of Q~D.3 and well inside their confidence
-intervals. \textbf{Censoring does not drive any result of question~D.} The imputation
-convention could be replaced by complete-case analysis without changing a verdict.
-
-One correction to an earlier internal note: the claim that imputed and complete-case values
-``agree to three decimal places'' is too strong. It holds for $\tau_{\mathrm{swap}}(25\%)$
-and for the never-censored comparators, but agreement is to two decimal places for
-$\tau_{\mathrm{swap}}(50\%)$ and $\tau_{\mathrm{swap}}(75\%)$.
+\paragraph{Does censoring drive the results? No.} Every coefficient was recomputed with
+censored runs imputed to the last rank and again on complete cases only. For the three
+never-censored comparators the two agree to $0.000000$, which they must, and which controls
+the implementation. Elsewhere the largest disagreement in the whole table is $0.040259$ on
+$\tau_{\mathrm{swap}}(75\%)$, then $0.030591$ on $\tau_{\mathrm{swap}}(50\%)$ and
+$0.000228$ on $\tau_{\mathrm{swap}}(25\%)$: an order of magnitude below the coefficients
+carrying the conclusions of Q~D.3 and well inside their intervals. The imputation
+convention could be replaced by complete-case analysis without changing a verdict. One
+correction to an earlier internal note: ``agree to three decimal places'' is too strong, as
+agreement is to two decimal places for $\tau_{\mathrm{swap}}(50\%)$ and
+$\tau_{\mathrm{swap}}(75\%)$.
 
 \section{The Blind Spot, Quantified}
 
-\begin{table}[htbp]
-  \centering
-  \begin{tabular}{lccc}
-    \toprule
-    $\lambda$ & runs that alarm & silent & $\tau_{\mathrm{det}} < \tau_{\mathrm{ARF}}$ \\
-    \midrule
-    $8$  & $1\,906 / 2\,000$ & $4.70\%$  & $95.44\%$ \\
-    $25$ & $778 / 2\,000$    & $61.10\%$ & $6.56\%$ \\
-    $50$ & $1 / 2\,000$      & $99.95\%$ & $0.00\%$ \\
-    \bottomrule
-  \end{tabular}
-  \caption{Alarm behaviour by threshold. The last column is computed on uncensored runs
-  only, and is the race of question~A read from this campaign.}
-  \label{tab:aveugle}
-\end{table}
+At $\lambda = 8$, $1\,906$ runs out of $2\,000$ alarm ($4.70\%$ silent); at $\lambda = 25$,
+$778$ ($61.10\%$ silent); at $\lambda = 50$, one single run ($99.95\%$ silent). That is why
+the campaign fixes no $\lambda$: with $99.95\%$ censoring no correlation involving
+$\tau_{\mathrm{det}}$ is computable at that threshold, and a threshold frozen in the
+simulation loop, as an earlier prototype did, would have produced a $\tau_{\mathrm{det}}$
+column empty in all but one row.
 
-At $\lambda = 50$ a single run out of $2\,000$ ever alarms. The methodological consequence
-is why the campaign fixes no $\lambda$: with $99.95\%$ censoring, no correlation involving
-$\tau_{\mathrm{det}}$ is computable at that threshold. Had a threshold been frozen inside
-the simulation loop, as an earlier prototype did, the resulting table would carry a
-$\tau_{\mathrm{det}}$ column empty in all but one row.
-
-The last column sharpens the picture, with one qualification. Across the grid the detector
-wins the race in $95.44\%$ of uncensored runs at $\lambda = 8$ and $6.56\%$ at
-$\lambda = 25$, so the transition from ``the detector is never late'' to ``the detector
-never fires'' happens entirely within a narrow band of the tuning parameter. But that rate
-is not stationary in amplitude: at $\lambda = 8$ it is $0\%$ at $\Delta e = 0.028$, $62\%$
+Read as the race of question~A, on uncensored runs,
+$\tau_{\mathrm{det}} < \tau_{\mathrm{ARF}}$ in $95.44\%$ of runs at $\lambda = 8$, $6.56\%$
+at $\lambda = 25$, $0\%$ at $\lambda = 50$, so the transition from ``never late'' to
+``never fires'' happens within a narrow band of the tuning parameter. The rate is not
+stationary in amplitude, though: at $\lambda = 8$ it is $0\%$ at $\Delta e = 0.028$, $62\%$
 at $\Delta e = 0.085$, and $88\%$ to $99\%$ above. The blind spot depends on the pair
-$(\lambda, \Delta e)$, and lowering $\lambda$ does not remove it at the bottom of the
-grid.
+$(\lambda, \Delta e)$, and lowering $\lambda$ does not remove it at the bottom of the grid.
 
-\section{Effect of the Baseline Window}
-
-Since $\hat p_0$ enters $S_t$ directly, every censoring rate above depends on the window
-used to estimate it. Both windows required by the protocol are reported in Q~D.1: mean
-censoring of $\tau_{\mathrm{det}}$ moves from $0.0405$ to $0.0470$ at $\lambda = 8$, from
-$0.6045$ to $0.6110$ at $\lambda = 25$, and from $0.9990$ to $0.9995$ at $\lambda = 50$ as
-the window goes from $1\,000$ to $3\,000$ steps. The shifts stay below one point and change
-no verdict of this section, but the direction is systematic: a longer window gives a
-slightly higher baseline, hence slightly less accumulated evidence and slightly fewer
-alarms.
-
-\section{Not Addressed}
-
-No result of Q~D is established as a function of $M$, since the instrumented campaign
-exists at $M = 10$ only. No result involves $\tau_{\mathrm{det}}$ at $\lambda = 25$ or
-$\lambda = 50$ as a correlated variable, for the censoring reason given above. Harrell's
-$C$ index was not used, because the common-horizon argument makes rank imputation licit
-here and the complete-case comparison shows the choice is immaterial; under a variable
-horizon that reasoning would fail and the $C$ index would be required.
+\paragraph{Not addressed.} No result of Q~D holds as a function of $M$, the campaign
+existing at $M = 10$ only, and none involves $\tau_{\mathrm{det}}$ at $\lambda = 25$ or
+$\lambda = 50$ as a correlated variable, for the censoring reason above. Harrell's $C$
+index was not used: the common-horizon argument makes rank imputation licit here and the
+complete-case comparison shows the choice is immaterial, though under a variable horizon
+that reasoning would fail and the $C$ index would be required. The censoring rates of
+Table~\ref{tab:censure} depend on the baseline window, whose two variants are reported in
+Q~D.1 and shift them by under one point.
 
 \end{document}
