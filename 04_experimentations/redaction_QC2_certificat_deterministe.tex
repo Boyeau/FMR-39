@@ -1,14 +1,17 @@
-\documentclass[10pt,a4paper]{article}
+ \documentclass[10pt,a4paper]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage[top=1cm,bottom=1.2cm,left=1.5cm,right=1.5cm]{geometry}
+\usepackage{booktabs}
 \usepackage{hyperref}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue}
 
 \newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{remark}{Remark}
 
 \title{Question C.2 --- A Deterministic Certificate via the Peak Statistic}
 \author{Salomé Fonvielle}
@@ -149,6 +152,50 @@ $S_{\max}(H) = \max_{0 \le j \le H} S_j
  = \max_{0 \le k \le j \le H} [\,\cdot\,]$.
 \end{proof}
 
+\begin{remark}[Connection to Kadane's algorithm]
+The recurrence $S_t = \max(0, S_{t-1}+X_t)$ is exactly Kadane's algorithm for the
+maximum-subarray-sum problem, in its empty-subarray-allowed form~: $S_{\max}(H)$ is the
+largest sum achievable by any contiguous block of the $X_t$'s, including the empty
+block (sum $0$). Proposition~\ref{prop:lindley}'s induction is the textbook proof of
+Kadane's correctness. The practical content is that the detector, by running this
+single $O(H)$ recurrence online, is already computing --- without knowing it --- the
+best of the $O(H^2)$ possible sub-windows~: the cheap, real-time statistic and the
+brute-force search over every sub-window coincide exactly.
+\end{remark}
+
+\begin{corollary}[The certificate]\label{cor:certificate}
+Fix $\lambda > 0$. Then
+\[
+  S_{\max}(H) \ge \lambda
+  \quad\Longleftrightarrow\quad
+  \exists\ 0 \le k \le j \le H \ \text{such that}\ A(k,j) - (j-k)\,\delta_P \ge \lambda.
+\]
+In particular, the existence of a single sub-window meeting this bound
+\emph{guarantees} that the alarm has fired by time $H$ --- a statement true on every
+individual run, with no averaging and no distributional assumption.
+\end{corollary}
+
+\begin{proof}
+Immediate from Proposition~\ref{prop:lindley}~: $S_{\max}(H)$ \emph{is}, by definition,
+the maximum of $A(k,j) - (j-k)\delta_P$ over all admissible $(k,j)$, so this maximum is
+$\ge \lambda$ if and only if at least one of its terms is.
+\end{proof}
+
+\paragraph{Necessary and sufficient, versus only sufficient.} The equivalence in
+Corollary~\ref{cor:certificate} holds only because it ranges over \emph{every}
+sub-window. Restricting the check to the single full window $(k,j) = (0,H)$ gives the
+one-directional statement used below~:
+\[
+  A(0,H) - H\,\delta_P \ge \lambda \ \Longrightarrow\ S_{\max}(H) \ge \lambda,
+\]
+which is only \emph{sufficient}~: it is one particular term in the maximum, so clearing
+the bar on the full window certainly clears it overall, but failing to clear it proves
+nothing --- a burst of evidence concentrated in the middle of the horizon can be diluted,
+in the full-window average, by quiet periods before or after it, and still satisfy the
+two-sided condition on some shorter sub-window. This is exactly why anchoring the
+certificate on a short window near the drift (Section~\ref{sec:application}) can succeed
+where the full-window version fails, without any contradiction.
+
 \paragraph{What the identity makes visible.} The reset to zero is not a technical
 correction~: it is \emph{equivalent} to the freedom to choose the starting point. A
 CUSUM that restarts from zero whenever the counter would go below the line does
@@ -160,11 +207,68 @@ over the most favorable sub-window.
 Two immediate consequences. First, $S_{\max}(H) \ge 0$, since the choice $k=j$ is
 always available. Second, and more importantly, the identity is \emph{deterministic}~:
 it holds on each individual run, with no averaging or distributional assumption. This
-is what licenses the certificate used in Q~C.3.
+is what licenses Corollary~\ref{cor:certificate}, applied to the campaign in
+Section~\ref{sec:application} below (and reused for the full-window discussion in
+Q~C.3).
 
 \paragraph{Numerical check.} The closed form~\eqref{eq:lindley} was checked against
 the naive recurrence over every trajectory of the campaign~: maximal deviation
 $1.07 \times 10^{-10}$, i.e.\ machine precision. The analysis script refuses to
 proceed further if this check fails.
+
+\section{Application to the Campaign}
+\label{sec:application}
+
+Both directions of Corollary~\ref{cor:certificate} are now confronted with data~: the
+one-directional full-window certificate first, then the two-directional short-window
+one that the corollary actually licenses.
+
+\paragraph{Full window.} With $H = 2\,000$ and $\delta_P = 0.01$, the full-window
+requirement $A(0,H) \ge \lambda + H\delta_P$ demands a toll of $H\delta_P = 20$
+regardless of $\lambda$, i.e.\ raw areas of $28$, $45$ and $70$ for
+$\lambda \in \{8,25,50\}$ --- none of which is reachable against the evidence budget of
+about $18$ established in Q~C.3. Being only sufficient, this failure does not mean the
+alarm never fires~; it only means the full window is the wrong place to look for the
+proof.
+
+\paragraph{Short window.} Anchoring instead on a window
+$w = \lceil 3 \times 18.5/\Delta e \rceil$ steps right after the drift --- sized to the
+transient rather than to the whole horizon --- and checking
+$A(0,w) \ge \lambda + w\,\delta_P$ (one particular sub-window among those
+Corollary~\ref{cor:certificate} ranges over, chosen for being the most favorable a
+priori) gives a very different picture.
+
+\begin{center}
+\begin{tabular}{rrrrrrr}
+\toprule
+& & \multicolumn{2}{c}{$\lambda=8$} & \multicolumn{2}{c}{$\lambda=25$} & $\lambda=50$ \\
+$\Delta e$ & $w$ & certificate & detected & certificate & detected & certificate \\
+\midrule
+0.028 & 1\,969 & 0.10 & 0.10 & 0.00 & 0.00 & 0.00 \\
+0.085 &   650 & 0.95 & 0.96 & 0.09 & 0.15 & 0.00 \\
+0.141 &   394 & 1.00 & 1.00 & 0.44 & 0.70 & 0.00 \\
+0.194 &   287 & 1.00 & 1.00 & 0.73 & 0.91 & 0.00 \\
+0.243 &   229 & 1.00 & 1.00 & 0.78 & 0.94 & 0.00 \\
+0.361 &   154 & 1.00 & 1.00 & 0.57 & 0.83 & 0.00 \\
+0.498 &   112 & 1.00 & 1.00 & 0.02 & 0.02 & 0.00 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Reading the table.} Columns report, per amplitude, the fraction of the
+campaign's 100 seeds where the short-window certificate fires versus the fraction where
+the alarm was actually detected within $H$ (the $\lambda=50$ detected column is
+omitted~: it never exceeds $0.01$, consistent with the near-total blind spot already
+reported for this threshold). Two things hold across every one of the $60$
+($\Delta e,\lambda$) cells computed, not only the seven shown~: the certificate
+\emph{never} exceeds observed detection --- exactly what sufficiency requires --- and
+for $\lambda = 8$ it very nearly \emph{equals} it (mean gap $0.037$ over all cells,
+median $0$), meaning the mathematical guarantee is almost never more pessimistic than
+reality at this threshold. For $\lambda = 25$ the gap widens (e.g.\ $0.44$ vs.\ $0.70$
+at $\Delta e = 0.141$), and for $\lambda = 50$ the short window essentially never
+supplies the required evidence at all --- the window is sized to the transient, and
+$50$ excess errors is more than a typical transient of this length can generically
+offer, even though the alarm can still fire later through paths this particular
+certificate does not capture.
 
 \end{document}
