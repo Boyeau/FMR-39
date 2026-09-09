@@ -67,3 +67,45 @@ affirmations antérieures qui s'étaient révélées fausses à la vérification
 L'assistant a été employé en vérification adverse autant qu'en production : plusieurs de ses
 propres conclusions ont été infirmées par des contrôles ultérieurs et corrigées dans
 l'historique plutôt que retirées silencieusement.
+
+## Partie 3 — rédactions de la question D (Ulysse Petit-Tichanné, 9 septembre)
+
+Session conduite à partir d'un plan écrit et audité avant exécution
+(`redactions-latex-question-D.md`, local), puis soumise à deux relectures adverses en
+contexte vierge. Quatre points.
+
+**1. Résolution d'un conflit de fusion sur les données plutôt que sur l'ancienneté.** La
+fusion d'`origin/main` a opposé deux versions de la question C.1 : l'une annonçant deux
+violations de la conjecture, toutes deux situées là où le test n'a pas de puissance,
+l'autre quatre violations dont deux à des amplitudes interprétables. L'assistant a été
+chargé de trancher en interrogeant la table `QCD_tau_err_full` plutôt qu'en arbitrant entre
+les auteurs : les données donnent quatre violations, dont deux qui ne tombent que par la
+condition de persistance. Le texte corrigé a été conservé et les deux figures de la version
+concurrente réintégrées avec des légendes rectifiées, de sorte qu'aucun travail ne soit
+perdu.
+
+**2. Production des dérivés manquants, sans relancer la campagne.** Trois grandeurs exigées
+par l'énoncé n'existaient dans aucune table : la fraction d'arbres remplacés avec sa
+médiane et son écart interquartile, le socle estimé sur deux fenêtres (1 000 et 3 000 pas
+avant la rupture), et la colonne consignant la taille de la forêt. Toutes trois ont été
+recalculées hors ligne depuis les Parquet existants. Le contrôle exigé avant usage — le
+socle recalculé à 3 000 pas doit reproduire celui de la campagne — passe à un écart
+exactement nul.
+
+**3. Correction de chiffres faux publiés dans des fichiers versionnés.** L'assistant a
+vérifié un par un les chiffres que les rédactions allaient citer, contre les tables. Deux
+valeurs annoncées dans le journal de recherche et dans un `README` depuis la veille se sont
+révélées non reproductibles, ainsi qu'une formulation trop forte dans la feuille de route.
+Les trois sont corrigées, avec la trace de ce qu'elles disaient. Une tautologie
+algébrique — un coefficient valant exactement 1 parce qu'il compare une grandeur à
+elle-même — a été repérée avant publication et marquée comme telle dans la table et sur la
+figure, plutôt que présentée comme une association mesurée.
+
+**4. Révision du résultat central de la question.** Le journal affirmait que l'indicateur
+étudié ne porte aucune information sur la quantité de preuve offerte au détecteur. La
+vérification montre que l'affirmation est exacte pour l'une des deux grandeurs candidates
+et fausse pour l'autre — précisément celle qui décide de l'alarme. La réponse a été
+réécrite en deux temps, avec le sens du biais résiduel qui la renforce.
+
+Comme dans la partie 2, l'assistant a servi autant à réfuter qu'à produire : les deux
+relectures adverses de fin de session portaient sur son propre travail.

@@ -93,7 +93,7 @@ existe. L'affirmation vaut pour un Homebrew x86_64 sous Rosetta.
 | C.1c | La conjecture (erreur résorbée avant tout remplacement) **n'est pas confirmée** : les 2 apparentes violations disparaissent dès qu'on exige 20 pas de persistance. | `QCD_tau_err_full.parquet` |
 | C.2 | `S_max(H) = max[A(k,j) - (j-k) delta_P]` (Lindley), vérifiée à 1e-10. Certificat en fenêtre courte : **jamais** au-dessus de la détection observée, sur 60 cellules. | `QCD_budget_preuve_full.parquet` |
 | C.3 | Invariance confirmée dans son sens (aire × 1,8 quand l'amplitude × 5,8), **mais** l'ajustement `18,5·de^-0,98` n'est valide qu'au milieu de la grille. | `Fig_QC_budget_full.png` |
-| D.1 | À `tau_ARF`, seulement **18–48 %** de l'adaptation est acquise, mais **49–75 %** de la preuve est déjà accumulée. | `Fig_QD_R_et_G_full.png` |
+| D.1 | À `tau_ARF`, **49–76 %** de la preuve est déjà accumulée (domaine de décision ; 0,102 sur la grille entière). `R` va de **−0,188 à +0,885**, négatif sur 5 amplitudes et non monotone : le « 18–48 % » annoncé jusqu'au 8 septembre est faux, cf. `JOURNAL.md` § 1. | `Fig_QD_R_et_G_full.png` |
 | Point aveugle | À `lambda = 50` : **1 exécution sur 2 000** déclenche l'alarme. À `lambda = 25` : 61 % de silence. | `QCD_indicateurs_full.parquet` |
 
 ## Contrôles
