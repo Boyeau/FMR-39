@@ -17,10 +17,10 @@
 \begin{document}
 \maketitle
 
-\noindent Every coefficient reported here is Kendall's $\tau_b$ with censored runs imputed
-to the last rank, justified in Q~D.2. Confidence intervals are bootstrap intervals over the
-seeds of the stratum, $2\,000$ resamples, quantiles $2.5\%$ and $97.5\%$. All values are
-produced by \texttt{scripts/chiffres\_QD.py} from the campaign of 2\,000 runs.
+\noindent Every coefficient here is Kendall's $\tau_b$ with censored runs imputed to the
+last rank, justified in Q~D.2. Confidence intervals are bootstrap intervals over the seeds
+of the stratum, $2\,000$ resamples, quantiles $2.5\%$ and $97.5\%$. Values are produced by
+\texttt{scripts/chiffres\_QD.py} from the campaign of 2\,000 runs.
 
 \section{Why Stratify}
 
@@ -28,8 +28,8 @@ $\Delta e$ drives both sides of every correlation of interest: it shortens
 $\tau_{\mathrm{ARF}}$ and it raises the evidence available to the detector. A coefficient
 computed on the pooled $2\,000$ runs therefore measures the common dependence on
 $\Delta e$ rather than any association between the two quantities at a fixed operating
-point. Stratification by amplitude removes that common cause. Each stratum holds
-$100$ seeds, and the amplitude is constant inside it by construction.
+point. Stratification removes that common cause. Each stratum holds $100$ seeds, and the
+amplitude is constant inside it by construction.
 
 \section{The Aggregation Collapse}
 
@@ -52,19 +52,18 @@ $100$ seeds, and the amplitude is constant inside it by construction.
   \label{tab:agregation}
 \end{table}
 
-For $A(H)$ the pooled coefficient is $+0.3965$ and the median stratified coefficient is
+For $A(H)$ the pooled coefficient is $+0.3965$ against a median stratified coefficient of
 $+0.0526$, a factor of $7.5$. This is not a strong association weakened by stratification:
-the stratified coefficient is \emph{indistinguishable from zero under this protocol} at
-every one of the 18 amplitudes. The pooled coefficient does not confirm a weak link, it
-manufactures one. Mechanically it is Simpson's paradox on $\Delta e$: within each stratum
-there is nothing, and across strata both quantities move with the amplitude, so pooling
-recovers the amplitude and reports it as an association.
+the stratified coefficient is indistinguishable from zero under this protocol at every one
+of the 18 amplitudes. The pooled coefficient manufactures a link rather than confirming a
+weak one. Mechanically it is Simpson's paradox on $\Delta e$: within each stratum there is
+nothing, and across strata both quantities move with the amplitude, so pooling recovers the
+amplitude and reports it as an association.
 
-The effect is strongest exactly where the within-stratum association is weakest --- ratio
-$7.54$ for $A(H)$, $4.72$ for $\tau_{\mathrm{swap}}(75\%)$, but only $1.48$ for
-$S_{\max}(H)$, which does carry a genuine within-stratum signal. This is the diagnostic
-one should expect, and it is the reason no pooled coefficient is quoted as a result
-anywhere in this work.
+The effect is strongest exactly where the within-stratum association is weakest: ratio
+$7.54$ for $A(H)$ and $4.72$ for $\tau_{\mathrm{swap}}(75\%)$, but only $1.48$ for
+$S_{\max}(H)$, which does carry a genuine within-stratum signal. That is the diagnostic one
+should expect, and it is why no pooled coefficient is quoted as a result in this work.
 
 \section{A Tautological Row, Marked as Such}
 \label{sec:tauto}
@@ -72,18 +71,17 @@ anywhere in this work.
 At $M = 10$ a quota of $10\%$ requires exactly one tree, so
 $\tau_{\mathrm{swap}}(10\%) = \tau_{\mathrm{swap}}(1/M) = \tau_{\mathrm{ARF}}$ by
 definition (Q~C.1a). Its $\tau_b$ against $\tau_{\mathrm{ARF}}$ is $1.000000$ at all
-$20$ amplitudes with confidence interval $[1.000 ; 1.000]$ --- by \emph{identity}, not by
-performance. The row is retained in Table~\ref{tab:agregation} and hatched in
-Figure~\ref{fig:heatmap} rather than deleted, so that the reader can verify the
-instrumentation reproduces an identity it should reproduce; it carries no evidence about
+$20$ amplitudes with confidence interval $[1.000 ; 1.000]$, by identity rather than by
+performance. The row is kept in Table~\ref{tab:agregation} and hatched in
+Figure~\ref{fig:heatmap} rather than deleted, so the reader can check that the
+instrumentation reproduces an identity it should reproduce. It carries no evidence about
 anything else. The precedent is the treatment of $S_{\max}(H)$ under test B2 elsewhere in
 this work, whose AUC of $1.000$ is tautological in the same sense.
 
-A related caution applies to the other quotas. At $M = 10$ the quotas $q = 25\%$ and
-$q = 75\%$ are not exactly attainable either: $25\%$ requires $3$ trees, i.e.\ $30\%$, and
-$75\%$ requires $8$ trees, i.e.\ $80\%$. The labels are kept for continuity with Q~C.1,
-where the same convention is used, but they name the attainable quota above the nominal
-one.
+A related caution applies to the other quotas. At $M = 10$ neither $q = 25\%$ nor
+$q = 75\%$ is exactly attainable: $25\%$ requires $3$ trees, that is $30\%$, and $75\%$
+requires $8$, that is $80\%$. The labels are kept for continuity with Q~C.1, which uses the
+same convention, but they name the attainable quota above the nominal one.
 
 \section{Coefficients by Amplitude}
 
@@ -136,53 +134,50 @@ The two quantities in Table~\ref{tab:strat} play different roles, and conflating
 changes the answer.
 
 $A(H)$ is the accumulated excess error over the horizon. Its association with
-$\tau_{\mathrm{ARF}}$ is \textbf{indistinguishable from zero under this protocol at all
-18 amplitudes} --- median $+0.0526$, every confidence interval straddling zero.
+$\tau_{\mathrm{ARF}}$ is indistinguishable from zero under this protocol at all
+18 amplitudes: median $+0.0526$, every confidence interval straddling zero.
 
-$S_{\max}(H)$ is the maximum of the CUSUM path. Its association is \textbf{discernible at
-15 of the 18 amplitudes}, with a median of $+0.2129$, and the confidence interval lies
-entirely above zero from $\Delta e = 0.287$ upwards, at those same $15$ consecutive
-amplitudes. The count is that of the confidence-interval rule, which Q~D.4 adopts; the
-threshold rule of the \texttt{discernable} column gives $14$, differing on the single cell
-$\Delta e = 0.287$.
+$S_{\max}(H)$ is the maximum of the CUSUM path. Its association is discernible at 15 of the
+18 amplitudes, with a median of $+0.2129$, and the confidence interval lies entirely above
+zero at every amplitude from $\Delta e = 0.287$ upwards. The count is that of the
+confidence-interval rule adopted in Q~D.4; the threshold rule of the \texttt{discernable}
+column gives $14$, differing on the single cell $\Delta e = 0.287$.
 
-The distinction matters because \emph{it is $S_{\max}(H)$ that decides the alarm}, not
-$A(H)$. The alarm is by definition the crossing of $\lambda$ by $S_{\max}$. A statement
-that $\tau_{\mathrm{ARF}}$ carries no information about the evidence offered to the
-detector is therefore attached to the wrong object if it is supported by $A(H)$ alone.
-The answer, stated sharply:
+The distinction matters because it is $S_{\max}(H)$ that decides the alarm, not $A(H)$. The
+alarm is by definition the crossing of $\lambda$ by $S_{\max}$. A claim that
+$\tau_{\mathrm{ARF}}$ carries no information about the evidence offered to the detector is
+attached to the wrong object if it rests on $A(H)$ alone. The answer, stated sharply:
 
 \begin{quote}
 $\tau_{\mathrm{ARF}}$ carries \textbf{no information} about the total accumulated excess
-error $A(H)$ --- indistinguishable from zero at all 18 amplitudes. It carries a
-\textbf{weak but real} association with $S_{\max}(H)$, the quantity that actually
-determines whether the alarm fires: median $\tau_b = +0.2129$, discernible at 15 of 18
-amplitudes --- every amplitude from $\Delta e = 0.287$ upwards, without exception. Below
-$\Delta e = 0.287$ the association is not distinguishable from zero either.
+error $A(H)$, indistinguishable from zero at all 18 amplitudes. It carries a \textbf{weak
+but real} association with $S_{\max}(H)$, the quantity that determines whether the alarm
+fires: median $\tau_b = +0.2129$, discernible at 15 of 18 amplitudes, that is every
+amplitude from $\Delta e = 0.287$ upwards without exception. Below $\Delta e = 0.287$ the
+association is not distinguishable from zero either.
 \end{quote}
 
-Read with Q~D.2, the direction of the residual bias reinforces rather than weakens this:
-$A(H)$ and $S_{\max}(H)$ are never censored and carry no tie blocks, so the tie correction
-applies on the $\tau_{\mathrm{ARF}}$ side only and displaces both coefficients
-\emph{towards} zero. The $A(H)$ result is thus not an artefact of ties inflating a null,
-and the $S_{\max}(H)$ result is if anything understated.
+Read with Q~D.2, the direction of the residual bias reinforces this. $A(H)$ and
+$S_{\max}(H)$ are never censored and carry no tie blocks, so the tie correction applies on
+the $\tau_{\mathrm{ARF}}$ side only and displaces both coefficients towards zero. The
+$A(H)$ result is thus not an artefact of ties inflating a null, and the $S_{\max}(H)$
+result is if anything understated.
 
 \section{Reservations}
 
 \paragraph{Multiplicity.} The decision domain contains $108$ cells, of which $68$ are
 significant at the $5\%$ level with no correction for multiplicity. The signal for
-$S_{\max}(H)$ above $\Delta e = 0.287$ is far too systematic to be a multiplicity
-artefact --- $15$ consecutive amplitudes in the same direction --- but individual cells
-whose $|\tau_b|$ is near the detectability threshold are not quoted on their own.
+$S_{\max}(H)$ above $\Delta e = 0.287$ is far too systematic to be a multiplicity artefact,
+running to $15$ consecutive amplitudes in the same direction, but individual cells whose
+$|\tau_b|$ is near the detectability threshold are not quoted on their own.
 
 \paragraph{Detectability threshold.} The threshold used by the \texttt{discernable} column
-is $0.13295637$, a single value across the whole table. It is quoted exactly rather than
-rounded, since a rounded threshold would not reproduce the column. Q~D.4 examines the
-three cells where this rule and the confidence-interval rule disagree, and fixes which of
-the two governs.
+is $0.13295637$, a single value across the table. It is quoted exactly rather than rounded,
+since a rounded threshold would not reproduce the column. Q~D.4 examines the three cells
+where the two rules disagree and fixes which one governs.
 
 \paragraph{Scope.} Everything above is measured at $M = 10$ on one campaign. The two
-amplitudes below $\Delta e = 0.10$ are outside the decision domain and are excluded from
+amplitudes below $\Delta e = 0.10$ fall outside the decision domain and are excluded from
 the medians quoted here, though they appear in Figure~\ref{fig:heatmap}.
 
 \end{document}

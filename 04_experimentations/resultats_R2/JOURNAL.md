@@ -127,11 +127,23 @@ dans **54 %** des paires à `Δe = 0,028` : à cette amplitude, l'indicateur ne 
 pas un vrai drift de son absence. À forte amplitude il discrimine partiellement (21 %).
 
 **C1, la taille de la forêt** — `M` = 5, 10, 20, 50. Rapport de `τ_ARF` à sa valeur pour
-`M = 5` : **0,05** à `Δe = 0,028`, **0,83** à `Δe = 0,498`. L'indicateur n'est donc pas
-comparable entre configurations, et le degré de dépendance entre les délais d'arbres
-varie avec l'amplitude — quasi-indépendance sous bruit, forte dépendance sous drift
-franc. Ce dernier point déborde sur la question B, dont l'hypothèse d'indépendance ne
-prévoit pas cette variation.
+`M = 5` : **0,054** à `Δe = 0,028`, **0,831** à `Δe = 0,498`. L'indicateur n'est donc pas
+comparable entre configurations : c'est ce que C1 établit, et cela seul.
+
+> 🚫 **Conclusion retirée le 9 septembre — ne pas transmettre à la question B.**
+> Cette entrée concluait « quasi-indépendance sous bruit, forte dépendance sous drift
+> franc ». **Le test correct l'inverse.** Le rapport brut `τ_ARF(M)/τ_ARF(M=5)` n'est pas
+> un test d'indépendance : sous indépendance, la médiane attendue à `M` se prédit depuis
+> la distribution empirique à `M = 5` par `S₅^(M/5)`. Le rapport observé sur prédit vaut
+> alors **1,31** à `Δe = 0,028`, **1,71** à `Δe = 0,243` et **1,09 à 1,20** en haut de
+> grille : l'écart maximal à l'indépendance est **au milieu** de la grille, pas sous drift
+> franc. Le 0,831 du haut de grille s'explique par un **plancher de délai** (15 à 25 pas,
+> alors que `τ` à `M = 5` va de 0 à 60), pas par une dépendance forte.
+>
+> S'ajoute une réserve de puissance : ces cellules ne portent que **20 exécutions**
+> chacune, IC [0,034 ; 0,215] et [0,774 ; 1,000]. Le sens de la variation de dépendance
+> avec l'amplitude **n'est pas établi** par ce dispositif. La question B ne doit rien
+> bâtir là-dessus sans une campagne dédiée.
 
 ---
 
@@ -299,7 +311,15 @@ quatre erreurs changeant des verdicts (§ 9.4).
 | **9 b** | `τ_ARF` est **anti-informatif** de `Δe` = 0,028 à 0,194 : la forêt *sans* drift réagit plus vite que celle *avec* drift dans 55 à 76 % des paires, IC entièrement au-dessus de 50 % | AUC A1, 2 000 runs, IC bootstrap apparié |
 | **9 c** | Maximum de l'anomalie : **76 % à `Δe` = 0,141** [IC 70 ; 82]. L'AUC A1 n'est donc **pas monotone** — le § 2 n'avait mesuré que trois amplitudes et n'avait pas vu ce régime | 20 amplitudes |
 | **9 d** | **Aucun** candidat ne passe A2, *y compris l'étalon lui-même* : en haut de grille toutes les mesures montent alors que la compétence conservée s'effondre | 13 échecs sur 15 |
-| **9 e** | À `Δe ≥ 0,45`, **1 505 runs sur 2 000 sont signalés** et **654 dégénèrent définitivement** : `acc_bande` sature à 1 pendant que `acc_haut` tombe à 0,000 en fin d'horizon. La forêt ne s'adapte pas, elle répond « toujours 0 » | contrôle 3 de l'étalon, campagne complète |
+| **9 e** | **1 505 runs sur 2 000 signalés** et **654 dégénérés définitivement** sur la **grille entière** ; restreint à `Δe ≥ 0,45` : **900/900 signalés, 652/900 définitifs**. `acc_bande` sature à 1 pendant que `acc_haut` tombe à 0,000 en fin d'horizon. La forêt ne s'adapte pas, elle répond « toujours 0 » | contrôle 3 de l'étalon, campagne complète |
+
+> **Périmètre corrigé le 9 septembre.** Cette ligne rattachait les deux comptes à
+> `Δe ≥ 0,45`. Ils portent en réalité sur les **2 000 runs de la grille**. Le signalement
+> commence dès `Δe = 0,194` et sature à 100/100 à partir de `Δe = 0,391`, si bien que
+> **60 %** seulement des 1 505 sont au-dessus de 0,45 — en revanche **99,7 %** des 654
+> dégénérés définitifs y sont. `Δe ≥ 0,45` couvre 9 amplitudes sur 20, soit 900 runs.
+> La conclusion tient et se durcit même sur la bande haute (900/900 signalés), mais le
+> chiffre « 1 505 sur 2 000 » ne se cite pas comme un chiffre de la bande haute.
 | **9 f** | À taux de fausse alarme égal (5 % sur `b = 0`), le **GLR détecte plus vite que le CUSUM sur tout le domaine mesurable** : 103 contre 156 pas à `Δe` = 0,085, 10 contre 17 en haut de grille | délais, censure publiée |
 
 ### 9.2 Ce qui contredit l'attente, et qu'il faut écrire tel quel

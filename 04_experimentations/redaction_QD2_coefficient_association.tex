@@ -17,111 +17,109 @@
 \begin{document}
 \maketitle
 
-\noindent This section justifies the choice of association coefficient used throughout
-Q~D. The counter-example of Section~\ref{sec:contre} is produced by
-\texttt{scripts/contre\_exemple\_kendall.py}, which computes both coefficients twice ---
-once from their definition, once through \texttt{scipy} --- so that each controls the
-other. All census figures come from the campaign of 2\,000 runs.
+\noindent This section justifies the association coefficient used throughout Q~D. The
+counter-example of Section~\ref{sec:contre} comes from
+\texttt{scripts/contre\_exemple\_kendall.py}, which computes both coefficients twice, once
+from their definition and once through \texttt{scipy}, so that each controls the other.
+Census figures come from the campaign of 2\,000 runs.
 
-\section{Three Features of the Data, and What They Rule Out}
+\section{Three Features of the Data}
 
-The quantities to be correlated are durations measured on a finite horizon
-$H = 2\,000$. Three features of the data bear on the choice of coefficient.
+The quantities to be correlated are durations measured on a finite horizon $H = 2\,000$.
+Three features bear on the choice of coefficient.
 
-\paragraph{Non-linearity, and worse.} The median $\tau_{\mathrm{ARF}}$ is $118$ steps at
+\paragraph{Non-monotonicity.} The median $\tau_{\mathrm{ARF}}$ is $118$ steps at
 $\Delta e = 0.028$, rises to $346$ at $\Delta e = 0.085$, then falls steadily to $28$ at
-the top of the grid: a range of $28$ to $346$, a factor of $12.4$, and \textbf{not
-monotone in $\Delta e$}. The relationship is therefore not merely curved, which would
-already understate Pearson's $r$; it is non-monotone, so no single linear coefficient
-summarises it and its sign depends on which part of the grid is included. This is
-consistent with what is established elsewhere in this work about the power-law fit of the
-article, whose measured-to-predicted ratio is $0.19$ at the lowest amplitude and $2.08$ at
-$\Delta e = 0.141$: the fit holds only in the middle of the grid.
+the top of the grid: a range of $28$ to $346$, a factor of $12.4$, and not monotone in
+$\Delta e$. The rise is not an artefact of the median. The means move the same way
+($162.7$ then $385.9$), and bootstrap intervals on the two medians are disjoint,
+$[93.5 ; 158]$ against $[281 ; 451]$ over $10\,000$ resamples. The \emph{location} of the
+peak is less certain: $346$ at $\Delta e = 0.085$ and $263$ at $\Delta e = 0.141$ are not
+separable, so the claim is that a peak exists at low amplitude, not that it sits at one
+particular cell. The relationship is therefore worse than merely curved, which would
+already understate Pearson's $r$. No single linear coefficient summarises it, and its sign
+depends on which part of the grid is included. This matches what is established elsewhere about the
+power-law fit of the article, whose measured-to-predicted ratio is $0.19$ at the lowest
+amplitude and $2.08$ at $\Delta e = 0.141$: the fit holds only mid-grid.
 
-\paragraph{Extreme values.} At low amplitude the durations are both large and highly
-dispersed. Pearson's coefficient is a ratio of moments and is not robust: a handful of
-runs in the tail move it substantially, whereas both rank coefficients are unaffected.
+\paragraph{Extreme values.} At low amplitude the durations are large and widely dispersed.
+Pearson's coefficient is a ratio of moments and is not robust, so a handful of runs in the
+tail move it substantially. Both rank coefficients are unaffected.
 
-\paragraph{Administrative censoring at $H$.} A duration that is never reached within the
-horizon has no numerical value. $\tau_{\mathrm{swap}}(75\%)$ is censored in $9.10\%$ of
-runs overall and in up to $78\%$ at a single amplitude; $\tau_{\mathrm{det}}$ at
-$\lambda = 50$ is censored in $99.95\%$ of runs.
+\paragraph{Administrative censoring at $H$.} A duration never reached within the horizon
+has no numerical value. $\tau_{\mathrm{swap}}(75\%)$ is censored in $9.10\%$ of runs
+overall and in up to $78\%$ at a single amplitude; $\tau_{\mathrm{det}}$ at $\lambda = 50$
+is censored in $99.95\%$.
 
-\paragraph{Which of the three survives stratification.} The subject invites the reader to
-check what remains once $\Delta e$ is held constant within a stratum. \emph{Non-linearity
-does not survive}: the curvature under discussion is curvature \emph{in $\Delta e$}, and
-within a stratum $\Delta e$ is fixed by construction. The other two do survive, and they
-are not objections of the same kind. Extreme values make Pearson's coefficient
-\textbf{inefficient} --- it can still be computed, it is simply unstable and moves with a
-few runs. Censoring makes it \textbf{undefined} --- a censored run has no numerical value
-to enter the sum of products, so the coefficient cannot literally be formed without first
-inventing one. The second objection is the one that carries the argument: the first is a
-matter of degree, the second is a matter of definition. It is also the objection that
-disqualifies Pearson on our data specifically, since $\tau_{\mathrm{swap}}(75\%)$ is
+\paragraph{Which survives stratification.} The subject invites the reader to check what
+remains once $\Delta e$ is held constant within a stratum. The first feature does not
+survive: the non-monotonicity is non-monotonicity \emph{in $\Delta e$}, and within a
+stratum $\Delta e$ is fixed by construction. The other two survive, and they are objections
+of different kinds. Extreme values make Pearson's coefficient inefficient: it can still be
+computed, it is merely unstable and moves with a few runs. Censoring makes it undefined,
+because a censored run has no numerical value to enter the sum of products, so the
+coefficient cannot be formed without first inventing one. The second objection carries the
+argument, since the first is a matter of degree and the second a matter of definition. It
+is also the objection that bites on our data, where $\tau_{\mathrm{swap}}(75\%)$ is
 censored in nearly four runs out of five at $\Delta e = 0.085$.
 
-Both rank coefficients handle censoring the same way, and for the same reason. The horizon
-$H$ is \emph{identical} for every run, so a censored duration genuinely exceeds every
-observed one. Censored runs may therefore be placed at the last rank, tied among
-themselves. This argument would collapse if the horizon varied from run to run, in which
-case a censored value would only be known to exceed \emph{its own} horizon and no ranking
-would follow. That is the point at which the choice between Spearman and Kendall becomes
-decisive.
+Both rank coefficients handle censoring the same way and for the same reason. The horizon
+$H$ is identical for every run, so a censored duration genuinely exceeds every observed
+one and censored runs may be placed at the last rank, tied among themselves. The argument
+would collapse under a variable horizon, where a censored value is only known to exceed
+\emph{its own} horizon and no ranking follows. That is where the choice between Spearman
+and Kendall becomes decisive.
 
 \section{Definition of $\tau_b$}
 
-For $n$ pairs, let $C$ be the number of concordant pairs, $D$ the number of discordant
-pairs, and $n_0 = n(n-1)/2$. Let $t_x$ be the number of pairs tied on $x$ only, $t_y$ the
-number tied on $y$ only, and pairs tied on both sides counted in each. Then
+For $n$ pairs, let $C$ be the number of concordant pairs, $D$ the discordant ones, and
+$n_0 = n(n-1)/2$. Let $t_x$ count the pairs tied on $x$ only and $t_y$ those tied on $y$
+only, pairs tied on both sides being counted in each. Then
 \begin{equation}
   \tau_b = \frac{C - D}{\sqrt{(n_0 - t_x)(n_0 - t_y)}}.
   \label{eq:taub}
 \end{equation}
-The denominator is what distinguishes $\tau_b$ from the ordinary $\tau_a$: each tie block
-is removed from the count on the side where it occurs, so the coefficient is normalised by
-the number of pairs that could in principle have been ordered on both sides. Spearman's
-$\rho$ has no such correction. It is Pearson's coefficient computed on mid-ranks, and a
-block of ties simply receives a common mid-rank which then enters a sum of squares as
-though it were an ordinary value.
+The denominator distinguishes $\tau_b$ from the ordinary $\tau_a$: each tie block is
+removed from the count on the side where it occurs, so the coefficient is normalised by
+the pairs that could in principle have been ordered on both sides. Spearman's $\rho$ has no
+such correction. It is Pearson's coefficient computed on mid-ranks, and a tie block simply
+receives a common mid-rank that then enters a sum of squares as an ordinary value.
 
-\section{The Two Tie Structures, Treated Separately}
+\section{Two Tie Structures, Treated Separately}
 
-The comparators of Q~D do not all present the same tie structure, and the consequence is
-not the same in the two cases.
+The comparators of Q~D do not present the same tie structure, and the consequence differs.
 
 \paragraph{Ties on both sides: $\tau_{\mathrm{ARF}}$ against $\tau_{\mathrm{swap}}(q)$.}
 Both are durations and both can be censored at $H$. Censored runs form a tie block on the
-$y$ side; $\tau_{\mathrm{ARF}}$ itself is never censored ($0.0000$), but it is discrete
-and takes only $321$ distinct values over $2\,000$ runs, so it carries tie blocks of its
-own. Here \eqref{eq:taub} corrects on both sides and the compensation is \emph{complete}:
-the coefficient is normalised by exactly the set of pairs that were orderable.
+$y$ side. $\tau_{\mathrm{ARF}}$ is never censored ($0.0000$), but it is discrete and takes
+only $321$ distinct values over $2\,000$ runs, so it carries tie blocks of its own.
+Equation~\eqref{eq:taub} corrects on both sides and the compensation is complete: the
+coefficient is normalised by exactly the set of orderable pairs.
 
 \paragraph{Ties on one side: $\tau_{\mathrm{ARF}}$ against $A(H)$ and $S_{\max}(H)$.}
-These two quantities are defined on every run and are \emph{never} censored: $2\,000$
-values out of $2\,000$, verified, with $1\,389$ and $1\,544$ distinct values respectively.
-There is no tie block on their side at all. The correction in \eqref{eq:taub} then applies
-to the $x$ side only. The compensation is still exact in the sense that the denominator
-counts the orderable pairs, but the two sides are no longer symmetric: ties in
-$\tau_{\mathrm{ARF}}$ remove pairs from the numerator without any counterpart, so the
-coefficient is displaced \emph{towards zero} relative to what a tie-free measurement of
-the same association would give. The direction matters for reading Q~D.3: the coefficients
-reported there for $A(H)$ and $S_{\max}(H)$ are conservative, and a value indistinguishable
-from zero cannot be an artefact of ties inflating it.
+These two are defined on every run and never censored: $2\,000$ values out of $2\,000$,
+with $1\,389$ and $1\,544$ distinct values respectively. There is no tie block on their
+side at all, so the correction applies to the $x$ side only. The denominator still counts
+the orderable pairs, but the two sides are no longer symmetric: ties in
+$\tau_{\mathrm{ARF}}$ remove pairs from the numerator without any counterpart, and the
+coefficient is displaced \emph{towards zero} relative to a tie-free measurement of the same
+association. The direction matters for reading Q~D.3, where the coefficients reported for
+$A(H)$ and $S_{\max}(H)$ are conservative: a value indistinguishable from zero there cannot
+be an artefact of ties inflating it.
 
 \section{The Counter-Example, and an Error in the Prescribed Exercise}
 \label{sec:contre}
 
 Ten fictitious runs on a common horizon $H = 2\,000$: four observed, six censored. The
-exercise as prescribed asks for the four observed values to be \emph{perfectly ordered}.
-Carried out literally --- with the censored runs tied on both sides --- it yields
+exercise as prescribed asks for the four observed values to be perfectly ordered. Carried
+out literally, with the censored runs tied on both sides, it yields
 $\rho = \tau_b = 1.000000$ exactly. The gap is zero and the counter-example demonstrates
 nothing.
 
-The reason is worth stating precisely, because it is sharper than ``the example is badly
-chosen''. Ties on both sides require $\tau_{\mathrm{ARF}}$ itself to be censored. On this
-campaign it never is: $\texttt{censored\_arf} = 0.0000$ on all $2\,000$ runs. The
-configuration under which the prescribed exercise produces no gap is one that cannot occur
-in the data it is meant to illustrate.
+The reason is sharper than ``the example is badly chosen''. Ties on both sides require
+$\tau_{\mathrm{ARF}}$ itself to be censored, and on this campaign it never is:
+$\texttt{censored\_arf} = 0.0000$ on all $2\,000$ runs. The configuration under which the
+prescribed exercise produces no gap cannot occur in the data it is meant to illustrate.
 
 \begin{table}[htbp]
   \centering
@@ -140,30 +138,25 @@ in the data it is meant to illustrate.
   \label{tab:contre}
 \end{table}
 
-Two things separate the three rows of Table~\ref{tab:contre}, and they should not be
-conflated. What removes the gap entirely is the \emph{tie structure}: as soon as
-$\tau_{\mathrm{ARF}}$ is left uncensored --- the situation that actually holds --- the two
-coefficients part company even with the observed runs perfectly ordered, by $0.071$. What
-then \emph{amplifies} the gap is the ordering of the observed runs: with four anti-ordered
-observations, Spearman reports $0.751$ where $\tau_b$ reports $0.490$, a gap of $0.261$,
-nearly four times the ordered case.
+Two things separate the three rows, and they should not be conflated. What removes the gap
+entirely is the tie structure: as soon as $\tau_{\mathrm{ARF}}$ is left uncensored, which
+is the situation that actually holds, the two coefficients part company by $0.071$ even
+with the observed runs perfectly ordered. What then amplifies the gap is the ordering of
+the observed runs: with four anti-ordered observations, Spearman reports $0.751$ where
+$\tau_b$ reports $0.490$, a gap of $0.261$, nearly four times the ordered case.
 
 The mechanism is the same in both rows. Spearman overstates the association because the
-six censored runs share a mid-rank which then enters its sums of squares as an ordinary
-value, manufacturing agreement out of a tie block; $\tau_b$ removes those pairs from both
-counts instead. The prescribed exercise hides this because it silently assumes ties on
-both sides, which cancels the effect exactly.
-
-This is reported as a correction to the prescribed exercise, not as a private difficulty:
-the exercise as written cannot exhibit the effect it is designed to exhibit, and the
-condition under which it fails is precisely the one that does not hold in the campaign.
+six censored runs share a mid-rank that enters its sums of squares as an ordinary value,
+manufacturing agreement out of a tie block, while $\tau_b$ removes those pairs from both
+counts. The prescribed exercise hides this by silently assuming ties on both sides, which
+cancels the effect exactly.
 
 \section{Conclusion}
 
-Pearson is excluded by definition, not by degree: censored runs carry no numerical value.
-Spearman is computable but overstates the association in the presence of tie blocks, and
-the tie blocks here are created by the censoring itself. Kendall's $\tau_b$ is used
-throughout Q~D, with censored runs imputed to the last rank --- legitimate because the
-horizon is common to all runs, and only because of that.
+Pearson is excluded by definition rather than by degree, since censored runs carry no
+numerical value. Spearman is computable but overstates the association in the presence of
+tie blocks, and the tie blocks here are created by the censoring itself. Kendall's $\tau_b$
+is used throughout Q~D, with censored runs imputed to the last rank, which is legitimate
+because the horizon is common to all runs and only for that reason.
 
 \end{document}
