@@ -471,69 +471,176 @@ def fit_diagnosis(df, budget):
 
 
 # ------------------------------------------------------------------ figures ----
-def figure_joint(df, error_mat, s_mat, phi_mat, target_de, tag):
-    """Figure D : les trois grandeurs sur un axe temporel commun synchronise sur tau*.
+def figure_joint(df, error_mat, s_mat, phi_mat, target_de, tag, terr=None,
+                 amplitudes=None):
+    """Figure D.1 : les trois grandeurs sur un axe temporel commun, avec les
+    quatre marqueurs temporels, sur PLUSIEURS amplitudes.
 
     Trois panneaux plutot qu'un seul axe partage : N_t/M vit sur [0,1], l'erreur
     autour du socle, et S_t sur l'echelle des lambda. Les superposer ecraserait
     l'erreur, qui est justement la grandeur que le detecteur consomme.
+
+    Quatre marqueurs, comme l'exige ROADMAP.md section 3 :
+        tau_det   premiere alarme du detecteur externe. Trace a lambda = 8, le
+                  seul seuil ou la censure reste minoritaire (4,7 % contre
+                  61,1 % a lambda = 25 et 99,95 % a lambda = 50) : a lambda = 25
+                  ou 50 la mediane serait calculee sur une minorite de runs et
+                  ne se publie pas (JOURNAL.md section 9.5).
+        tau_ARF   premier remplacement d'arbre.
+        tau_50%   instant ou la moitie des arbres a ete renouvelee.
+        tau_rec   retour de l'erreur moyenne sous p_hat_0 + rho*Delta_e, avec la
+                  condition de persistance de 20 pas (colonne tau_err_p20). Sans
+                  cette persistance, le franchissement est un artefact de bruit
+                  (JOURNAL.md section 4).
+
+    Plusieurs amplitudes plutot qu'une seule : JOURNAL.md section 4 pose la
+    regle qu'une relation verifiee a une amplitude se verifie sur toute la
+    grille. Une figure a une amplitude a deja produit une conclusion fausse en
+    C.3.
+
+    Aucun lissage temporel : e_t est binaire, seule la moyenne inter-graines
+    est prise, a chaque pas. Un filtre glissant decalerait la courbe d'un
+    demi-support et detruirait la synchronisation avec tau*.
     """
     de_vals = np.sort(df['delta_e'].unique())
-    de = de_vals[np.argmin(np.abs(de_vals - target_de))]
-    runs = df.index[df['delta_e'] == de].to_numpy()
+    if amplitudes is None:
+        # Bas, milieu et haut de grille, repartis sur l'ETENDUE de Delta_e et
+        # non sur l'index : la grille est lineaire en boundary_shift, donc
+        # resserree en Delta_e vers le haut. Cibles fixees avant lecture des
+        # courbes.
+        cibles = [de_vals[1],
+                  0.5 * (de_vals[1] + de_vals[-1]),
+                  de_vals[-1]]
+        amplitudes = [de_vals[np.argmin(np.abs(de_vals - c))] for c in cibles]
+    else:
+        amplitudes = [de_vals[np.argmin(np.abs(de_vals - a))] for a in amplitudes]
+
     t_axis = np.arange(H)
+    n_col = len(amplitudes)
+    fig, axes = plt.subplots(3, n_col, figsize=(5.2 * n_col, 9.4),
+                             sharex=True, squeeze=False)
 
-    phi = phi_mat[runs]
-    phi_med = np.median(phi, axis=0)
-    phi_q1, phi_q3 = np.percentile(phi, [25, 75], axis=0)
-    e_mean = error_mat[runs].mean(axis=0)
-    p0 = df.loc[runs, 'p_hat_0'].mean()
-    s_med = np.median(s_mat[runs], axis=0)
-    s_q1, s_q3 = np.percentile(s_mat[runs], [25, 75], axis=0)
-    tau_med = np.nanmedian(df.loc[runs, 'tau_arf'].to_numpy())
+    lam_marqueur = min(LAMBDAS)          # lambda = 8, censure minoritaire
+    couleurs = {'det': '#2E7D32', 'arf': '#04617B',
+                'swap50': '#6A3D9A', 'rec': '#C62828'}
 
-    fig, axes = plt.subplots(3, 1, figsize=(11, 9), sharex=True)
+    for j, de in enumerate(amplitudes):
+        runs = df.index[df['delta_e'] == de].to_numpy()
 
-    ax = axes[0]
-    ax.plot(t_axis, phi_med, color='#04617b', lw=1.6, label=r"mediane inter-graines")
-    ax.fill_between(t_axis, phi_q1, phi_q3, color='#04617b', alpha=0.18,
-                    label=r"ecart interquartile")
-    ax.set_ylabel(r"$N_t / M$")
-    ax.set_ylim(0, 1.02)
-    ax.legend(fontsize=8, loc='lower right')
-    ax.set_title(rf"Question D — $\Delta e = {de:.3f}$, {len(runs)} graines, $H = {H}$")
+        phi = phi_mat[runs]
+        phi_med = np.median(phi, axis=0)
+        phi_q1, phi_q3 = np.percentile(phi, [25, 75], axis=0)
+        e_mean = error_mat[runs].mean(axis=0)
+        p0 = df.loc[runs, 'p_hat_0'].mean()
+        s_med = np.median(s_mat[runs], axis=0)
+        s_q1, s_q3 = np.percentile(s_mat[runs], [25, 75], axis=0)
 
-    ax = axes[1]
-    ax.plot(t_axis, e_mean, color='#C62828', lw=0.8,
-            label=r"$\bar{e}_t$ (moyenne inter-graines, sans lissage)")
-    ax.axhline(p0, color='#555', ls=':', lw=1.2, label=r"socle $\hat{p}_0$")
-    ax.axhline(p0 + de, color='#555', ls='--', lw=1.0,
-               label=r"palier theorique $\hat{p}_0 + \Delta e$")
-    ax.set_ylabel(r"$\bar{e}_t$")
-    ax.legend(fontsize=8, loc='upper right')
+        # --- les quatre marqueurs -----------------------------------------
+        # Chaque entree est (valeur, etiquette, fiable). `fiable = False` trace
+        # le marqueur en pointille et le dit dans l'etiquette, plutot que de le
+        # taire ou de le publier comme les autres.
+        marqueurs = {}
+        col_det = f'censored_det_{int(lam_marqueur)}'
+        part_censuree = float(df.loc[runs, col_det].mean())
+        if part_censuree <= 0.5:
+            marqueurs['det'] = (
+                np.nanmedian(df.loc[runs, f'tau_det_{int(lam_marqueur)}'].to_numpy()),
+                rf"$\tau_{{\mathrm{{det}}}}$ ($\lambda={int(lam_marqueur)}$)", True)
+        marqueurs['arf'] = (np.nanmedian(df.loc[runs, 'tau_arf'].to_numpy()),
+                            r"$\tau_{\mathrm{ARF}}$", True)
+        part_c50 = float(df.loc[runs, 'censored_swap_50'].mean())
+        if part_c50 <= 0.5:
+            marqueurs['swap50'] = (
+                np.nanmedian(df.loc[runs, 'tau_swap_50'].to_numpy()),
+                r"$\tau_{50\%}$", True)
+        if terr is not None:
+            ligne = terr.loc[np.isclose(terr['delta_e'], de, atol=1e-9)]
+            if len(ligne) and np.isfinite(ligne['tau_err_p20'].iloc[0]):
+                # tau_rec n'a de sens que la ou le test a la puissance de
+                # trancher (rho*Delta_e > 2*sigma). Aux amplitudes declarees
+                # non interpretables, le marqueur est trace en pointille et
+                # son etiquette le dit : le publier sans mention reviendrait a
+                # dater une resorption sur une courbe ou le seuil est sous le
+                # bruit. Meme convention que figure_signal_bruit_tauerr.
+                interpretable = bool(ligne['interpretable'].iloc[0])
+                etiquette = (r"$\tau_{\mathrm{rec}}$" if interpretable
+                             else r"$\tau_{\mathrm{rec}}$ (not interpretable)")
+                marqueurs['rec'] = (float(ligne['tau_err_p20'].iloc[0]),
+                                    etiquette, interpretable)
 
-    ax = axes[2]
-    ax.plot(t_axis, s_med, color='#E8A000', lw=1.6, label=r"$S_t$ (mediane inter-graines)")
-    ax.fill_between(t_axis, s_q1, s_q3, color='#E8A000', alpha=0.18,
-                    label=r"ecart interquartile")
-    for lam, ls in zip(LAMBDAS, ('-', '--', ':')):
-        ax.axhline(lam, color='#2E7D32', ls=ls, lw=1.2, label=rf"$\lambda = {int(lam)}$")
-    ax.set_ylabel(r"$S_t$")
-    ax.set_ylim(0, max(max(LAMBDAS), s_q3.max()) * 1.1)
-    ax.set_xlabel(r"pas post-rupture ($t - \tau^*$)")
-    ax.legend(fontsize=8, loc='upper right', ncol=2)
+        # --- panneau 1 : fraction d'arbres remplaces -----------------------
+        ax = axes[0][j]
+        ax.plot(t_axis, phi_med, color='#04617b', lw=1.6,
+                label="inter-seed median")
+        ax.fill_between(t_axis, phi_q1, phi_q3, color='#04617b', alpha=0.18,
+                        label="interquartile range")
+        ax.set_ylim(0, 1.02)
+        ax.set_title(rf"$\Delta e = {de:.3f}$, {len(runs)} seeds, $H = {H}$",
+                     fontsize=10)
+        if j == 0:
+            ax.set_ylabel(r"$N_t / M$")
+            ax.legend(fontsize=7, loc='lower right')
 
-    if not np.isnan(tau_med):
-        for ax in axes:
-            ax.axvline(tau_med, color='k', lw=1.0, alpha=0.5)
-        axes[0].annotate(r"$\tau_{ARF}$ (mediane)", xy=(tau_med, 0.05),
-                         xytext=(tau_med + 0.02 * H, 0.12), fontsize=8,
-                         arrowprops=dict(arrowstyle='->', lw=0.8))
+        # --- panneau 2 : erreur globale ------------------------------------
+        ax = axes[1][j]
+        ax.plot(t_axis, e_mean, color='#C62828', lw=0.8,
+                label=r"$\bar{e}_t$ (inter-seed mean, no smoothing)")
+        ax.axhline(p0, color='#555', ls=':', lw=1.2,
+                   label=r"baseline $\hat{p}_0$")
+        ax.axhline(p0 + de, color='#555', ls='--', lw=1.0,
+                   label=r"theoretical plateau $\hat{p}_0 + \Delta e$")
+        if j == 0:
+            ax.set_ylabel(r"$\bar{e}_t$")
+            ax.legend(fontsize=7, loc='upper right')
 
-    axes[0].set_xlim(0, H)
-    fig.tight_layout()
+        # --- panneau 3 : etat interne du detecteur -------------------------
+        ax = axes[2][j]
+        ax.plot(t_axis, s_med, color='#E8A000', lw=1.6,
+                label=r"$S_t$ (inter-seed median)")
+        ax.fill_between(t_axis, s_q1, s_q3, color='#E8A000', alpha=0.18,
+                        label="interquartile range")
+        for lam, ls in zip(LAMBDAS, ('-', '--', ':')):
+            ax.axhline(lam, color='#2E7D32', ls=ls, lw=1.0,
+                       label=rf"$\lambda = {int(lam)}$")
+        ax.set_ylim(0, max(max(LAMBDAS), float(s_q3.max())) * 1.1)
+        ax.set_xlabel(r"steps after the drift ($t - \tau^*$), log scale")
+        if j == 0:
+            ax.set_ylabel(r"$S_t$")
+            ax.legend(fontsize=7, loc='upper right', ncol=2)
+
+        # --- les marqueurs sur les trois panneaux --------------------------
+        # Axe temporel en echelle logarithmique : les quatre instants
+        # s'etalent sur deux ordres de grandeur d'une amplitude a l'autre
+        # (tau_ARF vaut 346 pas a Delta_e = 0,085 et 28 en haut de grille).
+        # En echelle lineaire, les quatre marqueurs du haut de grille se
+        # superposent dans les cinquante premiers pixels et la figure ne se
+        # lit plus. L'axe reste commun aux trois colonnes, ce qu'exige
+        # l'enonce.
+        ordonnees = np.linspace(0.94, 0.60, len(marqueurs))
+        for (cle, (val, etiquette, fiable)), y_lab in zip(marqueurs.items(),
+                                                          ordonnees):
+            if val is None or not np.isfinite(val):
+                continue
+            style = '-' if fiable else (0, (2, 2))
+            for ax in (axes[0][j], axes[1][j], axes[2][j]):
+                ax.axvline(max(val, 1.0), color=couleurs[cle], lw=1.1,
+                           alpha=0.8 if fiable else 0.55, ls=style)
+            axes[0][j].annotate(
+                etiquette, xy=(max(val, 1.0), y_lab),
+                xycoords=('data', 'axes fraction'),
+                fontsize=7.5, color=couleurs[cle], ha='left', va='center',
+                alpha=1.0 if fiable else 0.7,
+                xytext=(3, 0), textcoords='offset points')
+
+        for ax in (axes[0][j], axes[1][j], axes[2][j]):
+            ax.set_xscale('log')
+            ax.set_xlim(1, H)
+
+    fig.suptitle("Question D.1 — replacement, error and detector on a common "
+                 "time axis", fontsize=12)
+    fig.tight_layout(rect=(0, 0, 1, 0.97))
     out = FIGURES_DIR / f"Fig_QD_trajectoires_{tag}.png"
-    fig.savefig(out, dpi=150)
+    fig.savefig(out, dpi=150, bbox_inches='tight')
     plt.close(fig)
     return out
 
@@ -633,15 +740,15 @@ def figure_rg(rg, tag):
     """D.1 : R et G en fonction de Delta_e."""
     fig, ax = plt.subplots(figsize=(9, 5.2))
     ax.plot(rg['delta_e'], rg['R_tau_arf'], 'o-', color='#C62828', lw=1.8, ms=4,
-            label=r"$R(\tau_{ARF})$ — fraction d'adaptation déjà acquise")
+            label=r"$R(\tau_{\mathrm{ARF}})$ — fraction of adaptation already acquired")
     ax.plot(rg['delta_e'], rg['G_tau_arf_median'], 's-', color='#E8A000', lw=1.8, ms=4,
-            label=r"$G(\tau_{ARF})$ — fraction de preuve accumulée")
+            label=r"$G(\tau_{\mathrm{ARF}})$ — fraction of evidence accumulated")
     ax.axhline(0, color='#6A848D', lw=0.8)
     ax.axhline(1, color='#6A848D', lw=0.8, ls=':')
-    ax.set_xlabel(r"$\Delta e$ — amplitude du saut d'erreur")
+    ax.set_xlabel(r"$\Delta e$ — error jump amplitude")
     ax.set_ylabel("fraction")
-    ax.set_ylim(-0.1, 1.05)
-    ax.set_title(r"D.1 — ce qui est acquis à l'instant $\tau_{ARF}$")
+    ax.set_ylim(-0.3, 1.05)
+    ax.set_title(r"D.1 — what is acquired at time $\tau_{\mathrm{ARF}}$")
     ax.legend(fontsize=9)
     ax.grid(alpha=0.18, lw=0.6)
     fig.tight_layout()
@@ -652,17 +759,33 @@ def figure_rg(rg, tag):
 
 
 def figure_heatmap(corr, comparators, tag):
-    """Tous les coefficients publies, sans selection a posteriori (D.3)."""
+    """Tous les coefficients publies, sans selection a posteriori (D.3).
+
+    Les cellules tautologiques sont hachurees : a M = 10, tau_swap(10 %) EST
+    tau_ARF (C.1 a), donc son tau_b vaut 1 par identite et non par performance.
+    Le precedent est celui de S_max(H) en B2 (JOURNAL.md section 8).
+    """
     piv = corr.pivot(index='comparateur', columns='delta_e', values='tau_b')
     piv = piv.reindex(comparators)
     fig, ax = plt.subplots(figsize=(max(8, 0.5 * piv.shape[1] + 4), 3.6))
     im = ax.imshow(piv.to_numpy(), aspect='auto', cmap='RdBu_r', vmin=-1, vmax=1)
+
+    tautologiques = {f'tau_swap_{int(100 / N_MODELS)}'}
+    for i, nom in enumerate(piv.index):
+        if nom in tautologiques:
+            for j in range(piv.shape[1]):
+                ax.add_patch(plt.Rectangle((j - 0.5, i - 0.5), 1, 1,
+                                           fill=False, hatch='///',
+                                           edgecolor='k', lw=0.0, alpha=0.55))
     ax.set_xticks(range(piv.shape[1]))
     ax.set_xticklabels([f"{v:.3f}" for v in piv.columns], rotation=90, fontsize=7)
     ax.set_yticks(range(piv.shape[0]))
     ax.set_yticklabels(piv.index, fontsize=8)
     ax.set_xlabel(r"$\Delta e$")
-    ax.set_title(r"$\tau_b(\tau_{ARF}, \cdot)$ par amplitude — tous les coefficients")
+    ax.set_title(r"$\tau_b(\tau_{\mathrm{ARF}}, \cdot)$ by amplitude — every "
+                 r"coefficient published"
+                 "\n" r"hatched: tautological ($\tau_{\mathrm{swap}}(10\%) "
+                 r"\equiv \tau_{\mathrm{ARF}}$ at $M=10$)", fontsize=10)
     fig.colorbar(im, ax=ax, label=r"$\tau_b$")
     fig.tight_layout()
     out = FIGURES_DIR / f"Fig_QD_heatmap_taub_{tag}.png"
@@ -682,7 +805,8 @@ def main():
                     help="amplitude visee pour la figure D")
     args = ap.parse_args()
 
-    rng = np.random.default_rng(12345)
+    graine_bootstrap = 12345
+    rng = np.random.default_rng(graine_bootstrap)
 
     worst = self_check(rng)
     status = "OK" if worst < 1e-9 else "ECHEC"
@@ -705,13 +829,25 @@ def main():
     glob = global_correlations(df, comparators)
     cc = complete_cases_comparison(df, comparators)
 
+    # `experimentation.md` : une colonne par parametre de grille, et la graine
+    # DANS la table. M ne venait jusqu'ici que du defaut d'exp_QCD_campagne, et
+    # la graine du bootstrap n'etait ecrite nulle part : une ligne qui ne les
+    # porte pas n'est pas rejouable.
     for name, frame in (('indicateurs', df), ('correlations_stratifiees', corr),
                         ('correlation_globale', glob), ('cas_complets', cc),
                         ('budget_preuve', budget), ('R_et_G', rg),
                         ('tau_err', terr), ('diagnostic_ajustement', fitdiag)):
+        frame = frame.copy()
+        frame['n_models'] = N_MODELS
+        frame['delta_P'] = DELTA_P
+        if name in ('correlations_stratifiees', 'correlation_globale',
+                    'cas_complets'):
+            frame['graine_bootstrap'] = graine_bootstrap
+            frame['n_boot'] = args.boot
         frame.to_parquet(DATA_DIR / f"QCD_{name}_{args.tag}.parquet", index=False)
 
-    f1 = figure_joint(df, error_mat, s_mat, phi_mat, args.figure_de, args.tag)
+    f1 = figure_joint(df, error_mat, s_mat, phi_mat, args.figure_de, args.tag,
+                      terr=terr)
     f2 = figure_heatmap(corr, comparators, args.tag)
     f3 = figure_ecarts(df, args.tag)
     f3b = figure_dispersion_swap(df, args.tag)
