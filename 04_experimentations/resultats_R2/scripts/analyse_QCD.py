@@ -378,6 +378,74 @@ def tau_err_table(df, error_mat, rho=RHO_ERR, persist=PERSIST):
     return pd.DataFrame(rows)
 
 
+def figure_pouvoir_tauerr(df, error_mat, terr, tag):
+    """Complement visuel a tau_err_table (C.1c) : trace la bande de bruit +-2 sigma
+    de la courbe moyenne contre le seuil rho*Delta_e, sur les amplitudes marquees
+    non interpretables (seuil <= 2 sigma). Objectif : montrer que le choc y est
+    noye dans le bruit plutot que de se contenter de l'affirmer en mots.
+    """
+    bad = terr.loc[~terr['interpretable'], 'delta_e'].to_numpy()
+    if bad.size == 0:
+        return None
+    fig, axes = plt.subplots(1, len(bad), figsize=(5.5 * len(bad), 4.3), sharey=True)
+    axes = np.atleast_1d(axes)
+    for ax, de in zip(axes, bad):
+        grp = df[df['delta_e'] == de]
+        runs = grp.index.to_numpy()
+        mat = error_mat[runs]
+        mean_curve = mat.mean(axis=0)
+        n = mat.shape[0]
+        se = np.sqrt(mean_curve * (1 - mean_curve) / n)
+        p0 = grp['p_hat_0'].mean()
+        thresh = p0 + RHO_ERR * de
+        t = np.arange(len(mean_curve))
+        ax.plot(t, mean_curve, color='#04617B', lw=1.3, label=r"$\bar e_t$ (mean over seeds)")
+        ax.fill_between(t, mean_curve - 2 * se, mean_curve + 2 * se, color='#04617B',
+                        alpha=0.2, label=r"$\pm 2\sigma$ band")
+        ax.axhline(p0, color='#555', ls=':', lw=1.1, label=r"baseline $\hat p_0$")
+        ax.axhline(thresh, color='#C62828', ls='--', lw=1.3,
+                   label=r"threshold $\hat p_0 + \rho\Delta e$")
+        ax.set_title(rf"$\Delta e = {de:.3f}$")
+        ax.set_xlabel("post-drift step")
+        ax.set_xlim(0, 400)
+    axes[0].set_ylabel("error rate")
+    axes[0].legend(fontsize=8, loc='upper right')
+    fig.suptitle("Why the recovery test lacks power at these amplitudes", fontsize=11)
+    fig.tight_layout()
+    out = FIGURES_DIR / f"Fig_QC_tauerr_power_{tag}.png"
+    fig.savefig(out, dpi=150)
+    plt.close(fig)
+    return out
+
+
+def figure_signal_bruit_tauerr(terr, tag):
+    """Vue d'ensemble complementaire a figure_pouvoir_tauerr : plutot que de zoomer
+    sur 2 amplitudes, trace le seuil rho*Delta_e (signal) contre 2*sigma (bruit) sur
+    toute la grille -- montre en un coup d'oeil ou et pourquoi le critere
+    d'interpretabilite (seuil > 2 sigma) bascule. Aucune resimulation necessaire,
+    tout vient de tau_err_table.
+    """
+    fig, ax = plt.subplots(figsize=(8.5, 4.8))
+    ax.plot(terr['delta_e'], terr['seuil'], 'o-', color='#C62828', lw=1.8, ms=4,
+            label=r"threshold $\rho\Delta e$ (signal)")
+    ax.plot(terr['delta_e'], 2 * terr['sigma_courbe'], 'o-', color='#04617B', lw=1.8,
+            ms=4, label=r"$2\sigma$ (noise floor)")
+    bad = terr[~terr['interpretable']]
+    ax.scatter(bad['delta_e'], bad['seuil'], s=140, facecolors='none',
+               edgecolors='#C62828', linewidths=1.8, zorder=5,
+               label="non-interpretable (signal < noise)")
+    ax.set_xlabel(r"$\Delta e$ — error jump amplitude")
+    ax.set_ylabel("magnitude")
+    ax.set_title("Signal vs. noise floor for the recovery test, across the full grid")
+    ax.legend(fontsize=9)
+    ax.grid(alpha=0.18, lw=0.6)
+    fig.tight_layout()
+    out = FIGURES_DIR / f"Fig_QC_tauerr_signal_bruit_{tag}.png"
+    fig.savefig(out, dpi=150)
+    plt.close(fig)
+    return out
+
+
 def fit_diagnosis(df, budget):
     """C.3f : l'ecart entre budget mesure et budget predit vient-il du socle, de la
     censure, ou de l'ajustement 18,5 * Delta_e^-0,98 lui-meme ?
@@ -470,6 +538,39 @@ def figure_joint(df, error_mat, s_mat, phi_mat, target_de, tag):
     return out
 
 
+def figure_dispersion_swap(df, tag, quantiles=(25, 50, 75)):
+    """C.1a : nuage tau_ARF vs tau_swap(q) sur tous les runs, une couleur par
+    censure. Montre la dispersion individuelle (invisible dans figure_ecarts, qui ne
+    trace que la mediane) et confirme visuellement l'inegalite deterministe -- tous
+    les points au-dessus de la diagonale, sur les 2000 runs, pas seulement en moyenne.
+    """
+    fig, axes = plt.subplots(1, len(quantiles), figsize=(4.3 * len(quantiles), 4.3),
+                             sharex=True, sharey=True)
+    axes = np.atleast_1d(axes)
+    lim = H
+    for ax, q in zip(axes, quantiles):
+        col = f'tau_swap_{q}'
+        cens = df[f'censored_swap_{q}']
+        ax.scatter(df.loc[~cens, 'tau_arf'], df.loc[~cens, col], s=8, alpha=0.35,
+                  color='#04617B', label='uncensored')
+        if cens.any():
+            ax.scatter(df.loc[cens, 'tau_arf'], np.full(cens.sum(), lim), s=10,
+                      alpha=0.3, color='#C62828', marker='^',
+                      label='censored (quota never reached)')
+        ax.plot([0, lim], [0, lim], 'k--', lw=1, alpha=0.6)
+        ax.set_title(f"q = {q}%")
+        ax.set_xlabel(r"$\tau_{ARF}$")
+    axes[0].set_ylabel(r"$\tau_{swap}(q)$")
+    axes[0].legend(fontsize=8, loc='lower right')
+    fig.suptitle(r"$\tau_{ARF}$ vs. $\tau_{swap}(q)$ on every run --- dashed line: equality",
+                fontsize=11)
+    fig.tight_layout()
+    out = FIGURES_DIR / f"Fig_QC_dispersion_swap_{tag}.png"
+    fig.savefig(out, dpi=150)
+    plt.close(fig)
+    return out
+
+
 def figure_ecarts(df, tag):
     """C.1b : l'ecart tau_swap(q) - tau_ARF en fonction de Delta_e."""
     fig, ax = plt.subplots(figsize=(9, 5.2))
@@ -479,19 +580,22 @@ def figure_ecarts(df, tag):
         g = df.groupby('delta_e')
         med = g.apply(lambda x: np.nanmedian(x[col] - x['tau_arf']), include_groups=False)
         cens = g[f'censored_swap_{int(q * 100)}'].mean()
-        solid = cens <= 0.5
-        ax.plot(med.index[solid], med[solid], 'o-', color=c, lw=1.8, ms=4,
+        # une seule ligne continue -- eviter de tracer les points tres censures
+        # comme un second segment separe, qui se retrouve alors deconnecte du
+        # reste de la courbe (defaut visuel corrige le 08/09).
+        ax.plot(med.index, med.values, 'o-', color=c, lw=1.8, ms=4,
                 label=rf"$q = {q:.2f}$")
-        if (~solid).any():
-            ax.plot(med.index[~solid], med[~solid], 'o:', color=c, lw=1.2, ms=4,
-                    alpha=0.45)
-    ax.set_xlabel(r"$\Delta e$ — amplitude du saut d'erreur")
-    ax.set_ylabel(r"$\tau_{swap}(q) - \tau_{ARF}$  (pas)")
-    ax.set_title(r"C.1b — de combien $\tau_{ARF}$ devance les quotas plus exigeants")
-    ax.legend(fontsize=9, title="fraction d'arbres renouvelés", title_fontsize=8)
+        heavy = cens > 0.5
+        if heavy.any():
+            ax.plot(med.index[heavy], med[heavy], 'o', color=c, ms=9,
+                    markerfacecolor='none', markeredgewidth=1.8, alpha=0.9)
+    ax.set_xlabel(r"$\Delta e$ — error jump amplitude")
+    ax.set_ylabel(r"$\tau_{swap}(q) - \tau_{ARF}$  (steps)")
+    ax.set_title(r"C.1b --- how far ahead of stricter quotas $\tau_{ARF}$ runs")
+    ax.legend(fontsize=9, title="fraction of trees renewed", title_fontsize=8)
     ax.grid(alpha=0.18, lw=0.6)
-    ax.text(0.98, 0.04, "pointillé : médiane non interprétable (censure > 50 %)",
-            transform=ax.transAxes, ha='right', fontsize=7.5, color='#6A848D')
+    ax.text(0.98, 0.95, "hollow circle: >50% of runs censored at this amplitude",
+            transform=ax.transAxes, ha='right', va='top', fontsize=7.5, color='#6A848D')
     fig.tight_layout()
     out = FIGURES_DIR / f"Fig_QC_ecarts_{tag}.png"
     fig.savefig(out, dpi=150)
@@ -505,17 +609,17 @@ def figure_budget(budget, tag):
     de = budget['delta_e'].to_numpy()
     ax.axhline(0, color='#6A848D', lw=0.8)
     ax.plot(de, budget['A_predit_brut'], '--', color='#0F252D', lw=1.6,
-            label=r"prédit : $18{,}5 \cdot \Delta e^{0,02}$")
+            label=r"predicted: $18.5 \cdot \Delta e^{0.02}$")
     ax.plot(de, budget['A_w_mesure_median'], 'o-', color='#04617B', lw=1.8, ms=4,
-            label=r"mesuré, fenêtre courte $A(w)$")
+            label=r"measured, short window $A(w)$")
     ax.plot(de, budget['A_H_mesure_median'], 's-', color='#C62828', lw=1.8, ms=4,
-            label=r"mesuré, horizon entier $A(H)$")
+            label=r"measured, full horizon $A(H)$")
     ax.fill_between(de, budget['A_H_mesure_median'], 0,
                     where=budget['A_H_mesure_median'] < 0,
                     color='#C62828', alpha=0.12)
-    ax.set_xlabel(r"$\Delta e$ — amplitude du saut d'erreur")
-    ax.set_ylabel("aire d'erreur excédentaire")
-    ax.set_title(r"C.3f — budget de preuve : mesuré contre prédit")
+    ax.set_xlabel(r"$\Delta e$ — error jump amplitude")
+    ax.set_ylabel("excess error area")
+    ax.set_title(r"C.3f --- evidence budget: measured vs.\ predicted")
     ax.legend(fontsize=9)
     ax.grid(alpha=0.18, lw=0.6)
     fig.tight_layout()
@@ -610,8 +714,11 @@ def main():
     f1 = figure_joint(df, error_mat, s_mat, phi_mat, args.figure_de, args.tag)
     f2 = figure_heatmap(corr, comparators, args.tag)
     f3 = figure_ecarts(df, args.tag)
+    f3b = figure_dispersion_swap(df, args.tag)
     f4 = figure_budget(budget, args.tag)
     f5 = figure_rg(rg, args.tag)
+    f6 = figure_pouvoir_tauerr(df, error_mat, terr, args.tag)
+    f7 = figure_signal_bruit_tauerr(terr, args.tag)
 
     print("\n[CENSURE] par seuil, toutes amplitudes confondues :")
     for lam in LAMBDAS:
