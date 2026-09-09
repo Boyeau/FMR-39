@@ -226,17 +226,24 @@ one that the corollary actually licenses.
 \paragraph{Full window.} With $H = 2\,000$ and $\delta_P = 0.01$, the full-window
 requirement $A(0,H) \ge \lambda + H\delta_P$ demands a toll of $H\delta_P = 20$
 regardless of $\lambda$, i.e.\ raw areas of $28$, $45$ and $70$ for
-$\lambda \in \{8,25,50\}$ --- none of which is reachable against the evidence budget of
-about $18$ established in Q~C.3. Being only sufficient, this failure does not mean the
-alarm never fires~; it only means the full window is the wrong place to look for the
-proof.
+$\lambda \in \{8,25,50\}$. Against the evidence budget of about $18$ established in
+Q~C.3, these are met only exceptionally~: over the $2\,000$ runs, $A(0,H)$ reaches $28$
+in $473$ cases, $45$ in $66$, and $70$ in none. The full-window certificate therefore
+proves detection for $24\%$ of runs at $\lambda = 8$, $3\%$ at $\lambda = 25$ and none
+at $\lambda = 50$, and at the weakest amplitude ($\Delta e = 0.028$) for no run at all.
+Being only sufficient, this failure does not mean the alarm never fires~; it only means
+the full window is the wrong place to look for the proof.
 
 \paragraph{Short window.} Anchoring instead on a window
 $w = \lceil 3 \times 18.5/\Delta e \rceil$ steps right after the drift --- sized to the
-transient rather than to the whole horizon --- and checking
-$A(0,w) \ge \lambda + w\,\delta_P$ (one particular sub-window among those
-Corollary~\ref{cor:certificate} ranges over, chosen for being the most favorable a
-priori) gives a very different picture.
+transient rather than to the whole horizon --- and checking the \emph{quantified}
+condition on that window, i.e.\ « some sub-window of $]0,w]$
+satisfies~\eqref{eq:certificate} », equivalently $S_{\max}(w) \ge \lambda$, gives a very
+different picture\footnote{Restricting instead to the single sub-window $]0,w]$, i.e.\
+$A(0,w) \ge \lambda + w\,\delta_P$, is a strictly stronger requirement and yields
+noticeably lower figures at $\lambda = 25$~: $0.39$ instead of $0.44$ at
+$\Delta e = 0.141$, $0.30$ instead of $0.40$ at $\Delta e = 0.416$. The tabulated values
+are the quantified ones, as computed by \texttt{analyse\_QCD.py}.}.
 
 \begin{center}
 \begin{tabular}{rrrrrrr}
