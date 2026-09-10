@@ -16,9 +16,8 @@ Soit 23 des 47 commits de l’historique. Le décompte se recalcule par croiseme
 
 **Périmètre :** trois des quatre membres ont utilisé l'outil, sur trois versants du sujet.
 Salomé Fonvielle et Ulysse Petit-Tichanné sur les questions C et D (versant expérimental,
-parties 1 et 2 ci-dessous) ; Alexandre Boyer sur les questions A et B (versant théorique)
-et sur la traduction en anglais des rédactions — **partie 3 à rédiger par lui**, cette
-déclaration étant incomplète tant qu'elle manque.
+parties 1 à 3 ci-dessous) ; Alexandre Boyer sur les questions A et B (versant théorique),
+sur la bibliographie et sur la mise en anglais des rédactions (partie 4).
 
 ## Partie 1 — prototype et cadrage (Salomé Fonvielle, 4–6 septembre)
 
@@ -109,3 +108,82 @@ réécrite en deux temps, avec le sens du biais résiduel qui la renforce.
 
 Comme dans la partie 2, l'assistant a servi autant à réfuter qu'à produire : les deux
 relectures adverses de fin de session portaient sur son propre travail.
+
+---
+
+## Partie 4 — bibliographie, questions A et B, mise en anglais (Alexandre Boyer, 3–10 septembre)
+
+Sessions interactives en continu, d'abord avec Claude Sonnet 5 puis avec Claude Opus 5 à
+partir du 10 septembre. Le mode de travail a été constant : l'assistant produit, puis doit
+re-justifier ou recalculer avant que ce soit accepté. Plusieurs corrections du dépôt
+viennent de cette insistance plutôt que d'une vérification spontanée de l'outil, et sont
+signalées comme telles ci-dessous. Six points.
+
+**1. Choix du sujet et bibliographie.** L'assistant a surtout servi ici à chercher et à
+regrouper : identification des références citées par l'énoncé — y compris celles présentes
+uniquement dans les hyperliens du PDF, invisibles dans le texte —, recherche des articles
+correspondants, relevé des DOI et tenue de la table de suivi. Trois références absentes de
+l'énoncé ont été identifiées et ajoutées en cours de lecture (Moreno-Torres et al. 2012,
+Domingos & Hulten 2000, Aalen & Johansen 1978). La synthèse bibliographique a ensuite été
+reprise plusieurs fois sur demande, d'un format Word vers un format IEEE à citations
+numérotées, puis en LaTeX ; le choix du format, du niveau de détail et des références à
+conserver ou écarter a été tranché par l'utilisateur à chaque étape — deux ouvrages
+inaccessibles ont notamment été maintenus dans la table mais écartés de la synthèse.
+
+**2. Environnement et reproduction.** Installation de l'environnement épinglé
+(Python 3.12, River 0.23.0, `PYTHONHASHSEED=0`) et exécution de l'expérience R2 du dépôt
+officiel, vérifiée sur les trois régimes de seuil publiés.
+
+**3. Démonstrations des questions A et B.** C'est le cœur de la contribution. Pour A :
+traitement de la double famine, choix et justification de l'inégalité stricte définissant
+l'événement Miss, encadrement par identification partielle sous horizon fini, puis
+encadrement universel de Fréchet vérifié sur un cas jouet. Pour B : indépendance
+conditionnelle des arbres sachant le flux, inégalité de Jensen sur `x → x^M` pour
+établir le sens du biais, condition d'égalité et son interprétation, requalification du
+corollaire sur `M_crit` en certificat conservateur, et contre-exemple
+anti-monotone montré structurellement impossible dans le modèle réel par la formule de
+covariance totale.
+
+Ces démonstrations ont été construites par allers-retours, avec pour consigne explicite de
+ne rien accepter avant de pouvoir le redémontrer sans support. Ont notamment fait l'objet
+de demandes de réexplication successives : le rôle des poids de Poisson dans ce qui
+distingue deux arbres à flux fixé, la nature exacte de la variable aléatoire `G_S`, le sens
+physique du cas d'égalité de Jensen, et la raison pour laquelle un contre-exemple à
+covariance négative reste constructible alors que le modèle réel l'interdit.
+
+Une erreur de signe produite par l'assistant sur la covariance du couplage anti-monotone a
+été détectée par cette voie : sur demande de refaire le calcul depuis le début, la valeur
+est passée de « strictement plus élevée » à `−1/4`, strictement plus basse, ce qui inverse
+la lecture. La note de projet a été corrigée en conséquence, et le point signalé comme le
+plus facile à confondre à l'oral.
+
+**4. Mise en anglais et harmonisation.** Traduction en anglais des rédactions A, B, C.1,
+C.3 et C.2, cette dernière étant au passage fusionnée en un fichier unique — les deux
+parties de C.2 étant deux sections d'une même démonstration. Traduction également du texte
+inscrit dans les figures générées par script (titres, axes, légendes), oublié au premier
+passage et signalé comme tel.
+
+**5. Compléments apportés aux rédactions expérimentales.** Trois figures ajoutées à C.1 (le
+nuage `τ_ARF` contre `τ_swap(q)` run par run, la bande de bruit contre le seuil aux
+amplitudes non interprétables, et le rapport signal sur bruit sur toute la grille), un
+défaut de rendu corrigé dans une figure existante, et pour C.2 l'énoncé
+explicite du certificat sous forme de corollaire, la distinction nécessaire/suffisant
+demandée par l'énoncé, et une section confrontant le certificat aux mesures.
+
+Quatre de ces compléments ne viennent pas de l'assistant mais de remarques de
+l'utilisateur, qui n'avaient pas été relevées spontanément : que les quotas de 25 % et 75 %
+ne tombent pas sur un nombre entier d'arbres avec `M = 10` (ils valent en réalité 3 et 8
+arbres, soit 30 % et 80 %) ; qu'un segment détaché flottait dans une figure ; que la
+section centrale de C.1 était la seule sans illustration ; et que la courbe d'aire mesurée
+contredit visiblement l'invariance annoncée en bas de grille, ce qui a conduit à écrire
+pourquoi l'amplitude la plus faible est écartée du calcul au lieu de l'omettre en silence.
+
+**6. Vérification croisée par les coéquipiers.** Comme dans les parties 2 et 3, l'assistant
+a servi autant à réfuter qu'à produire, et plusieurs de ses conclusions n'ont pas tenu :
+des affirmations issues de ces sessions ont été infirmées par les relectures d'Ulysse et de
+Salomé, aucune pour cause de calcul faux, toutes pour avoir généralisé depuis un contrôle
+trop étroit. Elles sont corrigées dans l'historique du dépôt, avec la trace de ce qu'elles
+disaient, plutôt que retirées silencieusement.
+
+*Résumé reconstruit à partir du journal des sessions. À relire et amender par l'auteur
+avant remise : la liste des prompts eux-mêmes n'y figure pas.*
