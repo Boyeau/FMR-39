@@ -41,9 +41,24 @@ scripts/
   bench_candidats.py     le banc : validation de l'étalon, puis A1/A2/B1/B2/C1/D1/D2/D3.
   exposants_fonctionnelles.py  taxonomie des détecteurs par exposant, seuil d'ADWIN,
                          GLR contre CUSUM. Entièrement hors ligne.
-resultats/data/          4 Parquet de campagne + 8 tables d'analyse
-                         + 6 Parquet d'étalon + 9 tables de banc
-resultats/figures/       8 figures
+  bench_analyse.py       première version du banc, obsolète, gardée pour l'historique.
+  probe_metriques.py     sonde exploratoire à trois forêts (ARF / sans drift / gelée).
+  verif_biais.py         témoin sans remplacement, 12 exécutions, sortie non persistée.
+
+  # rédactions de D (9 septembre) et révision de C.3 à D.4 (10 septembre)
+  derives_QD.py          dérivés hors ligne : phi(t) médiane + IQR, socle sur deux
+                         fenêtres, IC bootstrap des médianes de tau_ARF (avec témoins).
+  chiffres_QD.py         LECTURE SEULE : chaque chiffre des quatre rédactions de D.
+  contre_exemple_kendall.py  contre-exemple de D.2, calculé à la main et par scipy.
+  derives_QC.py          écrit QCD_fin_horizon_full (erreur de fin d'horizon par
+                         amplitude et fenêtre, pour C.3).
+  chiffres_QC.py         LECTURE SEULE : rejeu des constats d'audit de C.1 / C.2 et des
+                         chiffres de C.3.
+  figures_revision_QCD.py  les 9 figures ajoutées à C.3 et D.1-D.4 le 10 septembre.
+resultats/data/          75 Parquet : 4 de campagne, 6 d'étalon, 9 tables de banc, le
+                         reste en tables d'analyse et de dérivés
+resultats/figures/       20 figures (11 d'`analyse_QCD.py` et du banc, 9 de
+                         `figures_revision_QCD.py`)
 ```
 
 ## Relancer
@@ -71,6 +86,13 @@ PYTHONHASHSEED=0 python bench_candidats.py                   # banc sans étalon
 PYTHONHASHSEED=0 python bench_candidats.py --banc-etalon     # banc contre l'étalon
 PYTHONHASHSEED=0 python bench_candidats.py --synthese        # table candidat × test
 PYTHONHASHSEED=0 python exposants_fonctionnelles.py          # volet 2, ~3 min
+
+# rédactions et révision (tout hors ligne, quelques secondes chacun)
+PYTHONHASHSEED=0 python derives_QD.py --tag full     # dérivés de D + IC bootstrap
+PYTHONHASHSEED=0 python derives_QC.py --tag full     # fin d'horizon pour C.3
+PYTHONHASHSEED=0 python chiffres_QD.py               # traçabilité de D
+PYTHONHASHSEED=0 python chiffres_QC.py               # traçabilité de C, audit de C.1/C.2
+PYTHONHASHSEED=0 python figures_revision_QCD.py      # 9 figures
 ```
 
 Les traces pré-rupture `QCD_etalon_traces_pre_*` ne sont pas versionnées : elles sont
@@ -89,8 +111,8 @@ existe. L'affirmation vaut pour un Homebrew x86_64 sous Rosetta.
 
 | Question | Résultat | Où |
 |---|---|---|
-| C.1 | `tau_ARF = tau_swap(1/M)`, donc `tau_ARF <= tau_swap(q)` sur chaque exécution. Zéro violation sur 6 000 comparaisons. Les 3/4 de la forêt sont renouvelés 7 à 15 fois plus tard que le 1er arbre. | `Fig_QC_ecarts_full.png` |
-| C.1c | La conjecture (erreur résorbée avant tout remplacement) **n'est pas confirmée** : les 2 apparentes violations disparaissent dès qu'on exige 20 pas de persistance. | `QCD_tau_err_full.parquet` |
+| C.1 | `tau_ARF = tau_swap(1/M)`, donc `tau_ARF <= tau_swap(q)` sur chaque exécution. Zéro violation sur 5 795 comparaisons non censurées. Les 3/4 de la forêt sont renouvelés 6,0 à 14,3 fois plus tard que le 1er arbre. | `Fig_QC_ecarts_full.png` |
+| C.1c | La conjecture (erreur résorbée avant tout remplacement) **n'est pas confirmée** : les 4 apparentes violations disparaissent dès qu'on exige 20 pas de persistance. | `QCD_tau_err_full.parquet` |
 | C.2 | `S_max(H) = max[A(k,j) - (j-k) delta_P]` (Lindley), vérifiée à 1e-10. Certificat en fenêtre courte : **jamais** au-dessus de la détection observée, sur 60 cellules. | `QCD_budget_preuve_full.parquet` |
 | C.3 | Invariance confirmée dans son sens (aire × 1,8 quand l'amplitude × 5,8), **mais** l'ajustement `18,5·de^-0,98` n'est valide qu'au milieu de la grille. | `Fig_QC_budget_full.png` |
 | D.1 | À `tau_ARF`, **49–76 %** de la preuve est déjà accumulée (domaine de décision ; 0,102 sur la grille entière). `R` va de **−0,188 à +0,885**, négatif sur 5 amplitudes et non monotone : le « 18–48 % » annoncé jusqu'au 8 septembre est faux, cf. `JOURNAL.md` § 1. | `Fig_QD_R_et_G_full.png` |

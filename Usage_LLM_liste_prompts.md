@@ -109,3 +109,66 @@ réécrite en deux temps, avec le sens du biais résiduel qui la renforce.
 
 Comme dans la partie 2, l'assistant a servi autant à réfuter qu'à produire : les deux
 relectures adverses de fin de session portaient sur son propre travail.
+
+---
+
+## Partie 4 — audit de C.1 / C.2 et révision de C.3 à D.4 (Ulysse Petit-Tichanné, 10 septembre)
+
+Modèle : Claude Fable 5.1 (Claude Code). Session en deux prompts, le reste étant produit
+par l'assistant sous le contrôle du plan.
+
+**Prompts, tels que saisis :**
+
+1. `/prime` : commande locale de début de session, qui charge le contexte du projet
+   (feuille de route, journal, historique git, état du dépôt officiel) via trois
+   sub-agents et rend un briefing de moins de 200 mots.
+2. `/execute .claude/plans/audit-qc12-revision-qc3-qd4.md` : exécuter un plan écrit la
+   veille au soir (lui-même issu de `/plan-task` et de deux passes de critique adverse,
+   qui avaient produit 7 objections bloquantes et 24 mineures, toutes intégrées avant
+   exécution). Le plan fixe onze tâches, les critères de succès, les tables à lire, les
+   chiffres à ne surtout pas citer, et les impasses à ne pas rouvrir.
+
+**Ce que l'assistant a fait sous ce plan, dans l'ordre :**
+
+**1. Rejeu de chaque constat avant écriture.** Le plan portait des constats d'audit sur
+les rédactions de C.1 et C.2 (écrites par Alexandre et Salomé) et sur les cinq rédactions
+d'Ulysse. Consigne : un constat qui ne se reproduit pas par script est retiré, pas ajusté.
+Deux scripts ont été écrits, l'un qui produit la seule table manquante (l'erreur de fin
+d'horizon par amplitude et par fenêtre), l'autre en lecture seule qui imprime, pour chaque
+constat, la ligne du `.tex`, la valeur écrite, la valeur mesurée et la table source. Tous
+les constats se sont reproduits.
+
+**2. Note d'audit pour les coéquipiers, sans toucher à leurs fichiers.** Les constats sur
+C.1 et C.2 sont consignés dans une note en français, écrite pour être exécutée par
+l'assistant IA d'Alexandre : chaque item porte le chemin, la ligne, le texte exact à
+remplacer, la proposition et la commande de vérification, et distingue « à corriger » de
+« solide, à ne pas toucher ». Les fichiers de C.1 et C.2 et leurs figures n'ont pas été
+modifiés.
+
+**3. Révision des cinq rédactions d'Ulysse.** Sept chiffres corrigés, chacun remplacé par
+la valeur d'une table ; deux tables et neuf figures ajoutées, lisibles en noir et blanc ;
+notation et acronymes définis à la première occurrence dans chaque fichier. Un estimateur
+nouveau (l'intervalle bootstrap d'une médiane) a passé trois témoins sur cas connu avant
+d'être appliqué, et sa reproduction bit à bit a été vérifiée sur deux exécutions.
+
+**4. Cohérence et traçabilité.** Les sept `.tex` compilés sans artefact périmé ; un
+contrôle de traçabilité versionné (`verif_chiffres_tex.py`) rejoue les deux scripts de
+chiffres et vérifie que chaque littéral numérique des cinq rédactions révisées se retrouve
+dans leur sortie ou dans une table : 453 contrôlés, aucun introuvable. Une première version
+de ce contrôle tournait depuis un script jetable, hors dépôt ; la critique adverse l'a
+relevé, et c'est en le versionnant qu'un chiffre manquant est apparu. Le journal de recherche, le README et la
+feuille de route ont été resynchronisés, avec une section nouvelle sur le piège rencontré :
+un chiffre hérité du journal sans amplitude ni fenêtre, que le premier audit avait
+« corrigé » par un autre chiffre sans fenêtre, et que seule la reproduction a arrêté.
+
+**5. Double critique adverse.** Deux sub-agents en contexte vierge ont reçu mission de
+réfuter, l'un la fidélité au plan et la correction du code, l'autre la plausibilité des
+résultats contre les acquis du journal. Ils ont produit deux objections bloquantes, cinq
+majeures et une quinzaine de mineures, toutes traitées ; les deux bloquantes ont été
+trouvées indépendamment par les deux critiques. Le détail et les corrections sont au § 11.7
+du journal de recherche. Les deux plus instructives : un contrôle annoncé dans un livrable
+alors qu'il n'existait que dans un script de session, et une phrase fausse produite en
+confondant deux définitions d'un même instant — le piège que la session avait précisément
+pour objet de refermer.
+
+Comme les jours précédents, l'assistant a servi autant à réfuter qu'à produire.
