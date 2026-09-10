@@ -18,11 +18,16 @@
 \maketitle
 
 \noindent All numerical measurements in this section come from the instrumented
-campaign of 2\,000 runs (20 amplitudes $\times$ 100 seeds, $H=2\,000$, baseline
-$\hat p_0$ estimated over the last 3\,000 pre-drift steps) documented in
-\texttt{04\_experimentations/resultats\_R2/}. The deterministic hierarchy
+campaign of 2\,000 runs (20 amplitudes $\times$ 100 seeds, $H=2\,000$, $M = 10$ trees in
+the adaptive random forest, ARF, baseline $\hat p_0$ estimated over the last 3\,000
+pre-drift steps) documented in \texttt{04\_experimentations/resultats\_R2/}. Every number
+quoted is reproduced by \texttt{scripts/chiffres\_QC.py} from the tables in
+\texttt{resultats/data/}. The deterministic hierarchy
 $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{swap}}(q)$ (Q~C.1) and the dimensional analysis
-with its detection certificate (Q~C.2) are assumed established.
+with its detection certificate (Q~C.2) are assumed established. $\tau^*$ denotes the
+drift instant, from which every duration is counted; $\tau_{\mathrm{rec}}$ denotes the
+return of the seed-averaged error below $\hat p_0 + \rho\,\Delta e$ with $\rho = 0.25$,
+held for $20$ consecutive steps, which Q~C.1 writes $\tau_{\mathrm{err}}(\rho)$.
 
 \section{Budget Expression and Residual Exponent}
 
@@ -30,10 +35,11 @@ The article's stylized model assumes that after the drift the error exceeds its
 baseline by an amount $\Delta e$ for a transient of length $W = \tau_{\mathrm{ARF}}$,
 then falls back to baseline. The excess-error area offered to the detector is then
 $\mathbb{E}[A] = \Delta e \cdot \mathbb{E}[\tau_{\mathrm{ARF}}]$, provided the horizon
-fully covers the transient, which $H = 2\,000$ guarantees across the whole grid ---
-the lowest amplitude gives $3 \times 18.5/0.028 \approx 1\,982$. Plugging in the
+fully covers the transient, which $H = 2\,000$ guarantees across the whole grid: at
+the lowest amplitude of the grid, $\Delta e = 0.0282$, the short window of
+Section~\ref{sec:verif} is $w = 3 \times 18.5/\Delta e = 1\,969$ steps. Plugging in the
 article's empirical fit
-$\mathbb{E}[\tau_{\mathrm{ARF}}] \approx 18.5\,\Delta e^{-0.98}$~:
+$\mathbb{E}[\tau_{\mathrm{ARF}}] \approx 18.5\,\Delta e^{-0.98}$:
 \begin{equation}
   \boxed{\mathbb{E}[A] \approx 18.5\,\Delta e^{\,1-0.98} = 18.5\,\Delta e^{\,0.02}}
   \label{eq:budget}
@@ -41,11 +47,11 @@ $\mathbb{E}[\tau_{\mathrm{ARF}}] \approx 18.5\,\Delta e^{-0.98}$~:
 
 \paragraph{Residual exponent and variation across the grid.} The residual exponent of
 $\Delta e$ is $0.02$. Over $\Delta e \in [0.028\,;\,0.498]$, the ratio of the extremes
-is $(0.498/0.028)^{0.02} = 1.059$~: the predicted budget varies by $5.9\%$, from
+is $(0.498/0.028)^{0.02} = 1.059$: the predicted budget varies by $5.9\%$, from
 $17.2$ to $18.2$, as the shock amplitude varies by a factor of $17.7$.
 
 \paragraph{Formal conclusion.} Amplitude and duration nearly exactly offset each
-other~: the forest repairs itself all the faster the stronger the shock, and the
+other: the forest repairs itself all the faster the stronger the shock, and the
 product $\Delta e \times W$ stays close to constant. A violent macroeconomic shock
 therefore leaves the detector no more evidence than a slow drift. The budget behaves
 like a constant of the forest-detector pair, not as a characteristic of the observed
@@ -69,13 +75,30 @@ $0.498$ (top of grid) & $18.24$ & $2.0\%$ & $17.88$ \\
 \end{tabular}
 \end{center}
 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{resultats_R2/resultats/figures/Fig_QC_budget_utilisable_full.png}
+  \caption{(a) The two predicted budgets, raw $18.5\,\Delta e^{0.02}$ and usable
+  $(1 - \delta_P/\Delta e)$ times the raw one, against the two measured areas, over the
+  short window $A(w)$ and over the full horizon $A(H)$, medians over 100 seeds. (b) The
+  share of the raw budget confiscated by the tolerance $\delta_P$. What to see in (a): the
+  two predicted curves are flat, neither measured one is, $A(w)$ peaks near
+  $\Delta e = 0.243$ and $A(H)$ crosses zero from $\Delta e = 0.482$; in (b): the tolerance
+  takes more than a third of the budget at the bottom of the grid and under $3\%$ over most
+  of it. Series are distinguished by marker and line style, not by colour. The shaded band
+  marks the two amplitudes outside the decision domain of Q~D.4. Table
+  \texttt{QCD\_budget\_preuve\_full}.}
+  \label{fig:budget-utilisable}
+\end{figure}
+
 \paragraph{Where the tolerance bites.} It is at the \emph{low} end of the grid that
-$\delta_P$ takes a non-negligible share~: more than a third of the budget at
+$\delta_P$ takes a non-negligible share: more than a third of the budget at
 $\Delta e = 0.028$, versus $2\%$ at the other end. Since the tolerance is an absolute
 threshold, it weighs all the more heavily the weaker the signal. It therefore
-\emph{worsens} the invariance rather than correcting it~: the usable budget is no
-longer constant, it decreases toward low amplitudes --- exactly where the detector
-would need it most.
+\emph{worsens} the invariance rather than correcting it: the usable budget is no
+longer constant, it decreases toward low amplitudes, exactly where the detector
+would need it most. Figure~\ref{fig:budget-utilisable} places the two predicted budgets
+against the measured short-window area across the grid.
 
 \section{Confrontation with the Full-Window Certificate}
 
@@ -89,7 +112,7 @@ does not exist in the signal, whatever the setting chosen.
 
 \paragraph{What happens to the certificate as the horizon lengthens.} The required
 threshold $\lambda + H\delta_P$ grows \emph{linearly} in $H$, while the budget stays
-\emph{constant} per~\eqref{eq:budget}. The gap therefore widens indefinitely~: once
+\emph{constant} per~\eqref{eq:budget}. The gap therefore widens indefinitely: once
 the error has recovered, every additional observation step adds $\delta_P$ to the toll
 without contributing anything to the numerator, so that observing longer degrades the
 certificate instead of improving it. Hence the value of anchoring it on a short window
@@ -97,20 +120,16 @@ $w = 3 \times 18.5/\Delta e$, sized to the transient of the amplitude under
 consideration.
 
 \section{Verification Against the Measurements}
+\label{sec:verif}
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{resultats_R2/resultats/figures/Fig_QC_budget_full.png}
-  \caption{Measured excess-error area as a function of $\Delta e$, full campaign,
-  compared to the constant predicted by~\eqref{eq:budget}. In blue the area over the
-  short window $A(w)$, in red the area over the full horizon $A(H)$.}
-  \label{fig:budget}
-\end{figure}
+Panel (a) of Figure~\ref{fig:budget-utilisable} carries the comparison this section
+needs: the measured areas $A(w)$ and $A(H)$ against the constant
+predicted by~\eqref{eq:budget}, on the full grid.
 
 \paragraph{The invariance holds in sign, not in value.} Over
 $\Delta e \in [0.085\,;\,0.498]$, the shock amplitude varies by a factor of $5.8$, and
 absent forest adaptation the area would vary by as much. It actually varies by a
-factor of $\mathbf{1.78}$~: the compensating effect is indeed present. But the model
+factor of $\mathbf{1.78}$: the compensating effect is indeed present. But the model
 predicts a factor of $1.04$, and it underestimates the budget in the middle of the
 grid, with $30.8$ measured against $18.0$ predicted at $\Delta e = 0.243$. The
 invariance is thus confirmed in principle and approximate in its values.
@@ -119,7 +138,7 @@ invariance is thus confirmed in principle and approximate in its values.
 $1.78$ is computed over $[0.085\,;\,0.498]$, not over the full grid. Including
 $\Delta e = 0.028$, where $A(w)$ collapses to $2.71$, the measured area varies by a factor
 of $\mathbf{11.4}$ instead, and the invariance no longer holds in any useful sense.
-The exclusion is not a matter of convenience~: at that amplitude the short window
+The exclusion is not a matter of convenience: at that amplitude the short window
 $w = 1\,969$ steps nearly covers the whole horizon, so $A(w)$ and $A(H)$ stop being
 distinguishable and the short-window construction loses its meaning. But the restriction
 must be stated with the result, since it is what separates a factor of $1.8$ from a factor
@@ -129,24 +148,34 @@ of $11$.
 decreases, crosses zero from $\Delta e = 0.482$ onward and drops to $-20.8$. The
 explanation lies in the geometry of the problem rather than in the measurement. At
 large amplitude the post-drift boundary is $x_0 + x_1 > 4$ with
-$x_0 + x_1 \sim \mathcal{N}(0,2)$~: class 1 becomes nearly absent and the post-drift
-task turns out to be easier than the original one. The measured error falls from
-$0.024$ before the drift to $0.007$ at the end of the horizon, and this deficit
-subtracts about thirty units from the raw area over the $1\,900$ steps following
-recovery. The stylized model is therefore at fault at large amplitude, where the error
-drops below its initial baseline instead of returning to it. This is a second reason,
-independent of the one given in Q~C.2, to certify only on the short window.
+$x_0 + x_1 \sim \mathcal{N}(0,2)$: class 1 becomes nearly absent and the post-drift
+task turns out to be easier than the original one. Over the last $50$ steps of the
+horizon, the seed-averaged error is $0.0084$ at $\Delta e = 0.482$, $0.0072$ at $0.488$,
+$0.0078$ at $0.492$, then $0.0060$, $0.0040$ and $0.0028$ at $0.494$, $0.496$ and
+$0.498$, against a pre-drift baseline of $0.0231$; the decrease is not monotone in
+$\Delta e$, and the values over the last $100$ or $500$ steps are within $0.001$ of
+these (table \texttt{QCD\_fin\_horizon\_full}). What produces the deficit is not the depth
+of that undershoot but its duration: at $\Delta e = 0.498$ the seed-averaged error is
+below the baseline on $1\,934$ of the $2\,000$ steps, and it stops rising above it at all
+from step $1\,641$ onward; at $\Delta e = 0.452$, the lowest amplitude of this band, it is
+below on $1\,459$ steps. The deficit
+$A(H) - A(w) = -20.83 - 17.31 = -38.15$ (table \texttt{QCD\_budget\_preuve\_full}) is what
+reconciles a short-window area of $17.3$ with a full-horizon area of $-20.8$; it grows
+monotonically across the band, from $-11.63$ at $\Delta e = 0.452$ to $-38.15$ at the top. The
+stylized model is therefore at fault at large amplitude, where the error drops below
+its initial baseline instead of returning to it. This is a second reason, independent
+of the one given in Q~C.2, to certify only on the short window.
 
-\paragraph{Where does the gap come from~: the baseline, the censoring, or the fit?}
+\paragraph{Where does the gap come from: the baseline, the censoring, or the fit?}
 The subject invites us to look first at $\hat p_0$. Its estimation error propagates in
-a perfectly correlated way across the whole area, with a bias $-H(\hat p_0 - p_0)$~;
+a perfectly correlated way across the whole area, with a bias $-H(\hat p_0 - p_0)$;
 estimated over 3\,000 steps, $\hat p_0$ has an inter-seed standard deviation of
-$0.00298$, i.e.\ $\pm 6.0$ on $A(H)$. This is non-negligible against a budget of $18$
---- but insufficient to account for the gap of $14.5$ observed at $\Delta e = 0.028$,
+$0.00298$, i.e.\ $\pm 6.0$ on $A(H)$. This is non-negligible against a budget of $18$,
+but insufficient to account for the gap of $14.5$ observed at $\Delta e = 0.028$,
 especially since this bias has a random sign while the observed gap is systematic.
 
 The test that truly settles it is to compare the measured $\tau_{\mathrm{ARF}}$ to its
-own prediction, since~\eqref{eq:budget} stacks two distinct hypotheses~: the model
+own prediction, since~\eqref{eq:budget} stacks two distinct hypotheses: the model
 $\mathbb{E}[A] = \Delta e\,\mathbb{E}[\tau_{\mathrm{ARF}}]$ on one hand, and the
 power-law fit on the other.
 
@@ -164,9 +193,23 @@ $0.498$ & $28$ & $37$ & $0.76$ & $13.93$ & $17.31$ \\
 \end{tabular}
 \end{center}
 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{resultats_R2/resultats/figures/Fig_QC_ajustement_full.png}
+  \caption{The two stacked hypotheses of~\eqref{eq:budget}, on all 20 amplitudes rather
+  than the five rows of the table. (a) Measured median $\tau_{\mathrm{ARF}}$ against the
+  article's fit $18.5\,\Delta e^{-0.98}$, log-log axes: the two cross only near
+  $\Delta e \approx 0.29$, and the measured curve rises before it falls. (b) The ratio
+  measured over fitted $\tau_{\mathrm{ARF}}$, and the ratio of the rectangle
+  $\Delta e \times \tau_{\mathrm{ARF}}$ to the measured $A(w)$, against the line at $1$:
+  the rectangle crosses $1$ between $\Delta e = 0.141$ and $0.194$, which is the sign
+  reversal discussed below. Table \texttt{QCD\_diagnostic\_ajustement\_full}.}
+  \label{fig:ajustement}
+\end{figure}
+
 At the lowest amplitude, the fit predicts the first replacement at step $611$ whereas
 it occurs at step $118$, five times earlier. The power-law fit is therefore at fault, and
-the gap is not localized~: the measured-over-predicted ratio is $0.19$ at the bottom of the
+the gap is not localized: the measured-over-predicted ratio is $0.19$ at the bottom of the
 grid, exceeds $2$ around $\Delta e = 0.141$, only matches around $\Delta e = 0.287$, then
 falls back to $0.76$ at the top.
 
@@ -175,15 +218,17 @@ only the fit is at fault and that the model
 $\mathbb{E}[A] = \Delta e\,\mathbb{E}[\tau_{\mathrm{ARF}}]$ survives. The measurements do
 not support this. Recomputing $\Delta e \times \tau_{\mathrm{ARF}}$ from the
 \emph{measured} $\tau_{\mathrm{ARF}}$ at every amplitude and comparing it to the measured
-$A(w)$, the model overestimates the area by $23\%$ to $43\%$ below
-$\Delta e \approx 0.19$, and underestimates it by $20\%$ to $41\%$ above. It changes sign
-around $\Delta e = 0.19$ and coincides with the measurement only there. At
-$\Delta e = 0.028$ it gives $3.33$ against $2.71$ measured, and at $\Delta e = 0.287$,
-$18.4$ against $29.2$.
+$A(w)$, the model overestimates the area by $23\%$ to $43\%$ on the three amplitudes
+below $\Delta e = 0.19$, and underestimates it on the seventeen amplitudes above: by
+$6.9\%$ at $\Delta e = 0.194$, the first amplitude past the crossing, then by $19.5\%$
+to $41.1\%$ from $\Delta e = 0.243$ onward. It changes sign between $\Delta e = 0.141$
+and $0.194$ and coincides with the measurement nowhere on the grid
+(Figure~\ref{fig:ajustement}b). At $\Delta e = 0.028$ it gives $3.33$ against $2.71$
+measured, and at $\Delta e = 0.287$, $18.4$ against $29.2$.
 
 The reason is the one Q~C.1 establishes: $W = \tau_{\mathrm{ARF}}$ is not the duration of
 the transient. $\tau_{\mathrm{ARF}}$ dates the \emph{first} tree replacement, whereas
-three-quarters of the forest is renewed $6$ to $14$ times later. Taking the first
+three-quarters of the forest is renewed $6.0$ to $14.3$ times later. Taking the first
 replacement as the width of the error plateau is inconsistent with the hierarchy proved in
 Q~C.1, and the sign reversal at $\Delta e \approx 0.19$ is the visible trace of that
 inconsistency. Both hypotheses stacked in~\eqref{eq:budget} therefore fail, each in its
@@ -197,7 +242,7 @@ misses the measured area by $-41\%$ to $+43\%$ and reverses sign around
 $\Delta e = 0.19$, because $\tau_{\mathrm{ARF}}$ is not the width of the transient. The
 power-law fit $18.5\,\Delta e^{-0.98}$ only holds near the middle of the grid. The
 conclusion ``a violent shock leaves no more evidence than a slow drift'' is nonetheless
-\emph{confirmed}, but by direct measurement alone~: the measured area varies by a factor
+\emph{confirmed}, but by direct measurement alone: the measured area varies by a factor
 of $1.8$ where the amplitude varies by $5.8$. It can no longer be derived from the $0.02$
 exponent, nor from the stylized rectangle. Both are scaffolding that the measurement has
 to replace rather than support.}}
@@ -205,10 +250,10 @@ to replace rather than support.}}
 
 \paragraph{The theoretical baseline.} The pre-drift target
 $y = \mathbf{1}\{x_0 + x_1 > 0\}$ is a \emph{deterministic} function of the inputs,
-with no label noise~: the Bayes error is exactly zero. The measured baseline,
-$0.0231$, is therefore entirely approximation error --- Hoeffding trees cutting an
+with no label noise: the Bayes error is exactly zero. The measured baseline,
+$0.0231$, is therefore entirely approximation error: Hoeffding trees cutting an
 oblique boundary with axis-perpendicular splits. The detector thus monitors deviations
-from a reference level that depends on the classifier itself~: a better-fitted forest
+from a reference level that depends on the classifier itself: a better-fitted forest
 would lower the baseline and change the evidence budget with no property of the drift
 having changed.
 %
@@ -221,9 +266,9 @@ having changed.
 \section{What This Section Establishes}
 
 The evidence budget offered to the detector is nearly independent of the drift's
-amplitude~: the area varies by a factor of $1.8$ as the amplitude varies by a factor
+amplitude: the area varies by a factor of $1.8$ as the amplitude varies by a factor
 of $5.8$, where it would track the latter absent adaptation. The tolerance
-$\delta_P$ amputates this budget at low amplitudes --- and lengthening the observation
+$\delta_P$ amputates this budget at low amplitudes, and lengthening the observation
 horizon widens the deficit further.
 
 Three caveats accompany this result. The power-law fit on which the article bases the
@@ -232,9 +277,9 @@ measurement rather than on the $0.02$ exponent. The stylized rectangle
 $A = \Delta e \times \tau_{\mathrm{ARF}}$ is itself wrong, by $-41\%$ to $+43\%$ with a
 sign reversal, because $\tau_{\mathrm{ARF}}$ dates the first replacement and not the end
 of the transient. And the model is at fault at large amplitude for a third, independent
-reason~: the error drops below its initial baseline instead of returning to it. The
+reason: the error drops below its initial baseline instead of returning to it. The
 invariance reported here is an empirical fact about the measured area, established
-directly and stated over $\Delta e \in [0.085\,;\,0.498]$~; it is not a consequence of
+directly and stated over $\Delta e \in [0.085\,;\,0.498]$; it is not a consequence of
 the article's derivation.
 %
 % TODO(to sync): this section supplies the three numbers (28, 45, 70) that Q C.2

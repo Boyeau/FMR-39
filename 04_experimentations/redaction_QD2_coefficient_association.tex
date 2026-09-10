@@ -21,9 +21,13 @@
 counter-example of Section~\ref{sec:contre} comes from
 \texttt{scripts/contre\_exemple\_kendall.py}, which computes both coefficients twice, once
 from their definition and once through \texttt{scipy}, so that each controls the other.
-Census figures come from the campaign of 2\,000 runs.
+Census figures come from the campaign of 2\,000 runs (20 amplitudes $\times$ 100 seeds,
+$H = 2\,000$, $M = 10$ trees in the adaptive random forest, ARF); the bootstrap confidence
+intervals (CI) of Section~\ref{sec:features} are written by
+\texttt{scripts/derives\_QD.py}.
 
 \section{Three Features of the Data}
+\label{sec:features}
 
 The quantities to be correlated are durations measured on a finite horizon $H = 2\,000$.
 Three features bear on the choice of coefficient.
@@ -32,15 +36,66 @@ Three features bear on the choice of coefficient.
 $\Delta e = 0.028$, rises to $346$ at $\Delta e = 0.085$, then falls steadily to $28$ at
 the top of the grid: a range of $28$ to $346$, a factor of $12.4$, and not monotone in
 $\Delta e$. The rise is not an artefact of the median. The means move the same way
-($162.7$ then $385.9$), and bootstrap intervals on the two medians are disjoint,
-$[93.5 ; 158]$ against $[281 ; 451]$ over $10\,000$ resamples. The \emph{location} of the
-peak is less certain: $346$ at $\Delta e = 0.085$ and $263$ at $\Delta e = 0.141$ are not
-separable, so the claim is that a peak exists at low amplitude, not that it sits at one
-particular cell. The relationship is therefore worse than merely curved, which would
-already understate Pearson's $r$. No single linear coefficient summarises it, and its sign
-depends on which part of the grid is included. This matches what is established elsewhere about the
-power-law fit of the article, whose measured-to-predicted ratio is $0.19$ at the lowest
-amplitude and $2.08$ at $\Delta e = 0.141$: the fit holds only mid-grid.
+($162.7$ then $385.9$), and the bootstrap confidence intervals of the two medians are
+disjoint, $[92.5 ; 158.5]$ against $[281 ; 455]$ (Table~\ref{tab:ic-medianes}). The
+\emph{location} of the peak is less certain: the interval at $\Delta e = 0.141$,
+$[231.5 ; 307]$, overlaps the one at $\Delta e = 0.085$ over $[281 ; 307]$, so the two
+cells are not separated by the rule used here and the claim is that a peak exists at low
+amplitude, not that it sits at one particular cell. That negative statement is weak, and
+the control quantifies how weak: at a ratio of medians of $1.32$, which is exactly
+$346/263$, the rule separates two samples of $100$ in only $23.4\%$ of $500$ repetitions
+on a log-normal law. Failing to separate these two cells is therefore close to
+uninformative, whereas the separation of $\Delta e = 0.028$ from $\Delta e = 0.085$ is
+not: the rule falsely separates two samples of the same law in $1.0\%$ of repetitions. The relationship is therefore worse
+than merely curved, which would already understate Pearson's $r$. No single linear
+coefficient summarises it, and its sign depends on which part of the grid is included.
+This matches what is established elsewhere about the power-law fit of the article, whose
+measured-to-predicted ratio is $0.19$ at the lowest amplitude and $2.08$ at
+$\Delta e = 0.141$: the fit holds only mid-grid. Figure~\ref{fig:boxplot} shows the full
+distribution at every amplitude.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{lcccc}
+    \toprule
+    $\Delta e$ & median $\tau_{\mathrm{ARF}}$ (steps) & $95\%$ CI & mean & seeds \\
+    \midrule
+    $0.028$ & $118$ & $[92.5 ; 158.5]$ & $162.7$ & $100$ \\
+    $0.085$ & $346$ & $[281 ; 455]$    & $385.9$ & $100$ \\
+    $0.141$ & $263$ & $[231.5 ; 307]$  & $331.9$ & $100$ \\
+    $0.498$ & $28$  & $[27 ; 29]$      & $29.4$  & $100$ \\
+    \bottomrule
+  \end{tabular}
+  \caption{Median of $\tau_{\mathrm{ARF}}$ with its percentile bootstrap confidence
+  interval (CI), $10\,000$ resamples of the 100 seeds of the amplitude, generator seed
+  $0$. The row at $\Delta e = 0.141$ is there so that the overlap discussed above can be
+  checked. Table \texttt{QCD\_ic\_medianes\_tau\_arf}. Before being applied to the data the
+  estimator passed five controls on cases with a known answer, stored in
+  \texttt{QCD\_ic\_medianes\_temoins}: on 500 samples of size 100 from a log-normal law of
+  known median, the interval covered the true median in $95.2\%$ of cases; on 500 pairs of
+  samples from the same law, the interval of the difference of medians contained $0$ in
+  $96.4\%$ of cases; on a constant sample the interval collapsed to the point; and the two
+  controls that bear on the rule actually used here, namely declaring two medians distinct
+  when their intervals are disjoint, gave a false-separation rate of $1.0\%$ under the null
+  and a separation rate of $23.4\%$ at a ratio of medians of $1.32$.}
+  \label{tab:ic-medianes}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{resultats_R2/resultats/figures/Fig_QD_tau_arf_boxplot_full.png}
+  \caption{$\tau_{\mathrm{ARF}}$ on the 100 seeds of each amplitude; the four medians of
+  Table~\ref{tab:ic-medianes} are annotated with their interval. The axis is symmetric
+  logarithmic, linear below $1$: a plain logarithmic axis would silently drop the $34$ runs
+  in which a tree is replaced at the change point itself ($\tau_{\mathrm{ARF}} = 0$), and
+  the box would rest on $97$ to $99$ seeds while the title claims $100$. Their count per
+  amplitude is written in red on the zero line; they occur at all $20$ amplitudes, three at
+  the lowest and one at the highest. What to see: the median rises from the first amplitude
+  to the second before it falls, the spread shrinks by more than an order of magnitude
+  across the grid, and the two shaded amplitudes lie outside the decision domain of
+  Q~D.4.}
+  \label{fig:boxplot}
+\end{figure}
 
 \paragraph{Extreme values.} At low amplitude the durations are large and widely dispersed.
 Pearson's coefficient is a ratio of moments and is not robust, so a handful of runs in the
@@ -137,6 +192,20 @@ prescribed exercise produces no gap cannot occur in the data it is meant to illu
   better in every cell, which is the control on the calculation.}
   \label{tab:contre}
 \end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{resultats_R2/resultats/figures/Fig_QD_contre_exemple_kendall.png}
+  \caption{The three configurations of Table~\ref{tab:contre}, as mid-ranks. Filled
+  markers: observed runs; hollow markers: runs censored at $H$, which share one mid-rank
+  on the comparator side. (a) The prescribed exercise read literally also ties the six
+  censored runs on the $\tau_{\mathrm{ARF}}$ side, and the two coefficients coincide.
+  (b) With $\tau_{\mathrm{ARF}}$ left uncensored, the same four ordered observations
+  already separate Spearman from Kendall by $0.071$. (c) Anti-ordering the four
+  observations widens the gap to $0.261$. Table
+  \texttt{QCD\_contre\_exemple\_kendall}.}
+  \label{fig:contre}
+\end{figure}
 
 Two things separate the three rows, and they should not be conflated. What removes the gap
 entirely is the tie structure: as soon as $\tau_{\mathrm{ARF}}$ is left uncensored, which

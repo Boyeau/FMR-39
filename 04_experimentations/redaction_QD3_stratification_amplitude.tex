@@ -18,9 +18,10 @@
 \maketitle
 
 \noindent Every coefficient here is Kendall's $\tau_b$ with censored runs imputed to the
-last rank, justified in Q~D.2. Confidence intervals are bootstrap intervals over the seeds
-of the stratum, $2\,000$ resamples, quantiles $2.5\%$ and $97.5\%$. Values are produced by
-\texttt{scripts/chiffres\_QD.py} from the campaign of 2\,000 runs.
+last rank, justified in Q~D.2. Every confidence interval (CI) is a bootstrap interval over
+the seeds of the stratum, $2\,000$ resamples, quantiles $2.5\%$ and $97.5\%$. Values are produced by
+\texttt{scripts/chiffres\_QD.py} from the campaign of 2\,000 runs (20 amplitudes $\times$
+100 seeds, $H = 2\,000$, $M = 10$ trees in the adaptive random forest, ARF).
 
 \section{Why Stratify}
 
@@ -76,7 +77,8 @@ performance. The row is kept in Table~\ref{tab:agregation} and hatched in
 Figure~\ref{fig:heatmap} rather than deleted, so the reader can check that the
 instrumentation reproduces an identity it should reproduce. It carries no evidence about
 anything else. The precedent is the treatment of $S_{\max}(H)$ under test B2 elsewhere in
-this work, whose AUC of $1.000$ is tautological in the same sense.
+this work, whose area under the ROC curve (AUC) of $1.000$ is tautological in the same
+sense.
 
 A related caution applies to the other quotas. At $M = 10$ neither $q = 25\%$ nor
 $q = 75\%$ is exactly attainable: $25\%$ requires $3$ trees, that is $30\%$, and $75\%$
@@ -92,6 +94,19 @@ same convention, but they name the attainable quota above the nominal one.
   All $120$ coefficients are published, with no post hoc selection. The hatched row is
   tautological.}
   \label{fig:heatmap}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{resultats_R2/resultats/figures/Fig_QD_forest_taub_full.png}
+  \caption{Forest plot of $\tau_b(\tau_{\mathrm{ARF}}, \cdot)$ with its bootstrap
+  $95\%$ confidence interval, for $A(H)$ (left) and $S_{\max}(H)$ (right), one row per
+  amplitude; filled squares mark intervals that exclude zero, hollow circles those that
+  straddle it, and the two shaded rows lie outside the decision domain. 15 of 18
+  intervals exclude zero for $S_{\max}(H)$, none for $A(H)$; rule of the interval, see
+  Q~D.4. The 15 are the 15 consecutive amplitudes from $\Delta e = 0.287$ upward. Table
+  \texttt{QCD\_correlations\_stratifiees\_full}.}
+  \label{fig:forest}
 \end{figure}
 
 \begin{table}[htbp]
@@ -137,7 +152,8 @@ $A(H)$ is the accumulated excess error over the horizon. Its association with
 $\tau_{\mathrm{ARF}}$ is indistinguishable from zero under this protocol at all
 18 amplitudes: median $+0.0526$, every confidence interval straddling zero.
 
-$S_{\max}(H)$ is the maximum of the CUSUM path. Its association is discernible at 15 of the
+$S_{\max}(H)$ is the maximum of the path of the cumulative-sum (CUSUM) detector of Page,
+$S_t = \max(0, S_{t-1} + e_t - \hat p_0 - \delta_P)$. Its association is discernible at 15 of the
 18 amplitudes, with a median of $+0.2129$, and the confidence interval lies entirely above
 zero at every amplitude from $\Delta e = 0.287$ upwards. The count is that of the
 confidence-interval rule adopted in Q~D.4; the threshold rule of the \texttt{discernable}
@@ -168,7 +184,7 @@ result is if anything understated.
 \paragraph{Multiplicity.} The decision domain contains $108$ cells, of which $68$ are
 significant at the $5\%$ level with no correction for multiplicity. The signal for
 $S_{\max}(H)$ above $\Delta e = 0.287$ is far too systematic to be a multiplicity artefact,
-running to $15$ consecutive amplitudes in the same direction, but individual cells whose
+running to $15$ consecutive amplitudes in the same direction (Figure~\ref{fig:forest}), but individual cells whose
 $|\tau_b|$ is near the detectability threshold are not quoted on their own.
 
 \paragraph{Detectability threshold.} The threshold used by the \texttt{discernable} column

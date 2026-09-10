@@ -18,10 +18,11 @@
 \maketitle
 
 \noindent All measurements come from the instrumented campaign of 2\,000 runs
-(20 amplitudes $\times$ 100 seeds, $H=2\,000$, $M=10$ trees) in
-\texttt{04\_experimentations/resultats\_R2/}. Every figure quoted is reproduced by
-\texttt{scripts/chiffres\_QD.py} and \texttt{scripts/derives\_QD.py}. The hierarchy
-$\tau_{\mathrm{ARF}} \le \tau_{\mathrm{swap}}(q)$ of Q~C.1 is assumed established.
+(20 amplitudes $\times$ 100 seeds, $H=2\,000$, $M=10$ trees in the adaptive random
+forest, ARF) in \texttt{04\_experimentations/resultats\_R2/}. Every figure quoted is
+reproduced by \texttt{scripts/chiffres\_QD.py} and \texttt{scripts/derives\_QD.py}. The
+hierarchy $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{swap}}(q)$ of Q~C.1 is assumed
+established.
 
 \section{What Is Recorded and What Is Recomputed}
 
@@ -37,6 +38,17 @@ threshold and any $\delta_P$. Freezing a threshold inside the loop would have co
 campaign per threshold, and at $\lambda = 50$ it would have produced a table whose
 $\tau_{\mathrm{det}}$ column is censored in $99.95\%$ of runs.
 
+\paragraph{Notation.} $\tau^*$ is the drift instant; every duration below is counted from
+it, and the detector is created at $\tau^*$ with $S_{\tau^*} = 0$. $\tau_{\mathrm{ARF}}$ is
+the first tree replacement after $\tau^*$; $\tau_{\mathrm{swap}}(q)$ the first instant at
+which a fraction $q$ of the $M$ trees has been replaced, so that
+$\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(1/M)$; $\tau_{50\%} = \tau_{\mathrm{swap}}(50\%)$
+the instant at which half of the forest has been renewed; $\tau_{\mathrm{det}}$ the first
+crossing of $\lambda$ by the detector state $S_t$; and $\tau_{\mathrm{rec}}$ the return of
+the error to normal, defined in the paragraph on the four markers below. The two amplitudes
+below $\Delta e = 0.10$ lie outside the decision domain fixed in Q~D.4 and are shaded on
+every figure that sweeps $\Delta e$.
+
 \section{The Three Series on a Common Time Axis}
 
 \begin{figure}[htbp]
@@ -44,7 +56,8 @@ $\tau_{\mathrm{det}}$ column is censored in $99.95\%$ of runs.
   \includegraphics[width=\textwidth]{resultats_R2/resultats/figures/Fig_QD_trajectoires_full.png}
   \caption{Fraction of replaced trees $N_t/M$ (inter-seed median and interquartile range),
   global error $\bar e_t$, and internal detector state $S_t$ on a common time axis, at
-  three amplitudes spanning the grid, with the four temporal markers. The time axis is
+  three amplitudes spanning the grid, with the four temporal markers $\tau_{\mathrm{det}}$
+  (at $\lambda = 8$), $\tau_{\mathrm{ARF}}$, $\tau_{50\%}$ and $\tau_{\mathrm{rec}}$. The time axis is
   logarithmic: the four instants span two orders of magnitude across the grid, and on a
   linear axis the markers of the high-amplitude column collapse into the first few pixels.
   The $\tau_{\mathrm{rec}}$ marker is dashed where the test lacks the power to resolve it.}
@@ -170,21 +183,101 @@ Second, at large amplitudes the post-drift task is easier than the original one,
 error does not settle at $\hat p_0 + \Delta e$ at all. The stylised model of the subject
 fails at the top of the grid, and that is a measurement rather than a conjecture.
 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resultats_R2/resultats/figures/Fig_QD_palier_full.png}
+  \caption{Top: the measured post-drift plateau $\bar e$ against the stylised plateau
+  $\hat p_0 + \Delta e$, and their difference, on all 20 amplitudes; the difference is
+  negative everywhere, between $-0.0271$ and $-0.0080$. Bottom: $R(\tau_{\mathrm{ARF}})$
+  with the line at zero, negative at five amplitudes and not monotone. Table
+  \texttt{QCD\_R\_et\_G\_full}.}
+  \label{fig:palier}
+\end{figure}
+
 \section{An Observation on the Race}
 
 Figure~\ref{fig:joint} makes visible something the aggregate framing of the paradox hides.
 At $\lambda = 8$, $\tau_{\mathrm{det}} < \tau_{\mathrm{ARF}}$ in $95.44\%$ of the $1\,906$
 uncensored runs, or $90.95\%$ of all $2\,000$ runs when censored ones are imputed as
-losses. At $\lambda = 25$ the proportion falls to $6.56\%$, and at $\lambda = 50$ it is
+losses. Among those $2\,000$ runs, $34$ have $\tau_{\mathrm{ARF}} = 0$: a tree is replaced
+at the change point itself, and the detector loses by construction, since
+$\tau_{\mathrm{det}}$ cannot precede the drift. They occur at every amplitude, three at
+$\Delta e = 0.028$ down to one at the top of the grid, and Q~D.2 plots them explicitly. At $\lambda = 25$ the proportion falls to $6.56\%$, and at $\lambda = 50$ it is
 $0\%$ on the single uncensored run.
 
 Those grid averages need one qualification, because the rate is far from stationary in
 $\Delta e$. At $\lambda = 8$ the detector wins $0$ of the $10$ uncensored runs at
-$\Delta e = 0.028$ (where $90\%$ of runs never alarm at all), $62\%$ at
-$\Delta e = 0.085$, and between $88\%$ and $99\%$ everywhere above. The $95.44\%$ figure
-is dominated by the 18 easy amplitudes out of 20. The blind spot is therefore a property
-of the pair $(\lambda, \Delta e)$ rather than of $\lambda$ alone: even at the most
-sensitive threshold tested, it is fully present at the bottom of the grid.
+$\Delta e = 0.028$ (where $90\%$ of runs never alarm at all), $64.6\%$ at
+$\Delta e = 0.085$ ($62$ of $96$ uncensored runs, Wilson $95\%$ interval $54.6\%$ to
+$73.4\%$), and between $88\%$ and $99\%$ everywhere above. The $95.44\%$ figure is
+dominated by the 18 easy amplitudes out of 20. The blind spot is therefore a property of
+the pair $(\lambda, \Delta e)$ rather than of $\lambda$ alone: even at the most sensitive
+threshold tested, it is fully present at the bottom of the grid.
+Table~\ref{tab:course} gives the race amplitude by amplitude at $\lambda = 8$, and
+Figure~\ref{fig:course} the same for the three thresholds together with the censoring that
+each cell carries. Both are the material that question~A reads as
+$P(\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}})$ as a function of $(\lambda, \Delta e)$; they
+are produced here and not interpreted further.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{lcccc}
+    \toprule
+    $\Delta e$ & uncensored / 100 & $\tau_{\mathrm{det}} < \tau_{\mathrm{ARF}}$ & share of uncensored, \% [Wilson 95\%] & share of all 100, \% \\
+    \midrule
+    $0.028$ & $10$  & $0$  & not reported (censoring $90\%$) & $0.0$ \\
+    $0.085$ & $96$  & $62$ & $64.6$ [$54.6$; $73.4$] & $62.0$ \\
+    $0.141$ & $100$ & $88$ & $88.0$ [$80.2$; $93.0$] & $88.0$ \\
+    $0.194$ & $100$ & $94$ & $94.0$ [$87.5$; $97.2$] & $94.0$ \\
+    $0.243$ & $100$ & $97$ & $97.0$ [$91.5$; $99.0$] & $97.0$ \\
+    $0.287$ & $100$ & $97$ & $97.0$ [$91.5$; $99.0$] & $97.0$ \\
+    $0.327$ & $100$ & $97$ & $97.0$ [$91.5$; $99.0$] & $97.0$ \\
+    $0.361$ & $100$ & $98$ & $98.0$ [$93.0$; $99.4$] & $98.0$ \\
+    $0.391$ & $100$ & $98$ & $98.0$ [$93.0$; $99.4$] & $98.0$ \\
+    $0.416$ & $100$ & $98$ & $98.0$ [$93.0$; $99.4$] & $98.0$ \\
+    $0.436$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.452$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.465$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.475$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.482$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.488$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.492$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.494$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.496$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.498$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    \midrule
+    all 20  & $1\,906$ & $1\,819$ & $95.44$ & $90.95$ \\
+    \bottomrule
+  \end{tabular}
+  \caption{The race at $\lambda = 8$, amplitude by amplitude. Third column: runs in which
+  the detector alarms strictly before the first tree replacement. Fourth column: that count
+  over the uncensored runs of the cell, with a Wilson $95\%$ interval; it is a statistic on
+  survivors and is not reported where more than half of the cell is censored. Fifth column:
+  the same count over all 100 runs, censored runs counted as detector losses. The last row
+  is the grid total, $1\,819/1\,906 = 95.44\%$ (Wilson $94.4\%$ to $96.3\%$) and
+  $1\,819/2\,000 = 90.95\%$ (Wilson $89.6\%$ to $92.1\%$). Those two intervals measure
+  sampling only: both totals pool cells of very unequal difficulty, and it is the spread
+  down the column, not the interval, that carries the qualification. Table
+  \texttt{QCD\_indicateurs\_full}, computed by \texttt{chiffres\_QD.py}.}
+  \label{tab:course}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{resultats_R2/resultats/figures/Fig_QD_course_lambda_full.png}
+  \caption{Top: share of runs in which $\tau_{\mathrm{det}} < \tau_{\mathrm{ARF}}$, by
+  amplitude, for $\lambda \in \{8, 25, 50\}$. Filled markers with error bars: uncensored
+  runs only, Wilson $95\%$ interval, drawn only where the censoring of the cell is at most
+  $50\%$. Hollow markers: all 100 runs, censored runs counted as detector losses, drawn
+  everywhere. Bottom: censoring of $\tau_{\mathrm{det}}$ in the same cells, with the
+  $50\%$ line. What to see: at $\lambda = 8$ the detector wins almost everywhere except at
+  the bottom of the grid; at $\lambda = 25$ its win rate falls from $31\%$ at
+  $\Delta e = 0.141$ to zero by $\Delta e = 0.36$ while its censoring climbs back to
+  $99\%$ at the top of the grid; at $\lambda = 50$ it never wins. The fractions plotted are those of
+  Table~\ref{tab:course}, checked for equality inside the script.}
+  \label{fig:course}
+\end{figure}
 
 \section{Not Addressed}
 
