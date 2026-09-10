@@ -11,7 +11,7 @@
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue}
 
 \title{Question C.3 --- Invariance of the Evidence Budget}
-\author{}
+\author{Alexandre Boyer}
 \date{}
 
 \begin{document}
@@ -107,23 +107,44 @@ consideration.
   \label{fig:budget}
 \end{figure}
 
-\paragraph{The invariance holds in sign, not in value.} Over
-$\Delta e \in [0.085\,;\,0.498]$, the shock amplitude varies by a factor of $5.8$, and
-absent forest adaptation the area would vary by as much. It actually varies by a
-factor of $\mathbf{1.78}$~: the compensating effect is indeed present. But the model
-predicts a factor of $1.04$, and it underestimates the budget in the middle of the
-grid, with $30.8$ measured against $18.0$ predicted at $\Delta e = 0.243$. The
-invariance is thus confirmed in principle and approximate in its values.
+\paragraph{The invariance holds in sign, not in value.} The lowest amplitude
+($\Delta e = 0.028$) is deliberately left out of the comparison below~: it is one of
+the two amplitudes already flagged in Q~C.1 as statistically non-interpretable for the
+recovery test, because the shock there is smaller than the noise floor of the mean
+error curve. Its measured area ($2.71$) is correspondingly tiny --- not because the
+compensation mechanism breaks down, but because there is barely a signal to
+accumulate in the first place. Including it would inflate the apparent range to a
+factor of $11$ (from $2.71$ to $30.8$), which would be a noise-floor artifact rather
+than evidence against the invariance.
+
+Over $\Delta e \in [0.085\,;\,0.498]$, the shock amplitude varies by a factor of
+$5.8$, and absent forest adaptation the area would vary by as much. It actually
+varies by a factor of $\mathbf{1.78}$~: the compensating effect is indeed present.
+But the model predicts a factor of $1.04$, and it underestimates the budget in the
+middle of the grid, with $30.8$ measured against $18.0$ predicted at
+$\Delta e = 0.243$. The invariance is thus confirmed in principle and approximate in
+its values.
+
+\paragraph{An earlier warning sign.} The ratio $A(w)/A(H)$ exposes the same problem
+well before $A(H)$ itself turns negative. It stays below $1$ across the first half of
+the grid ($0.80$ to $0.93$)~: $A(H)$ still captures a little more than $A(w)$, coming
+from the mildly positive tail of the transient beyond $w$. But it crosses $1$ around
+$\Delta e \approx 0.39$ --- past this point, whatever happens between $w$ and $H$ is
+already working, on net, against the full-window measurement, well before it collapses
+into negative territory at $\Delta e \approx 0.48$ (see below). The short window is
+therefore not merely a fix for the extreme case~: it stops relying on a portion of the
+horizon that turns counterproductive much earlier than where the full-window area
+actually goes negative.
 
 \paragraph{The full-window area turns negative.} $A(H)$ peaks at $38.3$ then
 decreases, crosses zero from $\Delta e = 0.482$ onward and drops to $-20.8$. The
 explanation lies in the geometry of the problem rather than in the measurement. At
 large amplitude the post-drift boundary is $x_0 + x_1 > 4$ with
 $x_0 + x_1 \sim \mathcal{N}(0,2)$~: class 1 becomes nearly absent and the post-drift
-task turns out to be easier than the original one. The measured error falls from
-$0.024$ before the drift to $0.007$ at the end of the horizon, and this deficit
-subtracts about thirty units from the raw area over the $1\,900$ steps following
-recovery. The stylized model is therefore at fault at large amplitude, where the error
+task turns out to be easier than the original one. The measured error falls from its
+$0.0231$ baseline to roughly $0.007$ across this high-amplitude region (e.g.\
+$0.0071$ at $\Delta e = 0.49$), and this deficit subtracts about thirty units from the
+raw area over the $1\,900$ steps following recovery. The stylized model is therefore at fault at large amplitude, where the error
 drops below its initial baseline instead of returning to it. This is a second reason,
 independent of the one given in Q~C.2, to certify only on the short window.
 
