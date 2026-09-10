@@ -4,3 +4,15 @@ __pycache__/
 
 # fichiers de verrouillage Word/Excel
 ~$*
+
+# artefacts de compilation LaTeX (les .pdf restent visibles : livrables)
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.toc
+
+# ... mais les logs de campagne restent versionnes (regle experimentation.md)
+!**/resultats/data/*.log

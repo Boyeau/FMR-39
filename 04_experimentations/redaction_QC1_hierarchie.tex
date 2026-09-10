@@ -107,8 +107,10 @@ construction, since $\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(0.10)$.
   \centering
   \includegraphics[width=0.85\textwidth]{resultats_R2/resultats/figures/Fig_QC_ecarts_full.png}
   \caption{Median gap $\tau_{\mathrm{swap}}(q) - \tau_{\mathrm{ARF}}$ as a function of
-  $\Delta e$, full campaign (2\,000 runs). Hollow circle marker~: amplitude where more
-  than 50\% of runs are censored for that quota (median not reliable there).}
+  $\Delta e$, full campaign (2\,000 runs). Hollow circle markers~: amplitudes where more
+  than $50\%$ of runs are censored for that quota, so that the median is computed on a
+  minority of runs and is not interpretable. This affects $q=75\%$ only, at
+  $\Delta e = 0.085$ ($78\%$ censored) and $\Delta e = 0.141$ ($54\%$).}
   \label{fig:ecarts}
 \end{figure}
 
@@ -127,9 +129,12 @@ soon as $\Delta e \gtrsim 0.24$ (median gap of 291 at $\Delta e=0.028$, versus
 substitute again there. For $q=50\%$, the same threshold is only crossed around
 $\Delta e \gtrsim 0.33$ (gap of 633 at $\Delta e=0.028$, versus 18--19 steps at the top
 of the grid). For $q=75\%$, the gap \emph{never} falls below 100 steps anywhere on the
-tested grid (167 to 1\,393 steps depending on $\Delta e$, i.e.\ 6 to 15 times
-$\tau_{\mathrm{ARF}}$ itself)~: $\tau_{\mathrm{ARF}}$ is at no point an acceptable
-proxy for ``three-quarters of the forest have been renewed''.
+tested grid. Across the 18 amplitudes where its median is interpretable, the gap runs
+from $167$ to $1\,368$ steps, i.e.\ $6.0$ to $14.3$ times $\tau_{\mathrm{ARF}}$ itself.
+The two censored amplitudes are excluded here, and in particular the apparent maximum
+of $1\,393$ at $\Delta e = 0.141$, which the censoring rate of $54\%$ makes unusable.
+$\tau_{\mathrm{ARF}}$ is at no point an acceptable proxy for ``three-quarters of the
+forest have been renewed''.
 
 \section{The Conjecture $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{err}}(\rho)$}
 
@@ -147,43 +152,56 @@ hypothesis, $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{err}}(\rho)$ would not hold a
 $\Delta e$.
 
 \paragraph{Test and result.} With $\rho = 0.25$, a first threshold crossing
-($\bar e_t - \hat p_0 \le \rho \Delta e$) with no persistence condition shows 2
-apparent violations, at the two lowest amplitudes of the grid ($\Delta e = 0.028$ and
-$0.085$). But the residual noise of the mean curve ($\sigma \approx 0.015$, estimated
-over the last 500 steps) is of the same order of magnitude as the threshold
-$\rho \Delta e$ itself ($\rho\Delta e = 0.007$ and $0.021$ respectively)~: the test has
-statistically no power there ($\rho \Delta e < 2\sigma$ in both cases). Figure~\ref{fig:tauerr-signal}
-shows why, across the whole grid~: the threshold $\rho\Delta e$ grows linearly with
-$\Delta e$ while the noise floor $2\sigma$ stays roughly flat, and the two curves cross
-right around $\Delta e \approx 0.10$ --- exactly where the two flagged amplitudes sit.
+($\bar e_t - \hat p_0 \le \rho \Delta e$) with no persistence condition shows
+\textbf{4} apparent violations, at the four lowest amplitudes of the grid
+($\Delta e = 0.028$, $0.085$, $0.141$ and $0.194$). They fall in two distinct ways, and
+the distinction matters.
+
+Two of them are artefacts of a powerless test. The residual noise of the mean curve
+($\sigma$, estimated over the last 500 steps) is amplitude-dependent, ranging from
+$0.0154$ to $0.0047$ across the grid and broadly decreasing with amplitude~; at the two
+lowest amplitudes
+it is of the same order as the threshold $\rho \Delta e$ itself ($\rho\Delta e = 0.007$
+against $\sigma = 0.0153$, and $0.021$ against $0.0149$), so that $\rho\Delta e < 2\sigma$
+and the test can decide nothing. There, the crossing is detected at the very first
+post-drift step, which is a fluctuation and not a recovery.
+Figure~\ref{fig:tauerr-signal} locates the boundary~: the threshold $\rho\Delta e$ grows
+linearly with $\Delta e$ while the noise floor $2\sigma$ stays roughly flat, and the two
+curves cross between $\Delta e = 0.085$ and $\Delta e = 0.141$. Below that crossing the
+test has no power~; above it, it regains power --- which is precisely why the two
+remaining violations cannot be disposed of in the same way.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.85\textwidth]{resultats_R2/resultats/figures/Fig_QC_tauerr_signal_bruit_full.png}
   \caption{Threshold $\rho\Delta e$ (signal) versus $2\sigma$ (noise floor) across all
-  20 amplitudes. The two curves cross near $\Delta e \approx 0.10$, exactly where the
-  two non-interpretable amplitudes (circled) sit --- below the crossing, the shock is
-  smaller than the noise; above it, the test regains power.}
+  20 amplitudes. The two curves cross between $\Delta e = 0.085$ and $\Delta e = 0.141$,
+  which separates the two non-interpretable amplitudes (circled) from the rest of the
+  grid. This boundary is a statement about the power of the test, not about where the
+  violations are~: two of the four violations sit above it.}
   \label{fig:tauerr-signal}
 \end{figure}
-
-Requiring the condition to hold for 20 consecutive steps rather than one, both
-violations disappear~: \textbf{0 violations across the 18 interpretable amplitudes, and
-the test loses all statistical validity precisely at the 2 amplitudes where it
-indicated one.} Figure~\ref{fig:tauerr-power} zooms in on those two amplitudes~: the
-$\pm 2\sigma$ noise band around the mean curve entirely swallows the gap between the
-baseline and the threshold --- the shock is not visually distinguishable from noise.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{resultats_R2/resultats/figures/Fig_QC_tauerr_power_full.png}
   \caption{Mean post-drift error curve $\bar e_t$ (100 seeds) with its $\pm 2\sigma$
   band, against the baseline $\hat p_0$ and the recovery threshold
-  $\hat p_0 + \rho\Delta e$, at the two amplitudes flagged non-interpretable
+  $\hat p_0 + \rho\Delta e$, at the two amplitudes where the test is not interpretable
   ($\rho\Delta e \le 2\sigma$). The noise band covers the threshold at both
-  amplitudes, visually confirming the lack of statistical power.}
+  amplitudes, visually confirming the lack of statistical power there.}
   \label{fig:tauerr-power}
 \end{figure}
+
+The other two, at $\Delta e = 0.141$ and $0.194$, occur where the test \emph{is}
+interpretable ($\rho\Delta e > 2\sigma$), and they cannot be dismissed on power grounds.
+They are eliminated by the persistence requirement instead~: the crossing is recorded at
+step $101$ in both cases, ahead of the median $\tau_{\mathrm{ARF}}$ ($263$ and $143$
+respectively), but it is not sustained. Requiring the condition to hold for 20 consecutive
+steps rather than one, the crossing moves to steps $626$ and $322$, and all four
+violations disappear~: \textbf{0 violations across the 18 interpretable amplitudes.} The
+persistence condition therefore does real work here. It is not merely a cosmetic filter on
+the two amplitudes where the test was already blind.
 
 \paragraph{Conclusion.} The conjecture is not confirmed --- nor is it refuted at low
 amplitudes, where the experimental setup lacks power. More seeds would be needed~:

@@ -136,6 +136,16 @@ therefore not merely a fix for the extreme case~: it stops relying on a portion 
 horizon that turns counterproductive much earlier than where the full-window area
 actually goes negative.
 
+\paragraph{Why the lowest amplitude is set aside, and what it costs.} The factor of
+$1.78$ is computed over $[0.085\,;\,0.498]$, not over the full grid. Including
+$\Delta e = 0.028$, where $A(w)$ collapses to $2.71$, the measured area varies by a factor
+of $\mathbf{11.4}$ instead, and the invariance no longer holds in any useful sense.
+The exclusion is not a matter of convenience~: at that amplitude the short window
+$w = 1\,969$ steps nearly covers the whole horizon, so $A(w)$ and $A(H)$ stop being
+distinguishable and the short-window construction loses its meaning. But the restriction
+must be stated with the result, since it is what separates a factor of $1.8$ from a factor
+of $11$.
+
 \paragraph{The full-window area turns negative.} $A(H)$ peaks at $38.3$ then
 decreases, crosses zero from $\Delta e = 0.482$ onward and drops to $-20.8$. The
 explanation lies in the geometry of the problem rather than in the measurement. At
@@ -176,22 +186,42 @@ $0.498$ & $28$ & $37$ & $0.76$ & $13.93$ & $17.31$ \\
 \end{center}
 
 At the lowest amplitude, the fit predicts the first replacement at step $611$ whereas
-it occurs at step $118$, five times earlier. The budget recomputed from the measured
-$\tau_{\mathrm{ARF}}$ is $3.33$, which reproduces the observed area of $2.71$. The
-model $\mathbb{E}[A] = \Delta e\,\mathbb{E}[\tau_{\mathrm{ARF}}]$ therefore holds ---
-it is the power-law fit that is at fault. The gap is not localized~: the
-measured-over-predicted ratio is $0.19$ at the bottom of the grid, exceeds $2$ around
-$\Delta e = 0.141$, only matches around $\Delta e = 0.287$, then falls back to $0.76$
-at the top.
+it occurs at step $118$, five times earlier. The power-law fit is therefore at fault, and
+the gap is not localized~: the measured-over-predicted ratio is $0.19$ at the bottom of the
+grid, exceeds $2$ around $\Delta e = 0.141$, only matches around $\Delta e = 0.287$, then
+falls back to $0.76$ at the top.
+
+\paragraph{But the underlying model fails too.} It would be convenient to conclude that
+only the fit is at fault and that the model
+$\mathbb{E}[A] = \Delta e\,\mathbb{E}[\tau_{\mathrm{ARF}}]$ survives. The measurements do
+not support this. Recomputing $\Delta e \times \tau_{\mathrm{ARF}}$ from the
+\emph{measured} $\tau_{\mathrm{ARF}}$ at every amplitude and comparing it to the measured
+$A(w)$, the model overestimates the area by $23\%$ to $43\%$ below
+$\Delta e \approx 0.19$, and underestimates it by $20\%$ to $41\%$ above. It changes sign
+around $\Delta e = 0.19$ and coincides with the measurement only there. At
+$\Delta e = 0.028$ it gives $3.33$ against $2.71$ measured, and at $\Delta e = 0.287$,
+$18.4$ against $29.2$.
+
+The reason is the one Q~C.1 establishes: $W = \tau_{\mathrm{ARF}}$ is not the duration of
+the transient. $\tau_{\mathrm{ARF}}$ dates the \emph{first} tree replacement, whereas
+three-quarters of the forest is renewed $6$ to $14$ times later. Taking the first
+replacement as the width of the error plateau is inconsistent with the hierarchy proved in
+Q~C.1, and the sign reversal at $\Delta e \approx 0.19$ is the visible trace of that
+inconsistency. Both hypotheses stacked in~\eqref{eq:budget} therefore fail, each in its
+own range.
 
 \begin{center}
 \fbox{\parbox{0.93\textwidth}{\textbf{Consequence for the report.} The budget's
-invariance rests on two successive hypotheses. The first, the model
-$\mathbb{E}[A] = \Delta e \cdot \mathbb{E}[\tau_{\mathrm{ARF}}]$, is confirmed by the
-measurements. The second, plugging in $18.5\,\Delta e^{-0.98}$, only holds near the
-middle of the grid. The conclusion ``a violent shock leaves no more evidence than a
-slow drift'' remains valid, but it can no longer be justified by the $0.02$ exponent~:
-it must rest on the direct measurement of $\tau_{\mathrm{ARF}}$.}}
+invariance rests on two successive hypotheses, and \emph{neither} survives the
+measurements. The model $\mathbb{E}[A] = \Delta e \cdot \mathbb{E}[\tau_{\mathrm{ARF}}]$
+misses the measured area by $-41\%$ to $+43\%$ and reverses sign around
+$\Delta e = 0.19$, because $\tau_{\mathrm{ARF}}$ is not the width of the transient. The
+power-law fit $18.5\,\Delta e^{-0.98}$ only holds near the middle of the grid. The
+conclusion ``a violent shock leaves no more evidence than a slow drift'' is nonetheless
+\emph{confirmed}, but by direct measurement alone~: the measured area varies by a factor
+of $1.8$ where the amplitude varies by $5.8$. It can no longer be derived from the $0.02$
+exponent, nor from the stylized rectangle. Both are scaffolding that the measurement has
+to replace rather than support.}}
 \end{center}
 
 \paragraph{The theoretical baseline.} The pre-drift target
@@ -217,11 +247,16 @@ of $5.8$, where it would track the latter absent adaptation. The tolerance
 $\delta_P$ amputates this budget at low amplitudes --- and lengthening the observation
 horizon widens the deficit further.
 
-Two caveats accompany this result. The power-law fit on which the article bases the
-invariance is only valid near the middle of the grid, so the argument must rest on the
-direct measurement of $\tau_{\mathrm{ARF}}$ rather than on the $0.02$ exponent. And
-the stylized model itself is at fault at large amplitude, where the error drops below
-its initial baseline.
+Three caveats accompany this result. The power-law fit on which the article bases the
+invariance is only valid near the middle of the grid, so the argument must rest on direct
+measurement rather than on the $0.02$ exponent. The stylized rectangle
+$A = \Delta e \times \tau_{\mathrm{ARF}}$ is itself wrong, by $-41\%$ to $+43\%$ with a
+sign reversal, because $\tau_{\mathrm{ARF}}$ dates the first replacement and not the end
+of the transient. And the model is at fault at large amplitude for a third, independent
+reason~: the error drops below its initial baseline instead of returning to it. The
+invariance reported here is an empirical fact about the measured area, established
+directly and stated over $\Delta e \in [0.085\,;\,0.498]$~; it is not a consequence of
+the article's derivation.
 %
 % TODO(to sync): this section supplies the three numbers (28, 45, 70) that Q C.2
 % confronts with its certificate, and the invariance constant that Q D uses to

@@ -2,11 +2,25 @@
 
 Conformément à la consigne de la filière (*"Toute utilisation de LLM doit être signalée et la liste des prompts fournie"*, `01_consignes/Consignes_études_de_cas_2026-2027.pdf`).
 
-**Outil :** Claude Code (Anthropic), modèle Claude Sonnet 5, en session interactive dans l'éditeur. Les commits git portent la mention `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`, visible dans l'historique du dépôt.
+**Outil :** Claude Code (Anthropic), en session interactive dans l'éditeur. Deux modèles ont été utilisés selon les sessions, dans trois déclinaisons, et les commits en portent la trace :
 
-**Périmètre :** Questions C et D (versant expérimental) du Sujet 39, portées par Salomé Fonvielle au sein du groupe.
+| Modèle | Commits | Auteur | Dates |
+|---|---|---|---|
+| Claude Sonnet 5 | 7 | Salomé Fonvielle | 4 et 6 septembre |
+| Claude Sonnet 5 | 3 | Alexandre Boyer | 7 septembre |
+| Claude Opus 5 | 3 | Salomé Fonvielle | 7 et 8 septembre |
+| Claude Opus 5 (1M context) | 10 | Ulysse Petit-Tichanné | 7 et 8 septembre |
 
-## Résumé de la collaboration
+Soit 23 des 47 commits de l’historique. Le décompte se recalcule par croisement de
+`%an` et du `Co-Authored-By:` de chaque corps de commit.
+
+**Périmètre :** trois des quatre membres ont utilisé l'outil, sur trois versants du sujet.
+Salomé Fonvielle et Ulysse Petit-Tichanné sur les questions C et D (versant expérimental,
+parties 1 et 2 ci-dessous) ; Alexandre Boyer sur les questions A et B (versant théorique)
+et sur la traduction en anglais des rédactions — **partie 3 à rédiger par lui**, cette
+déclaration étant incomplète tant qu'elle manque.
+
+## Partie 1 — prototype et cadrage (Salomé Fonvielle, 4–6 septembre)
 
 L'outil a été utilisé en mode guidage : dès le deuxième échange, la consigne donnée à l'assistant a été explicite — construire ensemble, pas à pas, plutôt que produire une solution clé en main. Le travail s'est déroulé en cinq temps, sur trois jours (4-6 septembre 2026).
 
@@ -23,3 +37,75 @@ L'outil a été utilisé en mode guidage : dès le deuxième échange, la consig
 Tout au long de l'échange, l'assistant a été repris à plusieurs reprises pour simplifier ses explications, vérifier ses affirmations avant de les présenter comme acquises, et respecter le périmètre de travail de l'utilisatrice (Questions C/D uniquement, pas A/B).
 
 *Résumé reconstruit par Claude à partir du journal de la session — fidèle sur le fond ; la formulation exacte de quelques échanges courts peut différer à la marge du texte original.*
+
+---
+
+## Partie 2 — campagne unique et rédactions (Ulysse Petit-Tichanné, 7–8 septembre)
+
+*Section à compléter par Ulysse avec le détail des échanges. Ce qui suit est établi à
+partir de l'historique du dépôt seul, et ne remplace pas la liste des prompts.*
+
+Le travail de cette période, lisible dans les commits `56a48c5` à `c948a5e`, a porté sur
+quatre points.
+
+**1. Refonte du dispositif de campagne.** Constat que `lambda` n'agit pas sur la dynamique
+— le détecteur lit la trajectoire d'erreur sans jamais agir sur la forêt — donc qu'une
+campagne unique remplace les trois scénarios du dépôt officiel, les seuils se balayant hors
+ligne (`75eba29`). La simulation n'écrit plus que la matière première ; tout le dérivé se
+recalcule depuis les Parquet.
+
+**2. Rédaction de la question C.3** (invariance du budget de preuve) et du journal de
+recherche des questions C et D.
+
+**3. Protocole de validation de la métrique, et disqualification de `τ_ARF`** par deux voies
+indépendantes — le test à drift nul et la sensibilité à la taille de la forêt (`bbc4b9f`).
+
+**4. Critères du banc de candidats figés et commités avant toute mesure** (`c948a5e`), pour
+qu'ils soient datables d'avant les chiffres. Ce commit acte aussi la correction de trois
+affirmations antérieures qui s'étaient révélées fausses à la vérification.
+
+L'assistant a été employé en vérification adverse autant qu'en production : plusieurs de ses
+propres conclusions ont été infirmées par des contrôles ultérieurs et corrigées dans
+l'historique plutôt que retirées silencieusement.
+
+## Partie 3 — rédactions de la question D (Ulysse Petit-Tichanné, 9 septembre)
+
+Session conduite à partir d'un plan écrit et audité avant exécution
+(`redactions-latex-question-D.md`, local), puis soumise à deux relectures adverses en
+contexte vierge. Quatre points.
+
+**1. Résolution d'un conflit de fusion sur les données plutôt que sur l'ancienneté.** La
+fusion d'`origin/main` a opposé deux versions de la question C.1 : l'une annonçant deux
+violations de la conjecture, toutes deux situées là où le test n'a pas de puissance,
+l'autre quatre violations dont deux à des amplitudes interprétables. L'assistant a été
+chargé de trancher en interrogeant la table `QCD_tau_err_full` plutôt qu'en arbitrant entre
+les auteurs : les données donnent quatre violations, dont deux qui ne tombent que par la
+condition de persistance. Le texte corrigé a été conservé et les deux figures de la version
+concurrente réintégrées avec des légendes rectifiées, de sorte qu'aucun travail ne soit
+perdu.
+
+**2. Production des dérivés manquants, sans relancer la campagne.** Trois grandeurs exigées
+par l'énoncé n'existaient dans aucune table : la fraction d'arbres remplacés avec sa
+médiane et son écart interquartile, le socle estimé sur deux fenêtres (1 000 et 3 000 pas
+avant la rupture), et la colonne consignant la taille de la forêt. Toutes trois ont été
+recalculées hors ligne depuis les Parquet existants. Le contrôle exigé avant usage — le
+socle recalculé à 3 000 pas doit reproduire celui de la campagne — passe à un écart
+exactement nul.
+
+**3. Correction de chiffres faux publiés dans des fichiers versionnés.** L'assistant a
+vérifié un par un les chiffres que les rédactions allaient citer, contre les tables. Deux
+valeurs annoncées dans le journal de recherche et dans un `README` depuis la veille se sont
+révélées non reproductibles, ainsi qu'une formulation trop forte dans la feuille de route.
+Les trois sont corrigées, avec la trace de ce qu'elles disaient. Une tautologie
+algébrique — un coefficient valant exactement 1 parce qu'il compare une grandeur à
+elle-même — a été repérée avant publication et marquée comme telle dans la table et sur la
+figure, plutôt que présentée comme une association mesurée.
+
+**4. Révision du résultat central de la question.** Le journal affirmait que l'indicateur
+étudié ne porte aucune information sur la quantité de preuve offerte au détecteur. La
+vérification montre que l'affirmation est exacte pour l'une des deux grandeurs candidates
+et fausse pour l'autre — précisément celle qui décide de l'alarme. La réponse a été
+réécrite en deux temps, avec le sens du biais résiduel qui la renforce.
+
+Comme dans la partie 2, l'assistant a servi autant à réfuter qu'à produire : les deux
+relectures adverses de fin de session portaient sur son propre travail.

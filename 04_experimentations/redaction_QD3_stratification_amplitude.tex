@@ -1,0 +1,183 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage[top=1.2cm,bottom=1.5cm,left=2cm,right=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue}
+
+\title{Question D.3 --- Stratification by Amplitude and the Aggregation Artefact}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent Every coefficient here is Kendall's $\tau_b$ with censored runs imputed to the
+last rank, justified in Q~D.2. Confidence intervals are bootstrap intervals over the seeds
+of the stratum, $2\,000$ resamples, quantiles $2.5\%$ and $97.5\%$. Values are produced by
+\texttt{scripts/chiffres\_QD.py} from the campaign of 2\,000 runs.
+
+\section{Why Stratify}
+
+$\Delta e$ drives both sides of every correlation of interest: it shortens
+$\tau_{\mathrm{ARF}}$ and it raises the evidence available to the detector. A coefficient
+computed on the pooled $2\,000$ runs therefore measures the common dependence on
+$\Delta e$ rather than any association between the two quantities at a fixed operating
+point. Stratification removes that common cause. Each stratum holds $100$ seeds, and the
+amplitude is constant inside it by construction.
+
+\section{The Aggregation Collapse}
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{lccc}
+    \toprule
+    Comparator & pooled $\tau_b$ & median stratified $\tau_b$ (18 amplitudes) & ratio \\
+    \midrule
+    $\tau_{\mathrm{swap}}(10\%)$ & $+1.000000$ & $+1.000000$ & $1.00$ \\
+    $\tau_{\mathrm{swap}}(25\%)$ & $+0.644626$ & $+0.493224$ & $1.31$ \\
+    $\tau_{\mathrm{swap}}(50\%)$ & $+0.556494$ & $+0.336523$ & $1.65$ \\
+    $\tau_{\mathrm{swap}}(75\%)$ & $+0.461827$ & $+0.097934$ & $4.72$ \\
+    $A(H)$                       & $+0.396512$ & $+0.052559$ & $7.54$ \\
+    $S_{\max}(H)$                & $+0.314673$ & $+0.212865$ & $1.48$ \\
+    \bottomrule
+  \end{tabular}
+  \caption{Pooled against stratified coefficients. The first row is tautological, see
+  Section~\ref{sec:tauto}.}
+  \label{tab:agregation}
+\end{table}
+
+For $A(H)$ the pooled coefficient is $+0.3965$ against a median stratified coefficient of
+$+0.0526$, a factor of $7.5$. This is not a strong association weakened by stratification:
+the stratified coefficient is indistinguishable from zero under this protocol at every one
+of the 18 amplitudes. The pooled coefficient manufactures a link rather than confirming a
+weak one. Mechanically it is Simpson's paradox on $\Delta e$: within each stratum there is
+nothing, and across strata both quantities move with the amplitude, so pooling recovers the
+amplitude and reports it as an association.
+
+The effect is strongest exactly where the within-stratum association is weakest: ratio
+$7.54$ for $A(H)$ and $4.72$ for $\tau_{\mathrm{swap}}(75\%)$, but only $1.48$ for
+$S_{\max}(H)$, which does carry a genuine within-stratum signal. That is the diagnostic one
+should expect, and it is why no pooled coefficient is quoted as a result in this work.
+
+\section{A Tautological Row, Marked as Such}
+\label{sec:tauto}
+
+At $M = 10$ a quota of $10\%$ requires exactly one tree, so
+$\tau_{\mathrm{swap}}(10\%) = \tau_{\mathrm{swap}}(1/M) = \tau_{\mathrm{ARF}}$ by
+definition (Q~C.1a). Its $\tau_b$ against $\tau_{\mathrm{ARF}}$ is $1.000000$ at all
+$20$ amplitudes with confidence interval $[1.000 ; 1.000]$, by identity rather than by
+performance. The row is kept in Table~\ref{tab:agregation} and hatched in
+Figure~\ref{fig:heatmap} rather than deleted, so the reader can check that the
+instrumentation reproduces an identity it should reproduce. It carries no evidence about
+anything else. The precedent is the treatment of $S_{\max}(H)$ under test B2 elsewhere in
+this work, whose AUC of $1.000$ is tautological in the same sense.
+
+A related caution applies to the other quotas. At $M = 10$ neither $q = 25\%$ nor
+$q = 75\%$ is exactly attainable: $25\%$ requires $3$ trees, that is $30\%$, and $75\%$
+requires $8$, that is $80\%$. The labels are kept for continuity with Q~C.1, which uses the
+same convention, but they name the attainable quota above the nominal one.
+
+\section{Coefficients by Amplitude}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{resultats_R2/resultats/figures/Fig_QD_heatmap_taub_full.png}
+  \caption{$\tau_b(\tau_{\mathrm{ARF}}, \cdot)$ for every comparator at every amplitude.
+  All $120$ coefficients are published, with no post hoc selection. The hatched row is
+  tautological.}
+  \label{fig:heatmap}
+\end{figure}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{lcccccc}
+    \toprule
+    & \multicolumn{3}{c}{$A(H)$} & \multicolumn{3}{c}{$S_{\max}(H)$} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}
+    $\Delta e$ & $\tau_b$ & CI low & CI high & $\tau_b$ & CI low & CI high \\
+    \midrule
+    $0.141$ & $+0.0111$ & $-0.1249$ & $+0.1485$ & $+0.0174$ & $-0.1288$ & $+0.1487$ \\
+    $0.194$ & $-0.1009$ & $-0.2228$ & $+0.0127$ & $-0.0470$ & $-0.1759$ & $+0.0846$ \\
+    $0.243$ & $-0.0504$ & $-0.1802$ & $+0.0887$ & $+0.0952$ & $-0.0432$ & $+0.2294$ \\
+    $0.287$ & $+0.0815$ & $-0.0357$ & $+0.1978$ & $+0.1308$ & $+0.0027$ & $+0.2519$ \\
+    $0.327$ & $+0.0762$ & $-0.0460$ & $+0.1954$ & $+0.2954$ & $+0.1832$ & $+0.4063$ \\
+    $0.361$ & $+0.0651$ & $-0.0924$ & $+0.2146$ & $+0.2413$ & $+0.1009$ & $+0.3748$ \\
+    $0.391$ & $+0.0037$ & $-0.1366$ & $+0.1398$ & $+0.1623$ & $+0.0154$ & $+0.3002$ \\
+    $0.416$ & $+0.1212$ & $-0.0245$ & $+0.2595$ & $+0.1904$ & $+0.0621$ & $+0.3141$ \\
+    $0.436$ & $+0.0402$ & $-0.1037$ & $+0.1796$ & $+0.1682$ & $+0.0295$ & $+0.3088$ \\
+    $0.452$ & $+0.0230$ & $-0.1277$ & $+0.1570$ & $+0.2177$ & $+0.0722$ & $+0.3511$ \\
+    $0.465$ & $-0.0296$ & $-0.1820$ & $+0.1279$ & $+0.2347$ & $+0.1095$ & $+0.3611$ \\
+    $0.475$ & $+0.0171$ & $-0.1260$ & $+0.1642$ & $+0.2584$ & $+0.1282$ & $+0.3817$ \\
+    $0.482$ & $+0.0179$ & $-0.1151$ & $+0.1509$ & $+0.2496$ & $+0.1141$ & $+0.3861$ \\
+    $0.488$ & $+0.0650$ & $-0.0710$ & $+0.1963$ & $+0.2764$ & $+0.1478$ & $+0.4055$ \\
+    $0.492$ & $+0.0945$ & $-0.0432$ & $+0.2226$ & $+0.2193$ & $+0.0736$ & $+0.3608$ \\
+    $0.494$ & $+0.0964$ & $-0.0301$ & $+0.2188$ & $+0.2135$ & $+0.0577$ & $+0.3478$ \\
+    $0.496$ & $+0.0966$ & $-0.0273$ & $+0.2164$ & $+0.2122$ & $+0.0659$ & $+0.3518$ \\
+    $0.498$ & $+0.0890$ & $-0.0293$ & $+0.2038$ & $+0.1985$ & $+0.0457$ & $+0.3359$ \\
+    \bottomrule
+  \end{tabular}
+  \caption{$\tau_b(\tau_{\mathrm{ARF}}, \cdot)$ with bootstrap confidence intervals over
+  the seeds, on the 18 amplitudes of the decision domain.}
+  \label{tab:strat}
+\end{table}
+
+\section{The Central Result of Q~D}
+
+The two quantities in Table~\ref{tab:strat} play different roles, and conflating them
+changes the answer.
+
+$A(H)$ is the accumulated excess error over the horizon. Its association with
+$\tau_{\mathrm{ARF}}$ is indistinguishable from zero under this protocol at all
+18 amplitudes: median $+0.0526$, every confidence interval straddling zero.
+
+$S_{\max}(H)$ is the maximum of the CUSUM path. Its association is discernible at 15 of the
+18 amplitudes, with a median of $+0.2129$, and the confidence interval lies entirely above
+zero at every amplitude from $\Delta e = 0.287$ upwards. The count is that of the
+confidence-interval rule adopted in Q~D.4; the threshold rule of the \texttt{discernable}
+column gives $14$, differing on the single cell $\Delta e = 0.287$.
+
+The distinction matters because it is $S_{\max}(H)$ that decides the alarm, not $A(H)$. The
+alarm is by definition the crossing of $\lambda$ by $S_{\max}$. A claim that
+$\tau_{\mathrm{ARF}}$ carries no information about the evidence offered to the detector is
+attached to the wrong object if it rests on $A(H)$ alone. The answer, stated sharply:
+
+\begin{quote}
+$\tau_{\mathrm{ARF}}$ carries \textbf{no information} about the total accumulated excess
+error $A(H)$, indistinguishable from zero at all 18 amplitudes. It carries a \textbf{weak
+but real} association with $S_{\max}(H)$, the quantity that determines whether the alarm
+fires: median $\tau_b = +0.2129$, discernible at 15 of 18 amplitudes, that is every
+amplitude from $\Delta e = 0.287$ upwards without exception. Below $\Delta e = 0.287$ the
+association is not distinguishable from zero either.
+\end{quote}
+
+Read with Q~D.2, the direction of the residual bias reinforces this. $A(H)$ and
+$S_{\max}(H)$ are never censored and carry no tie blocks, so the tie correction applies on
+the $\tau_{\mathrm{ARF}}$ side only and displaces both coefficients towards zero. The
+$A(H)$ result is thus not an artefact of ties inflating a null, and the $S_{\max}(H)$
+result is if anything understated.
+
+\section{Reservations}
+
+\paragraph{Multiplicity.} The decision domain contains $108$ cells, of which $68$ are
+significant at the $5\%$ level with no correction for multiplicity. The signal for
+$S_{\max}(H)$ above $\Delta e = 0.287$ is far too systematic to be a multiplicity artefact,
+running to $15$ consecutive amplitudes in the same direction, but individual cells whose
+$|\tau_b|$ is near the detectability threshold are not quoted on their own.
+
+\paragraph{Detectability threshold.} The threshold used by the \texttt{discernable} column
+is $0.13295637$, a single value across the table. It is quoted exactly rather than rounded,
+since a rounded threshold would not reproduce the column. Q~D.4 examines the three cells
+where the two rules disagree and fixes which one governs.
+
+\paragraph{Scope.} Everything above is measured at $M = 10$ on one campaign. The two
+amplitudes below $\Delta e = 0.10$ fall outside the decision domain and are excluded from
+the medians quoted here, though they appear in Figure~\ref{fig:heatmap}.
+
+\end{document}

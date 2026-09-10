@@ -6,14 +6,15 @@ du business case du 07/09 (`01_consignes/Business_case_Filiere_Recherche_Blind_S
 > **Rapport de lecture des résultats** (démonstrations + mesures, question C complète) :
 > https://claude.ai/code/artifact/db553b7a-2b47-4d49-8e4b-926005bcefc5
 
-## Pourquoi un second jeu de scripts
+## Pourquoi cette campagne remplace la première
 
-`question_C_indicateur_adaptation/` (Salomé) et ce dossier partent tous deux de
-`exp_R2_instrumented_blind_spot.py` et convergent sur les mêmes paramètres corrigés
-(`H = 2000`, grille à 20 points, socle à 1 000 et 3 000 pas). **Ils ne font pas doublon** :
-la différence est structurelle.
+Un premier jeu de scripts (`question_C_indicateur_adaptation/`, Salomé) partait comme
+celui-ci de `exp_R2_instrumented_blind_spot.py`, avec les mêmes paramètres corrigés
+(`H = 2000`, grille à 20 points, socle à 1 000 et 3 000 pas). Il a été retiré du dépôt
+le 8 septembre (commit `9a32361`) au profit de cette campagne unique ; ce qui suit dit
+pourquoi, et vaut comme justification de ce choix.
 
-Le script de Salomé fixe `lambda = 50` dans la boucle de simulation et décide `tau_det`
+Ce premier script fixait `lambda = 50` dans la boucle de simulation et décidait `tau_det`
 en ligne. Or `lambda` n'agit **pas** sur la dynamique — le détecteur externe lit la
 trajectoire d'erreur, il n'agit jamais sur la forêt. Le figer impose une campagne par
 seuil, et à `lambda = 50` le détecteur n'alarme jamais : `tau_det` est censuré à 100 %,
@@ -31,8 +32,18 @@ scripts/
                          et les 3 000 pas pré-rupture. Aucun indicateur, aucun seuil.
   analyse_QCD.py         tout le reste, sans resimuler : indicateurs, certificats,
                          corrélations, figures.
+
+  # banc de qualification des remplaçants de τ_ARF (8 septembre)
+  controle_api_structure.py  contrôles d'API préalables, chaque échec arrête le plan :
+                         `arf.data`, arbre neuf muet, `predict_one` sans aléa, surcoût.
+  exp_QCD_etalon.py      même campagne, plus l'étalon analytique : sondes fixes dans
+                         trois régions dont la vérité est connue. Toujours aucun seuil.
+  bench_candidats.py     le banc : validation de l'étalon, puis A1/A2/B1/B2/C1/D1/D2/D3.
+  exposants_fonctionnelles.py  taxonomie des détecteurs par exposant, seuil d'ADWIN,
+                         GLR contre CUSUM. Entièrement hors ligne.
 resultats/data/          4 Parquet de campagne + 8 tables d'analyse
-resultats/figures/       5 figures
+                         + 6 Parquet d'étalon + 9 tables de banc
+resultats/figures/       8 figures
 ```
 
 ## Relancer
@@ -48,7 +59,26 @@ PYTHONHASHSEED=0 python exp_QCD_campagne.py            # prototype 5 x 20, ~40 s
 PYTHONHASHSEED=0 python exp_QCD_campagne.py --full     # campagne 20 x 100, ~15 min
 PYTHONHASHSEED=0 python analyse_QCD.py --tag full      # analyse, ~2 min
 PYTHONHASHSEED=0 python analyse_QCD.py --self-check    # contrôle de S_t seul, instantané
+
+# banc de qualification — l'ordre compte, chaque étape est une porte
+PYTHONHASHSEED=0 python controle_api_structure.py            # ~1 min, bloquant
+PYTHONHASHSEED=0 python exp_QCD_etalon.py --jobs 10          # pilote 100 runs, ~1,5 min
+PYTHONHASHSEED=0 python exp_QCD_etalon.py --jobs 10 --no-drift        # ligne de base
+PYTHONHASHSEED=0 python exp_QCD_etalon.py --jobs 10 --seed-sondes 777 # 2e tirage
+PYTHONHASHSEED=0 python bench_candidats.py --valider-etalon  # 5 contrôles, bloquants
+PYTHONHASHSEED=0 python exp_QCD_etalon.py --jobs 10 --full   # 2 000 runs, ~27 min
+PYTHONHASHSEED=0 python bench_candidats.py                   # banc sans étalon
+PYTHONHASHSEED=0 python bench_candidats.py --banc-etalon     # banc contre l'étalon
+PYTHONHASHSEED=0 python bench_candidats.py --synthese        # table candidat × test
+PYTHONHASHSEED=0 python exposants_fonctionnelles.py          # volet 2, ~3 min
 ```
+
+Les traces pré-rupture `QCD_etalon_traces_pre_*` ne sont pas versionnées : elles sont
+**identiques bit à bit** à celles de la campagne d'origine (contrôle de non-régression :
+4 000 000 de pas comparés, 0 écart, et les 21 561 événements de remplacement identiques),
+aucun script du banc ne les lit, et les reversionner dupliquerait 3 Mo pour rien. Les
+traces post-rupture, elles, sont versionnées : `bench_candidats.py --banc-etalon` en a
+besoin pour recalculer `A(H)` et `S_max(H)`.
 
 `typing_extensions` manque dans le `requirements.txt` du dépôt officiel (déjà noté dans
 son `MODIFICATIONS_GROUPE.md`). Le README de ce dépôt annonce qu'il faut Rust pour
@@ -63,7 +93,7 @@ existe. L'affirmation vaut pour un Homebrew x86_64 sous Rosetta.
 | C.1c | La conjecture (erreur résorbée avant tout remplacement) **n'est pas confirmée** : les 2 apparentes violations disparaissent dès qu'on exige 20 pas de persistance. | `QCD_tau_err_full.parquet` |
 | C.2 | `S_max(H) = max[A(k,j) - (j-k) delta_P]` (Lindley), vérifiée à 1e-10. Certificat en fenêtre courte : **jamais** au-dessus de la détection observée, sur 60 cellules. | `QCD_budget_preuve_full.parquet` |
 | C.3 | Invariance confirmée dans son sens (aire × 1,8 quand l'amplitude × 5,8), **mais** l'ajustement `18,5·de^-0,98` n'est valide qu'au milieu de la grille. | `Fig_QC_budget_full.png` |
-| D.1 | À `tau_ARF`, seulement **18–48 %** de l'adaptation est acquise, mais **49–75 %** de la preuve est déjà accumulée. | `Fig_QD_R_et_G_full.png` |
+| D.1 | À `tau_ARF`, **49–76 %** de la preuve est déjà accumulée (domaine de décision ; 0,102 sur la grille entière). `R` va de **−0,188 à +0,885**, négatif sur 5 amplitudes et non monotone : le « 18–48 % » annoncé jusqu'au 8 septembre est faux, cf. `JOURNAL.md` § 1. | `Fig_QD_R_et_G_full.png` |
 | Point aveugle | À `lambda = 50` : **1 exécution sur 2 000** déclenche l'alarme. À `lambda = 25` : 61 % de silence. | `QCD_indicateurs_full.parquet` |
 
 ## Contrôles
