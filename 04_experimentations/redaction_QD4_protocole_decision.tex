@@ -19,8 +19,12 @@
 
 \noindent This section fixes the rule by which a coefficient of Q~D is called discernible,
 reports censoring by amplitude rather than in aggregate, and settles whether censoring
-drives any result. Figures come from the campaign of 2\,000 runs and are reproduced by
-\texttt{scripts/chiffres\_QD.py} and \texttt{scripts/derives\_QD.py}.
+drives any result. Figures come from the campaign of 2\,000 runs (20 amplitudes $\times$
+100 seeds, $H = 2\,000$, $M = 10$ trees in the adaptive random forest, ARF) and are
+reproduced by \texttt{scripts/chiffres\_QD.py} and \texttt{scripts/derives\_QD.py}. Every
+confidence interval (CI) on a $\tau_b$ is a bootstrap interval over the seeds of the
+stratum, $2\,000$ resamples, quantiles $2.5\%$ and $97.5\%$; every interval on a fraction
+is a Wilson $95\%$ interval.
 
 \section{A Reservation on the Status of the Criterion}
 
@@ -114,17 +118,33 @@ Aggregate censoring rates conceal what matters.
     $\tau_{\mathrm{swap}}(25\%)$ & $0.0005$ & $0.0100$ ($0.141$) & $0.0100$ ($0.141$) \\
     $\tau_{\mathrm{swap}}(50\%)$ & $0.0110$ & $0.1200$ ($0.085$) & $0.0600$ ($0.141$) \\
     $\tau_{\mathrm{swap}}(75\%)$ & $0.0910$ & $0.7800$ ($0.085$) & $0.5400$ ($0.141$) \\
-    $\tau_{\mathrm{det}}$, $\lambda = 8$  & $0.0470$ & $0.9000$ ($0.028$) & $0.0000$ \\
-    $\tau_{\mathrm{det}}$, $\lambda = 25$ & $0.6110$ & $1.0000$ & $1.0000$ \\
-    $\tau_{\mathrm{det}}$, $\lambda = 50$ & $0.9995$ & $1.0000$ & $1.0000$ \\
+    $\tau_{\mathrm{det}}$, $\lambda = 8$  & $0.0470$ & $0.9000$ ($0.028$) & $0.0000$ (all 18) \\
+    $\tau_{\mathrm{det}}$, $\lambda = 25$ & $0.6110$ & $1.0000$ ($0.028$) & $0.9900$ ($0.492$, $0.494$, $0.496$) \\
+    $\tau_{\mathrm{det}}$, $\lambda = 50$ & $0.9995$ & $1.0000$ (every $\Delta e$ but $0.194$) & $1.0000$ (every $\Delta e$ but $0.194$) \\
     \bottomrule
   \end{tabular}
   \caption{Censoring overall, at its worst amplitude on the full grid, and at its worst
   amplitude inside the decision domain. The columns differ because the two amplitudes below
   $\Delta e = 0.10$ carry most of the censoring and lie outside the domain on which the
-  criterion is declared. Baseline estimated over $3\,000$ pre-drift steps.}
+  criterion is declared. Baseline estimated over $3\,000$ pre-drift steps. At
+  $\lambda = 50$ the single run that alarms is at $\Delta e = 0.194$.}
   \label{tab:censure}
 \end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{resultats_R2/resultats/figures/Fig_QD_censure_full.png}
+  \caption{Censoring at $H = 2\,000$ of every censorable duration, by amplitude, one
+  series per duration, with the $50\%$ line above which no median is reported and the
+  $5\%$ line of the benchmark criterion; baseline over $3\,000$ pre-drift steps. What to
+  see: $\tau_{\mathrm{swap}}(75\%)$ peaks at $78\%$ at $\Delta e = 0.085$ and is still
+  above $50\%$ at $\Delta e = 0.141$, the lowest amplitude of the decision domain, but only
+  $35\%$ at the very bottom of the grid, and it falls under $5\%$ from $\Delta e = 0.243$;
+  $\tau_{\mathrm{det}}$ at $\lambda = 25$ is U-shaped, below $10\%$ only between
+  $\Delta e = 0.19$ and $0.33$; at $\lambda = 50$ it never leaves $99\%$. Tables \texttt{QCD\_correlations\_stratifiees\_full} and
+  \texttt{QCD\_socle\_deux\_fenetres}.}
+  \label{fig:censure}
+\end{figure}
 
 \paragraph{$\tau_{\mathrm{swap}}(75\%)$ fails the group's own criterion.} The criterion
 adopted for the benchmark requires censoring of at most $5\%$ over the declared domain.
@@ -165,6 +185,17 @@ once on complete cases only, then compared cell by cell.
   \label{tab:cascomplets}
 \end{table}
 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.62\textwidth]{resultats_R2/resultats/figures/Fig_QD_imputation_full.png}
+  \caption{The 120 cells of Table~\ref{tab:cascomplets} one by one: $\tau_b$ on complete
+  cases against $\tau_b$ with censored runs imputed to the last rank, one marker per
+  comparator, with the identity line. The hollow circle at $(1, 1)$ is
+  $\tau_{\mathrm{swap}}(10\%)$, an identity at $M = 10$ and not a measurement. Table
+  \texttt{QCD\_cas\_complets\_full}.}
+  \label{fig:imputation}
+\end{figure}
+
 \paragraph{Answer: no.} For the three never-censored comparators the two computations agree
 exactly, to $0.000000$, which is what they must do and serves as a control on the
 implementation. For the two materially censored comparators the largest disagreement
@@ -175,8 +206,9 @@ convention could be replaced by complete-case analysis without changing a verdic
 
 One correction to an earlier internal note: the claim that imputed and complete-case values
 ``agree to three decimal places'' is too strong. It holds for $\tau_{\mathrm{swap}}(25\%)$
-and for the never-censored comparators, but agreement is to two decimal places for
-$\tau_{\mathrm{swap}}(50\%)$ and $\tau_{\mathrm{swap}}(75\%)$.
+and for the never-censored comparators; for $\tau_{\mathrm{swap}}(50\%)$ and
+$\tau_{\mathrm{swap}}(75\%)$ the largest differences are $0.0306$ and $0.0403$, which
+differ at the second decimal place, and it is these two numbers that are quoted.
 
 \section{The Blind Spot, Quantified}
 
@@ -206,8 +238,9 @@ The last column sharpens the picture, with one qualification. Across the grid th
 wins the race in $95.44\%$ of uncensored runs at $\lambda = 8$ and $6.56\%$ at
 $\lambda = 25$, so the transition from ``the detector is never late'' to ``the detector
 never fires'' happens entirely within a narrow band of the tuning parameter. But that rate
-is not stationary in amplitude: at $\lambda = 8$ it is $0\%$ at $\Delta e = 0.028$, $62\%$
-at $\Delta e = 0.085$, and $88\%$ to $99\%$ above. The blind spot depends on the pair
+is not stationary in amplitude: at $\lambda = 8$ it is $0\%$ at $\Delta e = 0.028$,
+$64.6\%$ at $\Delta e = 0.085$ ($62$ of $96$ uncensored runs), and $88\%$ to $99\%$ above
+(Q~D.1, Table~2). The blind spot depends on the pair
 $(\lambda, \Delta e)$, and lowering $\lambda$ does not remove it at the bottom of the
 grid.
 

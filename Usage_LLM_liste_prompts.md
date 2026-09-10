@@ -7,17 +7,22 @@ Conformément à la consigne de la filière (*"Toute utilisation de LLM doit êt
 | Modèle | Commits | Auteur | Dates |
 |---|---|---|---|
 | Claude Sonnet 5 | 7 | Salomé Fonvielle | 4 et 6 septembre |
-| Claude Sonnet 5 | 3 | Alexandre Boyer | 7 septembre |
-| Claude Opus 5 | 3 | Salomé Fonvielle | 7 et 8 septembre |
-| Claude Opus 5 (1M context) | 10 | Ulysse Petit-Tichanné | 7 et 8 septembre |
+| Claude Sonnet 5 | 14 | Alexandre Boyer | 7 au 10 septembre |
+| Claude Opus 5 | 4 | Salomé Fonvielle | 7 et 8 septembre |
+| Claude Opus 5 (1M context) | 24 | Ulysse Petit-Tichanné | 7 au 10 septembre |
 
-Soit 23 des 47 commits de l’historique. Le décompte se recalcule par croisement de
-`%an` et du `Co-Authored-By:` de chaque corps de commit.
+Soit 49 des 73 commits de l'historique. Le décompte se recalcule par croisement de
+`%an` et du `Co-Authored-By:` de chaque corps de commit, avec deux réserves qui le rendent
+**minorant** : l'option d'attribution automatique a été désactivée en fin de projet sur le
+poste d'Alexandre Boyer, si bien que ses derniers commits ne portent plus de trailer bien
+qu'ils relèvent du même usage ; et la session du 10 septembre déclarée en partie 4 a été
+conduite sous Claude Fable 5.1, alors que ses commits portent le trailer de la session
+précédente. Les parties ci-dessous, et non ce tableau, font foi sur le périmètre réel.
 
 **Périmètre :** trois des quatre membres ont utilisé l'outil, sur trois versants du sujet.
 Salomé Fonvielle et Ulysse Petit-Tichanné sur les questions C et D (versant expérimental,
-parties 1 à 3 ci-dessous) ; Alexandre Boyer sur les questions A et B (versant théorique),
-sur la bibliographie et sur la mise en anglais des rédactions (partie 4).
+parties 1 à 4 ci-dessous) ; Alexandre Boyer sur les questions A et B (versant théorique),
+sur la bibliographie et sur la mise en anglais des rédactions (partie 5).
 
 ## Partie 1 — prototype et cadrage (Salomé Fonvielle, 4–6 septembre)
 
@@ -111,7 +116,69 @@ relectures adverses de fin de session portaient sur son propre travail.
 
 ---
 
-## Partie 4 — bibliographie, questions A et B, mise en anglais (Alexandre Boyer, 3–10 septembre)
+## Partie 4 — audit de C.1 / C.2 et révision de C.3 à D.4 (Ulysse Petit-Tichanné, 10 septembre)
+
+Modèle : Claude Fable 5.1 (Claude Code). Session en deux prompts, le reste étant produit
+par l'assistant sous le contrôle du plan.
+
+**Prompts, tels que saisis :**
+
+1. `/prime` : commande locale de début de session, qui charge le contexte du projet
+   (feuille de route, journal, historique git, état du dépôt officiel) via trois
+   sub-agents et rend un briefing de moins de 200 mots.
+2. `/execute .claude/plans/audit-qc12-revision-qc3-qd4.md` : exécuter un plan écrit la
+   veille au soir (lui-même issu de `/plan-task` et de deux passes de critique adverse,
+   qui avaient produit 7 objections bloquantes et 24 mineures, toutes intégrées avant
+   exécution). Le plan fixe onze tâches, les critères de succès, les tables à lire, les
+   chiffres à ne surtout pas citer, et les impasses à ne pas rouvrir.
+
+**Ce que l'assistant a fait sous ce plan, dans l'ordre :**
+
+**1. Rejeu de chaque constat avant écriture.** Le plan portait des constats d'audit sur
+les rédactions de C.1 et C.2 (écrites par Alexandre et Salomé) et sur les cinq rédactions
+d'Ulysse. Consigne : un constat qui ne se reproduit pas par script est retiré, pas ajusté.
+Deux scripts ont été écrits, l'un qui produit la seule table manquante (l'erreur de fin
+d'horizon par amplitude et par fenêtre), l'autre en lecture seule qui imprime, pour chaque
+constat, la ligne du `.tex`, la valeur écrite, la valeur mesurée et la table source. Tous
+les constats se sont reproduits.
+
+**2. Note d'audit pour les coéquipiers, sans toucher à leurs fichiers.** Les constats sur
+C.1 et C.2 sont consignés dans une note en français, écrite pour être exécutée par
+l'assistant IA d'Alexandre : chaque item porte le chemin, la ligne, le texte exact à
+remplacer, la proposition et la commande de vérification, et distingue « à corriger » de
+« solide, à ne pas toucher ». Les fichiers de C.1 et C.2 et leurs figures n'ont pas été
+modifiés.
+
+**3. Révision des cinq rédactions d'Ulysse.** Sept chiffres corrigés, chacun remplacé par
+la valeur d'une table ; deux tables et neuf figures ajoutées, lisibles en noir et blanc ;
+notation et acronymes définis à la première occurrence dans chaque fichier. Un estimateur
+nouveau (l'intervalle bootstrap d'une médiane) a passé trois témoins sur cas connu avant
+d'être appliqué, et sa reproduction bit à bit a été vérifiée sur deux exécutions.
+
+**4. Cohérence et traçabilité.** Les sept `.tex` compilés sans artefact périmé ; un
+contrôle de traçabilité versionné (`verif_chiffres_tex.py`) rejoue les deux scripts de
+chiffres et vérifie que chaque littéral numérique des cinq rédactions révisées se retrouve
+dans leur sortie ou dans une table : 453 contrôlés, aucun introuvable. Une première version
+de ce contrôle tournait depuis un script jetable, hors dépôt ; la critique adverse l'a
+relevé, et c'est en le versionnant qu'un chiffre manquant est apparu. Le journal de recherche, le README et la
+feuille de route ont été resynchronisés, avec une section nouvelle sur le piège rencontré :
+un chiffre hérité du journal sans amplitude ni fenêtre, que le premier audit avait
+« corrigé » par un autre chiffre sans fenêtre, et que seule la reproduction a arrêté.
+
+**5. Double critique adverse.** Deux sub-agents en contexte vierge ont reçu mission de
+réfuter, l'un la fidélité au plan et la correction du code, l'autre la plausibilité des
+résultats contre les acquis du journal. Ils ont produit deux objections bloquantes, cinq
+majeures et une quinzaine de mineures, toutes traitées ; les deux bloquantes ont été
+trouvées indépendamment par les deux critiques. Le détail et les corrections sont au § 11.7
+du journal de recherche. Les deux plus instructives : un contrôle annoncé dans un livrable
+alors qu'il n'existait que dans un script de session, et une phrase fausse produite en
+confondant deux définitions d'un même instant — le piège que la session avait précisément
+pour objet de refermer.
+
+Comme les jours précédents, l'assistant a servi autant à réfuter qu'à produire.
+---
+
+## Partie 5 — bibliographie, questions A et B, mise en anglais (Alexandre Boyer, 3–10 septembre)
 
 Sessions interactives en continu, d'abord avec Claude Sonnet 5 puis avec Claude Opus 5 à
 partir du 10 septembre. Le mode de travail a été constant : l'assistant produit, puis doit

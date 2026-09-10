@@ -16,10 +16,10 @@ qui ont servi.
 
 | | Résultat | Preuve |
 |---|---|---|
-| **C.1 a** | `τ_ARF = τ_swap(1/M)`, donc inférieur ou égal à tous les autres quotas | déterministe ; 0 violation sur 6 000 comparaisons |
-| **C.1 b** | Les 3/4 de la forêt sont renouvelés **6 à 14 fois plus tard** que le 1er arbre | mesuré, 2 000 exécutions, 18 amplitudes interprétables |
+| **C.1 a** | `τ_ARF = τ_swap(1/M)`, donc inférieur ou égal à tous les autres quotas | déterministe ; 0 violation sur **5 795** comparaisons non censurées (1 999 + 1 978 + 1 818 pour q = 25/50/75 %) — « 6 000 » jusqu'au 10 septembre, c'était le compte avant censure |
+| **C.1 b** | Les 3/4 de la forêt sont renouvelés **6,0 à 14,3 fois plus tard** que le 1er arbre | mesuré, 2 000 exécutions, 18 amplitudes à censure de `τ_swap(75 %)` ≤ 50 % |
 | **C.1 c** | La conjecture d'une résorption précédant tout remplacement **n'est pas confirmée** | 4 violations apparentes tombent avec 20 pas de persistance |
-| **C.2 b** | `S_max(H) = max [A(k,j) − (j−k)·δ_P]` (forme de Lindley) | démontré ; vérifié à 1,07e−10 contre la récurrence |
+| **C.2 b** | `S_max(H) = max [A(k,j) − (j−k)·δ_P]` (forme de Lindley) | démontré ; écart max **1,07e−10** sur 200 trajectoires Bernoulli synthétiques (`--self-check`) et **1,26e−11** sur les 2 000 trajectoires de la campagne (§ 11.1) |
 | **C.2 d** | Version quantifiée nécessaire et suffisante ; version en fenêtre entière suffisante seulement | démontré |
 | **C.2 f** | Le certificat en fenêtre courte ne dépasse **jamais** la détection observée | 60 cellules, 0 violation |
 | **C.3 b** | Le budget de preuve varie de **5,9 %** quand l'amplitude varie d'un facteur 17,7 | calcul |
@@ -27,9 +27,14 @@ qui ont servi.
 
 ### Question D
 
-- `τ_b(τ_ARF, A(H))` est **indiscernable de zéro sur les 18 amplitudes** du domaine de
-  décision. `τ_ARF` ne porte aucune information sur la quantité de preuve offerte au
-  détecteur, qui est pourtant la seule grandeur décidant de l'alarme.
+- Réponse en deux temps (réécrite le 10 septembre, l'ancienne formulation accrochait sa
+  conclusion au mauvais objet, § 10.1). **Sur `A(H)`**, l'aire d'erreur excédentaire :
+  `τ_b(τ_ARF, A(H))` est **indiscernable de zéro sur les 18 amplitudes** du domaine de
+  décision, médiane +0,0526, tous les IC contiennent zéro. **Sur `S_max(H)`**, la grandeur
+  qui décide l'alarme (l'alarme *est* le franchissement de `S_max` par `λ`) :
+  **15/18 discernable** par la règle de l'IC, médiane +0,2129, IC entièrement au-dessus de
+  zéro à toutes les amplitudes à partir de `Δe = 0,287`. `τ_ARF` ne dit rien de `A(H)` et
+  porte une association faible mais réelle avec `S_max(H)`.
 - **Effondrement par agrégation** : `+0,397` sur l'empilement contre `+0,053` en médiane
   stratifiée. Le coefficient global ne confirme pas un lien faible, il en fabrique un.
 - À l'instant `τ_ARF`, **49 à 76 %** de la preuve est déjà accumulée — sur le domaine de
@@ -87,9 +92,16 @@ des pistes qui ont échoué.
 ### c. À forte amplitude, la nouvelle tâche est plus facile que l'ancienne
 
 À `b = 4`, la frontière est si loin que la classe 1 devient quasi absente : prédire
-toujours 0 suffit. L'erreur tombe de 0,024 à 0,007, c'est-à-dire **sous le socle
-d'avant la rupture**, et l'aire d'erreur excédentaire sur l'horizon complet devient
-**négative**, jusqu'à −20,8.
+toujours 0 suffit. L'erreur tombe sous le socle d'avant la rupture (0,0231) : sur les
+50 derniers pas de l'horizon elle vaut 0,0084 à `Δe = 0,482`, 0,0072 à 0,488, 0,0078 à
+0,492, puis 0,0060, 0,0040 et **0,0028 à 0,498** (`QCD_fin_horizon_full`, non monotone),
+et l'aire d'erreur excédentaire sur l'horizon complet devient **négative**, jusqu'à −20,8.
+
+> **Précisé le 10 septembre.** Cette entrée disait « l'erreur tombe de 0,024 à 0,007 »,
+> sans amplitude ni fenêtre. Le 0,007 est exact à `Δe = 0,488` sur les 50 derniers pas
+> (0,0072) et faux à `Δe = 0,498` (0,0028). Repris tel quel dans `redaction_QC3_*.tex`
+> avec « environ trente unités » retranchées, le déficit `A(H) − A(w)` valant en fait
+> −38,15 à 0,498. Voir § 11.
 
 Deux conséquences. Le modèle stylisé du sujet (« l'erreur retombe au socle ») est en
 défaut sur le haut de la grille. Et tout indicateur défini comme « retour de l'erreur à
@@ -602,6 +614,180 @@ la tâche facilitée (§ 2 c, § 3).
 `λ = 25` ou `λ = 50`, pour cause de censure ; l'indice C de Harrell, inutile ici puisque
 l'horizon est commun et que la comparaison imputé / cas complets montre que le choix ne
 change rien (écart max 0,0403).
+
+---
+
+## 11. Audit de C.1 / C.2 et révision de C.3 à D.4 (10 septembre)
+
+Trois volets, sans relancer la campagne : audit des deux rédactions écrites par Alexandre
+et Salomé (constats dans `AUDIT_QC1_QC2_10SEPT.md`, **aucune modification** de leurs
+fichiers ni de leurs figures), révision directe de QC3 et QD1 à QD4, cohérence des sept.
+Chaque constat de l'audit préparatoire a été **rejoué par `chiffres_QC.py` avant d'être
+écrit** ; un constat non reproduit devait être retiré, aucun ne l'a été. Les verdicts de
+C et D sont **inchangés**.
+
+### 11.1 Ce que l'audit de QC1 et QC2 a trouvé
+
+Renvoi à la note. En bref : QC1 est juste à l'unité sur tous ses chiffres empiriques,
+avec cinq points mineurs (« nearly 1 800 » là où la formule donne 1 874 ; deux ensembles
+différents de 18 amplitudes sous le même mot *interpretable* ; « C.2 » cité à tort pour les
+quotas ; deux estimateurs de bruit confondus dans une légende ; `τ_err(ρ)` et `τ*` sans
+définition). QC2 a trois bloquants : un `\eqref{eq:certificate}` sans label (« ?? » au
+PDF), un 1,07e−10 attribué à « chaque trajectoire de la campagne » alors qu'il est le
+contrôle synthétique sur 200 trajectoires (sur la campagne : 1,26e−11), et 35 fractions sur
+100 graines sans IC (table de Wilson fournie dans la note). Sa preuve, son corollaire et ses
+citations du manuscrit sont solides.
+
+### 11.2 Les chiffres corrigés dans QC3 à QD4
+
+| Fichier | Ancien | Nouveau | Table |
+|---|---|---|---|
+| QC3 l. 34 | `w ≈ 1 982` | 1 969 (`Δe = 0,0282`, pas 0,028) | `QCD_budget_preuve_full` |
+| QC3 l. 134-136 | « 0,024 → 0,007 », « about thirty units » | fin d'horizon par amplitude et fenêtre ; déficit `A(H) − A(w) = −38,15` à 0,498 | `QCD_fin_horizon_full`, `QCD_budget_preuve_full` |
+| QC3 l. 178-179 | « 20 % to 41 % » au-dessus de 0,19 | −6,9 % à 0,194, puis −19,5 % à −41,1 % | `QCD_diagnostic_ajustement_full` |
+| QD1 l. 183, QD4 l. 209 | « 62 % » | 64,6 % (62/96, Wilson [54,6 ; 73,4]) | `QCD_indicateurs_full` |
+| QD2 l. 36 | IC « [93,5 ; 158] / [281 ; 451] » sans script | [92,5 ; 158,5] / [281 ; 455], graine 0, n_boot 10 000 | `QCD_ic_medianes_tau_arf` |
+| QD4 l. 118-119 | « 1,0000 » à λ = 25 dans le domaine ; λ = 50 sans amplitude | 0,9900 (0,492-0,496) ; 1,0000 sauf à 0,194 | `QCD_indicateurs_full` |
+| QD4 l. 178-179 | « deux décimales » | 0,0306 et 0,0403 | `QCD_cas_complets_full` |
+
+Ajouts : deux tables (QD1, course par amplitude à λ = 8 avec IC de Wilson, qui porte le
+95,44 % et le 90,95 % ; QD2, IC bootstrap des médianes de `τ_ARF` sur **quatre**
+amplitudes, 0,141 comprise pour que le recouvrement avec 0,085 soit vérifiable), neuf
+figures (`figures_revision_QCD.py`), deux tables Parquet (`QCD_fin_horizon_full`,
+`QCD_ic_medianes_tau_arf` + ses témoins), `M = 10` dans le préambule de QC3, `τ*` et
+`τ_50%` définis dans QD1 avant la première figure, ARF / CUSUM / AUC / IQR / IC développés
+à leur première occurrence dans chaque fichier. QC3 n'embarque plus `Fig_QC_budget_full`,
+dont la légende se lisait par la couleur et dont le titre porte des `---` littéraux : la
+figure neuve la remplace avec `A(H)` en second panneau. Le PNG d'origine reste au dépôt. Forme : plus aucun `~:` ni `---` hors
+titre dans les cinq révisés. Contrôle de traçabilité : `verif_chiffres_tex.py`, versionné,
+rejoue `chiffres_QC.py` et `chiffres_QD.py`, extrait les littéraux numériques des cinq
+`.tex` et cherche chacun dans ces sorties ou dans les colonnes des Parquet. **453 littéraux
+contrôlés, 0 introuvable** au 10 septembre au soir, le script recalculant le compte à
+chaque exécution ; les paramètres du dispositif exclus sont listés en clair dans
+le script. Il a trouvé un chiffre que la vérification jetable de la veille avait manqué (le
+0,6045 de la censure moyenne à `λ = 25`, socle 1 000 pas, exact mais émis par aucun
+script) : c'est la raison d'être d'un contrôle versionné plutôt que d'un `grep` de session.
+⚠️ Ce contrôle vérifie qu'un chiffre **existe** quelque part, pas qu'il est **cité au bon
+endroit** : un chiffre exact rattaché à la mauvaise amplitude le passe (voir § 11.7).
+
+### 11.3 Les témoins du bootstrap des médianes
+
+L'IC percentile de la médiane (`derives_QD.py`, bloc 4) a passé cinq contrôles sur cas
+connu **avant** d'être appliqué, écrits dans `QCD_ic_medianes_temoins.parquet` :
+couverture **0,952** sur 500 échantillons de taille 100 d'une log-normale de médiane
+connue (borne [0,92 ; 0,98]) ; témoin nul de la différence, l'IC de la différence des
+médianes de deux échantillons de la même loi contient zéro dans **0,964** des 500
+répétitions ; échantillon constant, largeur d'IC **exactement 0**.
+
+Les deux derniers ont été ajoutés après le second audit, qui a relevé que **les trois
+premiers ne validaient pas la règle réellement appliquée** : QD2 ne conclut pas d'un IC de
+la différence, mais de la **disjonction de deux IC séparés**. Ce sont deux règles
+distinctes, et le dispositif certifiait celle qui ne sert pas. Les deux témoins ajoutés
+portent donc sur la disjonction : **fausse séparation 0,010** sur 500 paires issues de la
+même loi (borne ≤ 0,05), et **puissance 0,234** à un rapport de médianes de 1,32 — le
+rapport 346/263 que QD2 déclare non séparable. Cette puissance est publiée dans QD2 : une
+non-séparation à cet écart ne vaut presque rien, et le taire aurait fait passer une borne
+de puissance pour un résultat. `experimentation.md` exige « deux témoins, un où l'effet
+existe, un où il n'existe pas » : les trois premiers n'en comportaient aucun du premier
+type. Reproduction bit à bit sur deux exécutions (md5 identiques). L'IC de Wilson des
+fractions est une formule fermée, contrôlée sur 50/100 → [0,4038 ; 0,5962].
+
+### 11.4 Incohérence résiduelle de notation, déclarée
+
+QC1 emploie `τ_err(ρ)` (4 fois) et `τ*` (3 fois) sans les définir ni les relier à
+`τ_rec`. QC3 révisé et QD1 emploient `τ_rec` et écrivent une fois `τ_rec = τ_err(ρ)`. La
+notation n'est donc pas unique sur les sept fichiers tant que QC1 n'écrit pas ce lien ;
+c'est l'item QC1-M5 de la note, et ce n'est pas absorbé ici.
+
+### 11.5 Piège nouveau, à ajouter au § 4 : un chiffre sans fenêtre ni amplitude, hérité du journal
+
+Le « 0,007 en fin d'horizon » de QC3 venait du § 2 c de ce journal, où il n'avait ni
+amplitude ni fenêtre. Recopié dans une rédaction, il est devenu un chiffre publié. C'est
+le **même mécanisme que le pas 92 du § 10.9-5** : un chiffre hérité sous une définition
+implicite. Le corollaire est plus instructif que le piège : **le premier audit l'a
+« corrigé » par un autre chiffre sans fenêtre**, 0,0024, qui n'existe qu'à `Δe = 0,498`
+sur au moins 100 pas, et par un « 39 » calculé de tête. Seule la reproduction par une
+table (`QCD_fin_horizon_full`, 20 amplitudes × 3 fenêtres) a arrêté la chaîne : le 0,007
+est exact à 0,488 sur 50 pas et faux à 0,498 ; le déficit est −38,15, pas 30 ni 39.
+**Règle : une erreur de fin d'horizon, un palier, un déficit se citent avec leur amplitude
+et leur fenêtre, et se lisent dans une table, jamais dans une phrase d'un audit.**
+
+### 11.6 Non traité
+
+Les figures de QC1 (illisibles en noir et blanc) et le `.tex` de QC2 restent tels quels
+jusqu'à décision d'Alexandre ; le README de `resultats_R2/` ne déclare toujours que deux
+des seize réserves du § 8 ; aucun résultat de D en fonction de `M` ; préambules
+hétérogènes (QC2 en 10pt) et `\author{}` vide dans QC3 à QD4, question d'assemblage.
+
+---
+
+### 11.7 Ce que le double audit adverse a corrigé (10 septembre)
+
+Deux critiques en contexte vierge, l'une sur la fidélité au plan et le code, l'autre sur la
+plausibilité des résultats contre les acquis de ce journal. **Deux objections bloquantes,
+cinq majeures, une quinzaine de mineures.** Les deux bloquantes ont été trouvées
+**indépendamment par les deux critiques**, comme le 9 septembre : c'est la troisième fois
+que ce protocole rend le même service, et la deuxième fois que ce qu'il attrape est un
+contrôle annoncé mais absent.
+
+1. **Un contrôle annoncé qui n'existait pas, et son chiffre.** Le § 11.2 affirmait que « les
+   518 nombres des cinq `.tex` se retrouvent tous dans une sortie de script ou une table ».
+   Le contrôle avait bien tourné, mais depuis un script jetable hors dépôt, et le 518 n'était
+   émis par rien. L'annexe LLM, un **livrable**, reprenait l'affirmation. C'est le § 10.9-8
+   appliqué à lui-même — *« un contrôle qui n'est pas relisable n'est pas un contrôle »*.
+   Corrigé en versionnant `verif_chiffres_tex.py`, qui donne **453** littéraux contrôlés et
+   **0 introuvable**. Le script versionné a immédiatement trouvé un chiffre que la version
+   jetable avait manqué (le 0,6045). **Règle : un contrôle qui justifie une phrase publiée
+   est un fichier du dépôt, pas une commande de session.**
+
+2. **Une phrase fausse produite par le mélange de deux définitions — celle-là même que le
+   plan avait pour objet de fermer.** QC3 révisé écrivait : « à `Δe = 0,498`, où
+   `τ_rec = 46`, l'erreur est **donc** sous son socle pendant les 1 954 pas restants ».
+   Faux deux fois : `τ_rec` est le retour sous `p̂₀ + ρ·Δe`, pas sous `p̂₀` (à `t = 46`
+   l'erreur vaut 0,10, quatre fois le socle), et le 1 954 ne sortait d'aucune table. C'est
+   **exactement le § 10.9-5** (pas 92 contre pas 46 selon la définition), réintroduit en
+   sens inverse, dans le paragraphe que la tâche 5 réécrivait pour corriger un chiffre sans
+   source. Corrigé par deux colonnes neuves de `QCD_fin_horizon_full` : la courbe moyenne
+   est sous le socle sur **1 934 des 2 000 pas** à `Δe = 0,498` et n'en ressort plus à
+   partir du pas **1 641** ; le déficit croît de −11,63 à −38,15 sur la bande haute.
+
+3. **Une échelle qui efface des données sans le dire.** `Fig_QD_tau_arf_boxplot_full`
+   était en axe log ; matplotlib retire silencieusement les valeurs ≤ 0, et **34 exécutions
+   ont `τ_ARF = 0`** (un arbre remplacé au pas de la rupture), à **toutes** les 20
+   amplitudes. Le titre annonçait 100 graines, les boîtes en montraient 97 à 99. Variante
+   silencieuse du § 10.4. Corrigé en `symlog` linéaire sous 1, avec le compte de zéros
+   annoté par amplitude. Ces 34 runs sont des **défaites automatiques du détecteur** —
+   `τ_det` ne peut pas précéder la rupture — et n'étaient commentés nulle part : ils le sont
+   maintenant dans QD1 et QD2.
+
+4. **Des témoins qui validaient une autre règle que celle appliquée.** Les trois témoins du
+   bootstrap portaient sur l'IC de la **différence** des médianes ; QD2 conclut de la
+   **disjonction de deux IC**. Deux règles distinctes. Ajout de deux témoins sur la règle
+   réelle (§ 11.3), dont le premier « où l'effet existe » du dispositif : la puissance vaut
+   **0,234** au rapport 1,32, ce qui rend la non-séparation de 346 et 263 presque
+   ininformative. Publié dans QD2 plutôt que tu.
+
+5. **Une légende qui contredisait sa propre figure et un acquis du journal.** QD4 écrivait
+   que `τ_swap(75 %)` dépasse 50 % de censure « aux deux amplitudes les plus basses » ; ce
+   sont **0,085 (78 %) et 0,141 (54 %)**, la plus basse étant à 35 %. La figure traçait la
+   bonne valeur. Même confusion que l'item QC1-M2 de la note d'audit, écrit le même jour par
+   la même personne.
+
+Corrigées aussi : un « 100 % » de censure à `λ = 25` réintroduit dans une légende de QD1
+alors que le tableau de QD4 portait déjà le 0,99 corrigé ; le total 95,44 % / 90,95 % sans
+intervalle ; « CI » employé avant d'être glosé dans QD3 ; deux `~;` à la française dans
+QC3 ; les comptes de `~:` et de `---` de la note d'audit (20 et 10, pas 17 et 8) ; le
+compte d'occurrences de `τ_swap` dans la note, périmé par la révision du même jour ; six
+items de la note sans commande de vérification ; le tri implicite des tables dans les deux
+scripts de traçabilité.
+
+**Ce que les deux critiques ont confirmé et qui ne bouge pas :** les verdicts de C et D,
+rejoués un par un ; la reproduction bit à bit des sept tables dérivées ; le périmètre
+(QC1, QC2 et leurs quatre figures intacts, dates de fichier à l'appui) ; la couverture des
+tables et des figures (60 lignes, 20 amplitudes, aucune ligne perdue, la table de course
+resomme exactement 1 906 et 1 819) ; les huit constats chiffrés de la note d'audit et ses
+items « solide » ; la lisibilité en noir et blanc des neuf figures neuves ; l'absence de
+tout chiffre de la liste « à ne surtout pas citer ».
 
 ---
 

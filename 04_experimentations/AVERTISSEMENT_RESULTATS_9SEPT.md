@@ -95,6 +95,11 @@ Ce n'est pas un artefact de la médiane : les moyennes font le même chemin (162
 385,9), et les IC bootstrap des deux médianes sont **disjoints** ([93,5 ; 158] contre
 [281 ; 451], 10 000 tirages, Mann-Whitney p = 5·10⁻⁷).
 
+> **Précisé le 10 septembre.** Ces deux IC n'étaient émis par aucun script. Recalculés par
+> `derives_QD.py` (percentile, graine 0, 10 000 tirages, témoins passés) et écrits dans
+> `QCD_ic_medianes_tau_arf.parquet` : **[92,5 ; 158,5] contre [281 ; 455]**. Toujours
+> disjoints, la conclusion ne bouge pas ; ce sont ces valeurs qui sont dans QD2.
+
 En revanche la **position** du pic n'est pas établie : 346 (`Δe = 0,085`) et 263
 (`Δe = 0,141`) ne sont pas séparables (p = 0,24). On peut écrire qu'un pic existe à basse
 amplitude, pas qu'il est à une cellule précise.
