@@ -23,6 +23,7 @@ USAGE
 """
 
 import argparse
+import math
 from pathlib import Path
 
 import numpy as np
@@ -31,6 +32,57 @@ import pandas as pd
 RACINE = Path(__file__).resolve().parents[1]
 DATA = RACINE / "resultats" / "data"
 
+Z95 = 1.959963984540054  # quantile 0,975 de la normale, pour l'IC de Wilson
+
+
+def wilson(k: int, n: int, z: float = Z95) -> tuple[float, float]:
+    """IC de Wilson a 95 % pour une fraction k/n. Formule fermee.
+
+    Controle sur cas connu : wilson(50, 100) doit donner [0,4038 ; 0,5962].
+    """
+    if n == 0:
+        return (float("nan"), float("nan"))
+    p = k / n
+    denom = 1 + z * z / n
+    centre = (p + z * z / (2 * n)) / denom
+    demi = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / denom
+    return (centre - demi, centre + demi)
+
+
+def course_par_amplitude(ind: pd.DataFrame, lambdas=(8, 25, 50)) -> pd.DataFrame:
+    """La course tau_det contre tau_ARF, par amplitude et par seuil.
+
+    Deux fractions par cellule, qui ne portent pas sur la meme population :
+    - `frac_survivants` : victoires strictes de tau_det (tau_det < tau_ARF)
+      parmi les runs NON censures, avec IC de Wilson. Statistique sur
+      survivants : elle ne se lit que si la censure de la cellule est <= 50 %
+      (JOURNAL.md section 9.5), la colonne `lisible` le dit.
+    - `frac_imputee` : la meme, sur les 100 runs, les censures imputees en
+      defaites du detecteur. C'est la fraction qui donne le 90,95 % global.
+    C'est la REFERENCE : `figures_revision_QCD.py` recalcule les memes
+    fractions et verifie l'egalite.
+    """
+    lignes = []
+    for lam in lambdas:
+        for de, grp in ind.groupby("delta_e", sort=True):
+            td, ta = grp[f"tau_det_{lam}"], grp["tau_arf"]
+            ok = td.notna() & ta.notna()
+            n_ok = int(ok.sum())
+            k = int((td[ok] < ta[ok]).sum())
+            n = int(len(grp))
+            lo, hi = wilson(k, n_ok)
+            lo_i, hi_i = wilson(k, n)
+            lignes.append({
+                "lambda": lam, "delta_e": float(de), "n_runs": n,
+                "n_non_censures": n_ok, "censure_det": float(1 - n_ok / n),
+                "victoires_det": k,
+                "frac_survivants": k / n_ok if n_ok else float("nan"),
+                "wilson_lo": lo, "wilson_hi": hi,
+                "lisible": bool(n_ok >= n / 2),
+                "frac_imputee": k / n, "wilson_imp_lo": lo_i, "wilson_imp_hi": hi_i,
+            })
+    return pd.DataFrame(lignes)
+
 # Domaine de decision : les 18 amplitudes retenues pour l'interpretation.
 # La colonne `dans_domaine_decision` de la table stratifiee en fait foi ;
 # on ne le redefinit pas ici.
@@ -38,7 +90,15 @@ LAMBDAS = (8, 25, 50)
 
 
 def _t(nom: str) -> pd.DataFrame:
-    return pd.read_parquet(DATA / f"{nom}.parquet")
+    """Lit une table et la TRIE par delta_e quand la colonne existe.
+
+    Les blocs qui lisent par position (`.iloc[0]`, `.iloc[-1]`) dependraient
+    sinon de l'ordre d'ecriture du Parquet, que rien ne garantit.
+    """
+    df = pd.read_parquet(DATA / f"{nom}.parquet")
+    if "delta_e" in df.columns:
+        df = df.sort_values("delta_e", kind="stable").reset_index(drop=True)
+    return df
 
 
 def _titre(s: str) -> None:
@@ -144,14 +204,54 @@ def d1() -> None:
     print("      pas parce que la foret s'est adaptee (test de la tache facilitee).")
 
     _sous_titre("la course tau_det contre tau_ARF, par seuil")
+    totaux = {}
     for lam in LAMBDAS:
         td, ta = ind[f"tau_det_{lam}"], ind["tau_arf"]
         ok = td.notna() & ta.notna()
         n = int(ok.sum())
-        part = float((td[ok] < ta[ok]).mean()) if n else float("nan")
+        k = int((td[ok] < ta[ok]).sum())
+        part = k / n if n else float("nan")
+        totaux[lam] = (k, n, part, k / len(ind))
         print(f"  lambda = {lam:2d} : tau_det < tau_ARF dans {100 * part:6.2f} % "
-              f"des {n} runs non censures")
+              f"des {n} runs non censures ({k} victoires) ; "
+              f"{100 * k / len(ind):6.2f} % des {len(ind)} runs, censures imputees en defaites")
     print("  >>> le point aveugle est une propriete du REGLAGE, pas du dispositif.")
+
+    _sous_titre("la course PAR AMPLITUDE (reference pour Fig_QD_course_lambda_full)")
+    lo, hi = wilson(50, 100)
+    print(f"  controle Wilson 50/100 : [{lo:.4f} ; {hi:.4f}] (attendu [0,4038 ; 0,5962])")
+    assert abs(lo - 0.4038) < 5e-4 and abs(hi - 0.5962) < 5e-4, "IC de Wilson faux"
+    course = course_par_amplitude(ind, LAMBDAS)
+    for lam in (8, 25):
+        c = course[course["lambda"] == lam]
+        print(f"  lambda = {lam} -- lignes LaTeX (Delta_e & non censures & victoires & "
+              f"fraction [Wilson] & imputee) :")
+        for r in c.itertuples():
+            frac = (f"{100 * r.frac_survivants:.1f} [{100 * r.wilson_lo:.1f};{100 * r.wilson_hi:.1f}]"
+                    if r.lisible else "--")
+            print(f"    {r.delta_e:.3f} & {r.n_non_censures}/{r.n_runs} & {r.victoires_det} & "
+                  f"{frac} & {100 * r.frac_imputee:.1f} \\\\")
+        k, n = int(c.victoires_det.sum()), int(c.n_non_censures.sum())
+        print(f"    total : {k}/{n} = {100 * k / n:.2f} % des non censures ; "
+              f"{100 * k / c.n_runs.sum():.2f} % imputee "
+              f"(attendu {100 * totaux[lam][2]:.2f} / {100 * totaux[lam][3]:.2f})")
+        assert k == totaux[lam][0] and n == totaux[lam][1], "la table par amplitude ne resomme pas le total"
+    r085 = course[(course["lambda"] == 8)].iloc[1]
+    print(f"  a Delta_e = {r085.delta_e:.3f}, lambda = 8 : {r085.victoires_det}/{r085.n_non_censures} "
+          f"= {100 * r085.frac_survivants:.1f} % [Wilson {100 * r085.wilson_lo:.1f} ; {100 * r085.wilson_hi:.1f}]")
+    print("  >>> QD1 et QD4 ecrivaient « 62 % » : 62 est le numerateur, le pourcentage est 64,6.")
+
+    _sous_titre("socle sur deux fenetres : censure MOYENNE de tau_det par seuil")
+    so = _t("QCD_socle_deux_fenetres")
+    for w in sorted(so.baseline_window.unique()):
+        t = so[so.baseline_window == w]
+        cens = "  ".join(f"lambda = {lam:2d} : {t[f'censure_det_{lam}'].mean():.4f}"
+                         for lam in LAMBDAS)
+        print(f"  fenetre {int(w):5d} pas : p_hat_0 median "
+              f"{t.p_hat_0_median.median():.6f} | {cens}")
+    print("  >>> ce sont des MOYENNES sur les 20 amplitudes, pas des valeurs de cellule.")
+    print("      Ce sont elles que citent la table du socle de D.1 et la section")
+    print("      'Effect of the Baseline Window' de D.4.")
 
     _sous_titre("fenetre du palier aux amplitudes ou R < 0")
     print(f"  {rg.loc[rg.R_tau_arf < 0, 'fenetre_palier'].tolist()}")
@@ -209,9 +309,18 @@ def d2() -> None:
 
     _sous_titre("non-linearite : tau_ARF par amplitude (Pearson est invalide)")
     g = ind.groupby("delta_e").tau_arf.median()
-    print(f"  tau_arf median : {g.iloc[0]:.0f} a delta_e={g.index[0]:.3f} -> "
-          f"{g.iloc[-1]:.0f} a delta_e={g.index[-1]:.3f}")
-    print(f"  rapport        : {g.iloc[0] / g.iloc[-1]:.1f}")
+    m = ind.groupby("delta_e").tau_arf.mean()
+    print(f"  tau_arf median : {g.iloc[0]:.0f} a delta_e={g.index[0]:.3f}, "
+          f"{g.iloc[1]:.0f} a delta_e={g.index[1]:.3f}, "
+          f"{g.iloc[-1]:.0f} a delta_e={g.index[-1]:.3f} (premier, deuxieme, dernier point)")
+    print(f"  etendue        : {g.min():.0f} (a delta_e={g.idxmin():.3f}) a "
+          f"{g.max():.0f} (a delta_e={g.idxmax():.3f}), rapport max/min {g.max() / g.min():.1f}")
+    print(f"  moyennes       : {m.iloc[0]:.1f} puis {m.iloc[1]:.1f} (memes deux amplitudes)")
+    monotone = bool((g.diff().dropna() <= 0).all())
+    print(f"  monotone decroissante : {monotone}")
+    print("  >>> le rapport se lit sur le min et le max de la mediane, pas sur les")
+    print("      extremites de la grille : 12,4 et non 4,2 (JOURNAL.md section 10.9-6).")
+    print("  >>> IC bootstrap des medianes : QCD_ic_medianes_tau_arf.parquet (derives_QD.py).")
 
 
 # ----------------------------------------------------------------------
@@ -309,9 +418,28 @@ def d4() -> None:
     seuil_groupe = 0.05
     s75 = st[st.comparateur == "tau_swap_75"]
     if len(s75):
-        pire = s75.censure_comparateur.max()
-        print(f"  >>> critere D2 du groupe : censure <= {seuil_groupe:.0%}.")
-        print(f"      tau_swap_75 le depasse d'un facteur {pire / seuil_groupe:.0f}.")
+        dom75 = s75[s75.dans_domaine_decision]
+        hors75 = s75[~s75.dans_domaine_decision]
+        pire_dom = dom75.censure_comparateur.max()
+        pire_hors = hors75.censure_comparateur.max()
+        print(f"  >>> critere D2 du groupe : censure <= {seuil_groupe:.0%}, sur le domaine declare.")
+        print(f"      tau_swap_75 dans le domaine : pire {pire_dom:.2f} a delta_e = "
+              f"{dom75.loc[dom75.censure_comparateur.idxmax(), 'delta_e']:.3f}, "
+              f"facteur {pire_dom / seuil_groupe:.1f}.")
+        print(f"      hors domaine (ne se cite pas comme manquement) : {pire_hors:.2f} a delta_e = "
+              f"{hors75.loc[hors75.censure_comparateur.idxmax(), 'delta_e']:.3f}, "
+              f"facteur {pire_hors / seuil_groupe:.1f}.")
+
+    _sous_titre("censure de tau_det par amplitude, dans et hors domaine (table 3 de QD4)")
+    dom_ampl = st.loc[st.dans_domaine_decision, "delta_e"].unique()
+    for lam in LAMBDAS:
+        c = ind.groupby("delta_e")[f"censored_det_{lam}"].mean()
+        cd, ch = c[c.index.isin(dom_ampl)], c[~c.index.isin(dom_ampl)]
+        pires = sorted(np.round(cd[cd == cd.max()].index, 3))
+        print(f"  lambda = {lam:2d} : global {ind[f'censored_det_{lam}'].mean():.4f} | "
+              f"grille {c.max():.4f} (a {c.idxmax():.3f}) | domaine {cd.max():.4f} "
+              f"(a {pires[0]:.3f}{', ' + str(len(pires)) + ' amplitudes' if len(pires) > 1 else ''})")
+    print("  >>> a lambda = 25 le pire du domaine est 0,99, pas 1,00 : le 1,00 est a 0,028, hors domaine.")
 
     _sous_titre("la censure pilote-t-elle le resultat ? (impute vs cas complets)")
     print(f"  ecart max absolu : {cc.ecart.abs().max():.6f}")
@@ -321,9 +449,13 @@ def d4() -> None:
     nuls = [c for c in cc.comparateur.unique()
             if cc[cc.comparateur == c].ecart.abs().max() < 1e-9]
     print(f"  ecart exactement nul : {nuls}")
+    for c in ("tau_swap_50", "tau_swap_75"):
+        s = cc[cc.comparateur == c]
+        print(f"  {c:12s} : ecart max absolu {s.ecart.abs().max():.6f} "
+              f"(a delta_e = {s.loc[s.ecart.abs().idxmax(), 'delta_e']:.3f})")
     print("  >>> NON. La censure ne pilote pas le resultat. Reponse tranchee.")
-    print("      ROADMAP.md section 7 dit 'coincident a trois decimales' :")
-    print("      trop fort pour swap_75, a corriger (tache 8).")
+    print("      « deux decimales » est encore trop fort : 0,0306 et 0,0403 different")
+    print("      a la deuxieme decimale. Citer les ecarts eux-memes.")
 
     _sous_titre("les deux regles de significativite qui divergent")
     dom = st[st.dans_domaine_decision].copy()
