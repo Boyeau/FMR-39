@@ -260,21 +260,21 @@ def figure_deux_horloges():
         ax.barh([1], [court], height=0.55, color="#b03a2e")
         ax.barh([0], [long], height=0.55, color="#1b1b1b")
         ax.set_ylim(-0.55, 1.55)
-        ax.text(court + long * 0.012, 1, f"{court:.0f} steps", va="center",
-                fontsize=16, weight="bold", color="#b03a2e")
-        ax.text(long + long * 0.012, 0, f"{long:.0f} steps", va="center",
-                fontsize=16, weight="bold", color="#1b1b1b")
+        ax.text(court + long * 0.012, 1, f"{court:.0f}", va="center",
+                fontsize=17, weight="bold", color="#b03a2e")
+        ax.text(long + long * 0.012, 0, f"{long:.0f}", va="center",
+                fontsize=17, weight="bold", color="#1b1b1b")
         ax.set_yticks([1, 0])
         ax.set_yticklabels(['called "repaired"\nby the literature',
                             "three quarters of\nthe forest renewed"],
                            fontsize=15)
         ax.set_xlim(0, long * 1.22)
-        ax.set_xlabel("time after the change  (steps)")
+        ax.set_xlabel("observations seen since the change")
         ax.spines[["top", "right", "left"]].set_visible(False)
         ax.tick_params(axis="y", length=0)
-        ax.text(1.0, -0.42, f"median over 100 runs at $\\Delta e = {cible:.2f}$,"
-                f" $M = {N_MODELS}$", transform=ax.transAxes, ha="right",
-                va="top", fontsize=12, color="#6a6a6a")
+        ax.text(1.0, -0.42, f"median of 100 runs, forest of {N_MODELS} trees,"
+                f" change size {cible:.2f}", transform=ax.transAxes,
+                ha="right", va="top", fontsize=12, color="#6a6a6a")
 
         out = FIGURES / "Fig_slide_deux_horloges.png"
         fig.savefig(out, dpi=150, bbox_inches="tight")
@@ -314,7 +314,8 @@ def figure_drift():
             ax.set_xlim(-lim, lim); ax.set_ylim(-lim, lim)
             ax.set_title(titre)
             ax.set_xticks([]); ax.set_yticks([])
-            ax.set_aspect("equal")
+            ax.set_xlabel("input 1"); ax.set_aspect("equal")
+        axes[0].set_ylabel("input 2")
 
         axes[0].plot(d, -d, color="#b03a2e", lw=2.6)
         axes[1].plot(d, b - d, color="#b03a2e", lw=2.6)
@@ -325,6 +326,9 @@ def figure_drift():
                          weight="bold",
                          arrowprops=dict(arrowstyle="->", color="#b03a2e", lw=1.8))
 
+        fig.text(0.5, -0.045, "one dot = one observation;  its shape is the "
+                 "answer the model has to predict", ha="center", fontsize=13,
+                 color="#6a6a6a")
         fig.tight_layout()
         out = FIGURES / "Fig_slide_drift.png"
         fig.savefig(out, dpi=150, bbox_inches="tight")
@@ -349,7 +353,9 @@ def figure_seuils():
 
     with plt.rc_context(PLT):
         fig, ax = plt.subplots(figsize=(10.5, 4.4))
-        lams = [f"$\\lambda = {l:.0f}$" for l, _, _ in lignes]
+        # Pas de « lambda » : la notation n'est definie nulle part dans un
+        # pitch de trois minutes, et elle ne sert a rien ici.
+        lams = [f"{l:.0f}" for l, _, _ in lignes]
         parts = [100 * t / n for _, t, n in lignes]
         couleurs = ["#1b1b1b", "#6a6a6a", "#b03a2e"]
         ax.bar(lams, parts, color=couleurs, width=0.55)
@@ -358,7 +364,7 @@ def figure_seuils():
                     fontsize=17, weight="bold", color=couleurs[i])
         ax.set_ylim(0, 112)
         ax.set_ylabel("runs where the alarm fired  (%)")
-        ax.set_xlabel("detector threshold")
+        ax.set_xlabel("threshold the watchdog must cross")
         ax.set_yticks([0, 25, 50, 75, 100])
         ax.grid(axis="y", alpha=0.18, lw=0.6)
         ax.spines[["top", "right"]].set_visible(False)

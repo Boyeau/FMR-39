@@ -64,33 +64,52 @@
   \end{center}
   \note{First, the phenomenon. A model learns a rule: this input goes with
     that answer. Then the world changes and the rule no longer holds. That
-    is concept drift. Here is the cleanest version of it, and it is what we
-    simulate: two inputs, a straight boundary, a label on each side. The
+    is concept drift, and here is the cleanest version of it, the one we
+    simulate. Two inputs, a straight boundary, a label on each side. The
     change moves the boundary, and nothing else. Only the shaded band has
     swapped sides, and a model trained before is now wrong on it.}
 \end{frame}
 
 % ---------------------------------------------------------------- 33 s
-\begin{frame}{Two defences, built by two separate communities}
+\begin{frame}{Defence one: a model that repairs itself}
   \begin{itemize}
-    \item \alert{A model that repairs itself.} A forest of ten small
-          decision trees. When a tree starts failing, it is thrown away and
-          a fresh one takes its place.
-    \item \alert{A watchdog that raises the alarm.} It reads the model's
-          mistakes, adds up the excess, and calls for a human once the pile
-          crosses a threshold.
+    \item A \alert{decision tree} splits the picture with simple cuts, and
+          answers by asking which piece a new point falls into.
+    \item One tree is fragile, so ten of them \alert{vote}. That is the
+          Adaptive Random Forest, the model we study.
+    \item \alert{It repairs itself}: a tree whose answers start going wrong
+          is thrown away, and a fresh one grows in its place.
   \end{itemize}
   \vfill
   \begin{center}
-    \large The alarm is the only thing a human ever sees.
+    \large Ten trees, replaced one at a time. Remember that number.
   \end{center}
-  \note{Two defences against drift, built by two separate communities.
-    First, a model that repairs itself: a forest of ten small decision
-    trees, and a tree that starts failing is thrown away and replaced.
-    Second, a watchdog: it reads the model's mistakes and calls for a human
-    once the pile of errors crosses a threshold. That alarm is the only
-    thing a human ever sees. Two communities, and nobody had measured their
-    tools against each other.}
+  \note{The first defence repairs itself. Its building block is a decision
+    tree: it splits the picture with simple cuts, and answers by asking
+    which piece a new point falls into. One tree is fragile, so ten of them
+    vote. That is the Adaptive Random Forest, the model we study. A tree
+    whose answers start going wrong is thrown away, and a fresh one grows in
+    its place. Ten trees, replaced one at a time.}
+\end{frame}
+
+% ---------------------------------------------------------------- 25 s
+\begin{frame}{Defence two: a watchdog that raises the alarm}
+  \begin{itemize}
+    \item It reads the model's mistakes, one observation at a time, and
+          \alert{adds up the excess}.
+    \item Once the pile crosses a \alert{threshold}, it calls a human: audit,
+          retraining, pause.
+  \end{itemize}
+  \vfill
+  \begin{center}
+    \large The alarm is the only thing a human ever sees.\\[0.3em]
+    \normalsize Two communities, two tools, never measured against each other.
+  \end{center}
+  \note{The second defence comes from a different community. A watchdog
+    reads the model's mistakes, one observation at a time, and adds up the
+    excess. Once that pile crosses a threshold it calls a human: audit,
+    retraining, pause. That alarm is the only thing a human ever sees. Two
+    communities, two tools, never measured against each other.}
 \end{frame}
 
 % ---------------------------------------------------------------- 35 s
@@ -103,11 +122,10 @@
     \small schematic
   \end{center}
   \note{Put the two together, and they cancel out. The boundary moves, the
-    mistakes begin: that is the top curve. The watchdog needs exactly those
-    mistakes. But the forest repairs itself, the mistakes stop, and the pile
-    stops growing before it is high enough. The repair erased the evidence
-    the watchdog was waiting for. The better the model fixes itself, the
-    more surely the alarm stays silent.}
+    mistakes begin: top curve. The watchdog needs exactly those mistakes.
+    But the forest repairs itself, the mistakes stop, and the pile stops
+    growing before it is high enough. The repair erased the evidence. The
+    better the model fixes itself, the more surely the alarm stays silent.}
 \end{frame}
 
 % ---------------------------------------------------------------- 34 s
@@ -120,13 +138,13 @@
     A low threshold also fires when \alert{nothing has happened}, and an
     alarm that cries wolf gets switched off.
   \end{center}
-  \note{Does the alarm ever fire? That depends on one number: the
-    threshold. We re-ran the benchmark at the paper's three settings, two
-    thousand runs each. At the highest threshold it fired three times out of
-    two thousand. Lower it, and it fires almost every time. So why not lower
-    it? Because a low threshold also fires when nothing has happened, and an
-    alarm that cries wolf gets switched off. The setting quiet enough to be
-    trusted is the one that never sees the drift.}
+  \note{Does the alarm ever fire? That depends on the threshold. We re-ran
+    the benchmark at three settings, two thousand runs each. At the highest
+    it fired three times out of two thousand. Lower it, and it fires almost
+    every time. So why not lower it? Because a low threshold also fires when
+    nothing happened, and an alarm that cries wolf gets switched off. The
+    setting quiet enough to be trusted is the one that never sees the
+    drift.}
 \end{frame}
 
 % ---------------------------------------------------------------- 33 s
@@ -139,11 +157,11 @@
     \alert{\large It marks the first tree out of ten, not a repaired forest.}
   \end{center}
   \note{To study a race you need a stopwatch, and that is where we found
-    something. The forest replaces its trees one at a time. The date the
-    literature uses to say the model has recovered is the moment the very
-    first tree is replaced: one out of ten. Wait until three quarters of the
-    forest has been renewed, and you wait roughly ten times longer. That
-    stopwatch does not time a repair. It times the start of one.}
+    something. The date the literature uses to say the model has recovered
+    is the moment the very first tree is replaced: one out of ten. Wait
+    until three quarters of the forest has been renewed, and you wait
+    roughly ten times longer. That stopwatch does not time a repair. It
+    times the start of one.}
 \end{frame}
 
 % ---------------------------------------------------------------- 22 s
@@ -160,11 +178,10 @@
   \begin{center}
     \large Thank you.
   \end{center}
-  \note{Where we stand. The paradox is real and reproducible, and we can
-    say when the evidence falls short. The clock the field relies on is
-    biased, always the same way, so every conclusion drawn from it inherits
-    that bias. What remains is to turn this into advice a practitioner can
-    use. Thank you.}
+  \note{Where we stand. The paradox is real and reproducible. The clock the
+    field relies on is biased, always the same way, so every conclusion
+    drawn from it inherits that bias. What remains is to turn this into
+    advice a practitioner can use. Thank you.}
 \end{frame}
 
 \end{document}

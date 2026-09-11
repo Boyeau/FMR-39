@@ -6,27 +6,31 @@ Les supports de présentation du sujet 39. Les rédactions restent dans
 ## `presentation_pitch_3min.tex`
 
 Pitch de 3 minutes **pour un auditoire qui ne connaît pas le sujet**.
-Sept slides, 447 mots de texte parlé, soit environ 179 s de débit. C'est la
-limite haute : toute phrase ajoutée se paie sur une autre.
+Huit slides, 469 mots de texte parlé : **176 s à 160 mots/min, 188 s à 150**.
+C'est au-dessus de la cible, et c'est un arbitrage assumé — poser le drift, la
+forêt et le détecteur avant de s'en servir coûte une minute qu'on ne récupère
+pas ailleurs. La coupe la moins chère, si les trois minutes sont fermes, est la
+slide 5 (le compromis de réglage) : elle vaut 62 mots et ne porte aucun résultat
+du groupe.
 
-**Parti pris : expliquer les concepts et l'avancement, pas énumérer des
-résultats.** Chaque slide pose une notion avant de s'en servir, et chaque
-chiffre arrive après le dispositif qui le produit. Les chiffres détaillés de
-C.1, C.2 et C.3 sont volontairement absents : chacun exige sa définition
-préalable, et trois minutes ne les financent pas.
-`Fig_slide_ecarts_swap.png` reste produite pour les questions, elle n'est
-plus projetée.
+**Parti pris : rien n'est employé avant d'avoir été posé.** Un audit des slides
+a montré six notions utilisées sans définition — arbre de décision, la raison
+d'être d'une *forêt*, `λ`, `Δe`, `M`, et l'unité de temps. Les trois notations
+ont disparu des figures (l'axe dit « threshold the watchdog must cross », plus
+`λ` ; « observations seen since the change », plus « steps » ; « forest of 10
+trees, change size 0.24 », plus `M` ni `Δe`), et l'arbre de décision a
+maintenant sa slide. Les chiffres détaillés de C.1, C.2 et C.3 restent absents.
+`Fig_slide_ecarts_swap.png` est produite pour les questions, pas projetée.
 
 | Slide | Ce qu'elle pose |
 |---|---|
 | 2 | ce qu'est un **changement de concept**, sur la frontière même que simule le banc |
-| 3 | les **deux défenses** : le modèle qui se répare, le détecteur qui alerte |
-| 4 | le **paradoxe** : mises ensemble, elles s'annulent |
-| 5 | **le compromis de réglage** : le seuil décide tout, et aucun ne convient |
-| 6 | **l'avancée** : l'horloge admise date le premier arbre, pas la réparation |
-| 7 | où on en est, et la suite |
-
-Le texte parlé est dans les `\note{}` du `.tex`, jamais sur les slides.
+| 3 | **l'arbre, la forêt, l'ARF** : dix arbres qui votent, remplacés un par un |
+| 4 | **le détecteur** : il empile les erreurs et alerte au franchissement d'un seuil |
+| 5 | **le paradoxe** : mis ensemble, les deux s'annulent |
+| 6 | **le compromis de réglage** : le seuil décide tout, et aucun ne convient |
+| 7 | **l'avancée** : l'horloge admise date le premier arbre, pas la réparation |
+| 8 | où on en est, et la suite |
 
 ### Compiler
 
@@ -54,10 +58,10 @@ diverger de la table qui le produit.
 
 | Slide | Chiffre | Source |
 |---|---|---|
-| 5 | **3 / 2 000** à `λ = 50`, **801 / 2 000** à `λ = 25`, **1 926 / 2 000** à `λ = 8` | `03_repo_officiel_.../results/R2_instrumented_blind_spot/data/` |
-| 4 | `86` pas contre `1 225`, médiane à `Δe = 0,24` | `04_experimentations/resultats_R2/resultats/data/QCD_indicateurs_full.parquet` |
+| 6 | **3 / 2 000** à `λ = 50`, **801 / 2 000** à `λ = 25`, **1 926 / 2 000** à `λ = 8` | `03_repo_officiel_.../results/R2_instrumented_blind_spot/data/` |
+| 7 | `86` observations contre `1 225`, médiane à `Δe = 0,24` | `04_experimentations/resultats_R2/resultats/data/QCD_indicateurs_full.parquet` |
 
-La slide 2 est un **schéma stylisé, sans données** : pour un auditoire qui
+La slide 5 est un **schéma stylisé, sans données** : pour un auditoire qui
 découvre le sujet, une vraie trajectoire est trop bruitée pour montrer que la
 preuve monte puis s'arrête sous le seuil. La légende de la figure le dit.
 
@@ -76,7 +80,7 @@ citation Gama, pas une mesure. Aucun littéral n'a été ajouté à sa liste `EX
 banc, sur les mêmes dérives et les mêmes graines, l'alarme part 801 fois sur
 2 000 à `λ = 25` et 1 926 fois sur 2 000 à `λ = 8`. Montrer le seul `λ = 50`
 revient à choisir le réglage le plus favorable à la thèse et à le donner pour le
-cas général. La slide 5 montre les trois, parce que **c'est la dépendance au
+cas général. La slide 6 montre les trois, parce que **c'est la dépendance au
 réglage qui est le résultat** : il n'existe pas de seuil à la fois assez discret
 pour qu'on lui fasse confiance et assez sensible pour voir la dérive.
 
