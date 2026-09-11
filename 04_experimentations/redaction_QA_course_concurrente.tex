@@ -50,10 +50,9 @@ never. An equality should therefore count as a detection success.
 \begin{center}
 \fbox{\parbox{0.93\textwidth}{\textbf{Adopted convention.}
 \[ \mathrm{Miss} := \{\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}\} \qquad \text{(strict inequality)} \]
-A tie is classified on the detector's side. To be checked empirically on the
-trajectories: if the proportion of runs with $\tau_{\mathrm{ARF}}=\tau_{\mathrm{det}}$
-exactly is negligible (expected, since both processes stem from underlying continuous
-draws), the convention choice has no material impact on the results.}}
+A tie is classified on the detector's side. Both clocks count integer steps, so
+ties are not ruled out by any continuity argument: their frequency has to be measured,
+and it is, in Section~4.}}
 \end{center}
 
 \section{Identification Under a Finite Horizon}
@@ -94,8 +93,9 @@ Miss in the worst case (upper bound):
 \begin{center}
 \fbox{\parbox{0.93\textwidth}{\textbf{Result.} The width of the bound is exactly
 $P(C_H)$, the proportion of doubly-censored runs: this is a Manski-type bound
-(partial identification). The more runs resolve before $H$, the tighter the interval
---- to be computed directly on the campaign's 2{,}000 (or 4{,}000) runs.}}
+(partial identification). The more runs resolve before $H$, the tighter the interval.
+Section~4 computes $P(C_H)$ on the campaign and finds it equal to zero, which collapses
+the bound onto a point.}}
 \end{center}
 
 \section{Universal Fréchet Bound}
@@ -160,12 +160,91 @@ $\inf_s[F_A(s)+1-F_D(s+1)]=0.5$ (attained at $s=0$ and $s=1$) gives an upper bou
 $0.5$, attained by the anti-monotone coupling. The formula holds, and both bounds are
 attained exactly: the bound is the tightest possible on this toy case.
 
+\section{The Race, Measured}
+\label{sec:measured}
+
+The apparatus above is now read on the instrumented campaign of Q~C/D: $20$ amplitudes
+$\times\ 100$ seeds $=2{,}000$ runs, $H=2{,}000$. Everything in this section comes from
+\texttt{QCD\_indicateurs\_full} and is reproduced by
+\texttt{resultats\_R2/scripts/chiffres\_QA.py}.
+
+\paragraph{One measurement governs the rest.} $\tau_{\mathrm{ARF}}$ is \emph{never}
+censored: $0$ runs out of $2{,}000$, the largest value observed being $1{,}293$ steps,
+well inside the horizon. The forest always repairs itself before $H$. Three consequences
+follow immediately, and they are the answers to the questions Sections 1 and 2 left open.
+
+\paragraph{Double starvation never occurs.} The event
+$\{\tau_{\mathrm{ARF}}=+\infty,\ \tau_{\mathrm{det}}=+\infty\}$ has empirical frequency
+$0$ at all three thresholds. Its treatment in Section~1 remains necessary --- nothing
+in the model forbids it, and a campaign with a shorter horizon or a slower forest would
+produce it --- but on this grid the convention is never actually exercised.
+
+\paragraph{The identification problem does not bind here.} Since
+$\{\tau_{\mathrm{ARF}}>H\}$ is empty, regions 3 and 4 of the partition are both empty,
+and in particular $C_H=\varnothing$. The width of the Manski bound, which Section~2
+shows to be exactly $P(C_H)$, is therefore $0$: on this campaign $P_{\mathrm{miss}}$ is
+not partially but \emph{point} identified. The bound is not vacuous, it is simply not
+binding --- a fact about this experimental design, not about the method.
+
+\begin{center}
+\begin{tabular}{crrrrl}
+\toprule
+$\lambda$ & region 1 & region 2 & $C_H$ & $P_{\mathrm{miss}}$ & Wilson $95\%$ \\
+\midrule
+$8$  & $1{,}906$ & $94$    & $0$ & $0.0905$ & $[0.0787;0.1039]$ \\
+$25$ & $778$     & $1{,}222$ & $0$ & $0.9715$ & $[0.9633;0.9779]$ \\
+$50$ & $1$       & $1{,}999$ & $0$ & $1.0000$ & $[0.9981;1.0000]$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Region 1 is decided by direct comparison, region 2 is a certain Miss
+($\tau_{\mathrm{ARF}}\le H<\tau_{\mathrm{det}}$), and regions 3 and 4 are empty. The
+$\lambda=8$ value cross-checks against Q~D.1, which counts the complementary event and
+reports $\tau_{\mathrm{det}}<\tau_{\mathrm{ARF}}$ in $1{,}819$ of $2{,}000$ runs: the
+two counts sum to $2{,}000$ exactly, with no run left over --- which is also how one
+sees that ties are absent at this threshold.
+
+\paragraph{Ties are rare, but not for the reason one might assume.} Over the runs where
+both clocks are observed, $\tau_{\mathrm{ARF}}=\tau_{\mathrm{det}}$ occurs $0$ times at
+$\lambda=8$, $6$ times out of $778$ at $\lambda=25$ ($0.77\%$ of them, $0.30\%$ of the
+campaign), and $0$ times at $\lambda=50$. Switching to the non-strict convention would
+move $P_{\mathrm{miss}}$ by at most $0.003$, and only at $\lambda=25$. So the choice made
+in Section~1 is immaterial \emph{in fact} --- but not because of any underlying
+continuity: both clocks are integer step counts and could easily coincide. They rarely
+do because the two mechanisms operate on visibly different time scales, which is the
+substance of the paradox rather than a technicality.
+
+\paragraph{The aggregate is not the phenomenon.} These three totals pool cells of very
+unequal difficulty and should not be quoted alone. At $\lambda=8$, $P_{\mathrm{miss}}$
+runs from $0.01$ at the top of the grid to $1.00$ at $\Delta e=0.028$, where the
+detector never alarms at all within the horizon: the aggregate $9.05\%$ is carried
+almost entirely by that single weakest amplitude. Table~2 and Figure~2 of Q~D.1 give the
+per-cell breakdown, with a Wilson interval and a censoring rate for each cell.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{resultats_R2/resultats/figures/Fig_QD_course_lambda_full.png}
+  \caption{The race as a function of $(\lambda,\Delta e)$, the two quantities
+  $P_{\mathrm{miss}}$ depends on. Top: share of runs in which
+  $\tau_{\mathrm{det}}<\tau_{\mathrm{ARF}}$ --- the complement of $\mathrm{Miss}$ up to
+  ties --- by amplitude, for $\lambda\in\{8,25,50\}$. Filled markers with error bars:
+  uncensored runs only, Wilson $95\%$ interval, drawn only where the cell's censoring is
+  at most $50\%$. Hollow markers: all $100$ runs, censored runs counted as detector
+  losses, i.e.\ as region-2 Misses. Bottom: censoring of $\tau_{\mathrm{det}}$ in the
+  same cells, with the $50\%$ line. Produced by \texttt{figures\_revision\_QCD.py}
+  for Q~D.1.}
+  \label{fig:course-lambda}
+\end{figure}
+
 \section{Outlook}
 
-What remains is to apply the bounds from Sections 2 and 3 to the real campaign data
-($\hat F_A$, $\hat F_D$ estimated empirically), and to check whether the Fréchet bound
---- generally very wide --- tightens once the known structure of the problem is used ---
-which is exactly the point of Question B: independence conditional on the stream
-yields a sharper law than knowledge of the marginals alone.
+The Fréchet bound of Section~3 has not been evaluated on the estimated marginals
+$\hat F_A$ and $\hat F_D$. Doing so would say how much is gained by knowing the
+\emph{structure} of the problem rather than the marginals alone --- which is exactly the
+point of Question~B: independence conditional on the stream yields a sharper law than
+knowledge of the marginals alone. Given that $P_{\mathrm{miss}}$ is already point
+identified here (Section~\ref{sec:measured}), this comparison is now a question about
+how much the universal bound concedes, not about identifying the target.
 
 \end{document}
