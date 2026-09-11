@@ -21,6 +21,9 @@
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \setbeamertemplate{navigation symbols}{}
+% Sortie « notes seules », pour repeter :
+%   lualatex "\def\NOTESSEULES{}\input{presentation_pitch_3min}"
+\ifdefined\NOTESSEULES\setbeameroption{show only notes}\fi
 \graphicspath{{../04_experimentations/resultats_R2/resultats/figures/}}
 
 % Notation unique sur toutes les slides. La notation non unique est le
@@ -47,6 +50,9 @@
 \begin{document}
 
 \maketitle
+\note{The Blind Spot Paradox. When a self-repairing model destroys the
+  evidence its own monitor needs. Four students of the CentraleSupélec
+  research track, supervised by Raphaël Minato.}
 
 % ---------------------------------------------------------------- 26 s
 \begin{frame}{Market finance: who tells you to retrain?}

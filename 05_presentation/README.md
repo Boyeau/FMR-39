@@ -24,6 +24,15 @@ latexmk -lualatex presentation_pitch_3min.tex
 **lualatex, pas pdflatex** : le thème `metropolis` charge les fontes Fira.
 Avec `pdflatex` le document compile mais retombe sur les fontes par défaut.
 
+Le texte parlé se sort en PDF séparé, une page par slide, miniature en regard :
+
+```bash
+lualatex -jobname=notes_conferencier "\def\NOTESSEULES{}\input{presentation_pitch_3min}"
+```
+
+Même fichier source dans les deux cas : le texte parlé vit dans les `\note{}`
+du `.tex` et nulle part ailleurs, il ne peut donc pas diverger des slides.
+
 Les figures sont lues dans `../04_experimentations/resultats_R2/resultats/figures/`
 par `\graphicspath`, elles ne sont pas recopiées ici : un doublon finirait par
 diverger de la table qui le produit.
