@@ -2,10 +2,11 @@
 % =====================================================================
 % Pitch de 3 minutes, pour un auditoire qui ne connait PAS le sujet.
 %
-% Parti pris : montrer le mecanisme, pas enumerer des resultats. Un seul
-% schema porte le paradoxe, une seule mesure porte l'avancee. Les chiffres
-% detailles de C.1, C.2 et C.3 sont volontairement absents : ils exigent
-% chacun leur definition prealable, et trois minutes ne les financent pas.
+% Parti pris : expliquer les concepts et l'avancement, pas enumerer des
+% resultats. Chaque slide pose une notion avant de s'en servir, et chaque
+% chiffre arrive apres le dispositif qui le produit. Les chiffres detailles
+% de C.1, C.2 et C.3 sont volontairement absents : chacun exige sa
+% definition prealable, et trois minutes ne les financent pas.
 %
 % Les resultats s'arretent a la fin de la question C. La question D est
 % annoncee comme le travail suivant, et aucun chiffre des
@@ -49,96 +50,114 @@
 \begin{document}
 
 \maketitle
-\note{The Blind Spot Paradox. When a self-repairing model destroys the
-  evidence its own monitor needs. Four students of the CentraleSupélec
-  research track, supervised by Raphaël Minato.}
+\note{The Blind Spot Paradox: when a self-repairing model destroys the
+  evidence its own monitor needs.}
 
-% ---------------------------------------------------------------- 30 s
-\begin{frame}{Two machines, and only one of them talks to you}
+% ---------------------------------------------------------------- 32 s
+\begin{frame}{Concept drift: the rule changes, the data does not}
+  \begin{center}
+    \includegraphics[height=0.60\textheight]{Fig_slide_drift.png}
+  \end{center}
+  \begin{center}
+    A model trained on the left keeps predicting, confidently, and is now
+    \alert{wrong on the shaded band}.
+  \end{center}
+  \note{First, the phenomenon. A model learns a rule: this input goes with
+    that answer. Then the world changes and the rule no longer holds. That
+    is concept drift. Here is the cleanest version of it, and it is what we
+    simulate: two inputs, a straight boundary, a label on each side. The
+    change moves the boundary, and nothing else. Only the shaded band has
+    swapped sides, and a model trained before is now confidently wrong on
+    it.}
+\end{frame}
+
+% ---------------------------------------------------------------- 33 s
+\begin{frame}{Two defences, built by two separate communities}
   \begin{itemize}
-    \item A \alert{model} predicts, learns as it goes, and \alert{repairs
-          itself} when the world stops matching what it learned.
-    \item A separate \alert{watchdog} reads the model's mistakes and raises
-          an alarm once they pile up.
-    \item The alarm is the only thing a human ever sees. It is what triggers
-          the audit, the retraining, the pause.
+    \item \alert{A model that repairs itself.} A forest of ten small
+          decision trees. When a tree starts failing, it is thrown away and
+          a fresh one takes its place.
+    \item \alert{A watchdog that raises the alarm.} It reads the model's
+          mistakes, adds up the excess, and calls for a human once the pile
+          crosses a threshold.
   \end{itemize}
   \vfill
   \begin{center}
-    \large Nobody watches the model. The watchdog does.
+    \large The alarm is the only thing a human ever sees.
   \end{center}
-  \note{Picture two machines. The first one predicts something, learns as it
-    goes, and repairs itself when the world stops matching what it learned.
-    The second one is a watchdog. It reads the first one's mistakes and
-    raises an alarm once they pile up. That alarm is the only thing a human
-    ever sees: it is what triggers the audit, the retraining, the pause.
-    Nobody watches the model directly. The watchdog does.}
-\end{frame}
-
-% ---------------------------------------------------------------- 40 s
-\begin{frame}{The repair destroys the evidence}
-  \begin{center}
-    \includegraphics[height=0.74\textheight]{Fig_slide_mecanisme.png}
-  \end{center}
-  \note{Here is what goes wrong. The world changes, so the model starts
-    making mistakes: that is the top curve. The watchdog needs those
-    mistakes. It adds them up and calls for help once the pile is high
-    enough. But the model repairs itself, the mistakes stop, and the pile
-    stops growing too early. The repair has erased the evidence. The better
-    the model fixes itself, the more surely the alarm stays silent.}
+  \note{There are two defences against drift, built by two separate
+    communities. First, a model that repairs itself: a forest of ten small
+    decision trees, and a tree that starts failing is thrown away and
+    replaced. Second, a watchdog: it reads the model's mistakes, adds up the
+    excess, and calls for a human once the pile crosses a threshold. That
+    alarm is the only thing a human ever sees.}
 \end{frame}
 
 % ---------------------------------------------------------------- 35 s
-\begin{frame}{It is the normal case, not a corner case}
-  \vspace{0.4em}
+\begin{frame}{Put them together, and they cancel out}
   \begin{center}
-    {\fontsize{46}{52}\selectfont \alert{\textbf{3}} alarms\\[0.35em]
-     \fontsize{46}{52}\selectfont out of \alert{\textbf{2\,000}} runs}
-
-    \vspace{0.5em}
-    {\small re-running the source paper's own benchmark, here, on our machines}
+    \includegraphics[height=0.70\textheight]{Fig_slide_mecanisme.png}
   \end{center}
-  \vspace{0.6em}
-  \begin{itemize}
-    \item One research field measures how fast a model recovers. Another
-          measures how fast an alarm fires.
-    \item \alert{Neither has measured them against each other.}
-  \end{itemize}
-  \note{This is not a corner case. We re-ran the benchmark of the paper we
-    are studying, and over two thousand runs the alarm fired three times.
-    Now, why had nobody caught this? Because two separate research fields
-    are involved. One studies models that repair themselves and measures how
-    fast they recover. The other studies alarms and measures how fast they
-    fire. Neither had measured the two against each other. That gap is our
-    subject.}
+  \vspace{-0.4em}
+  \begin{center}
+    \small schematic
+  \end{center}
+  \note{Put the two together, and they cancel out. The boundary moves, the
+    mistakes begin: that is the top curve. The watchdog needs exactly those
+    mistakes. But the forest repairs itself, the mistakes stop, and the pile
+    stops growing before it is high enough. The repair erased the evidence
+    the watchdog was waiting for. The better the model fixes itself, the
+    more surely the alarm stays silent.}
 \end{frame}
 
-% ---------------------------------------------------------------- 40 s
-\begin{frame}{What we found: the clock was wrong}
+% ---------------------------------------------------------------- 30 s
+\begin{frame}{How often? We ran the experiment 2\,000 times}
+  \begin{center}
+    {\small we move the boundary at an instant we choose, then watch whether
+     the alarm ever fires}
+
+    \vspace{0.6em}
+    {\fontsize{38}{46}\selectfont it fired \alert{\textbf{3}} times\\[0.1em]
+     out of \alert{\textbf{2\,000}} runs}
+  \end{center}
+  \vfill
+  \begin{itemize}
+    \item One community measures how fast a model recovers. The other
+          measures how fast an alarm fires.
+    \item \alert{Neither had measured them against each other.}
+  \end{itemize}
+  \note{How often? We re-ran the benchmark of the paper we are studying.
+    Two thousand runs, and in each one we move the boundary at an instant we
+    choose, so we know exactly when the change happened. The alarm fired
+    three times out of two thousand. This is the normal case. Nobody had
+    caught it because one community measures how fast a model recovers, the
+    other how fast an alarm fires, and neither measured them together.}
+\end{frame}
+
+% ---------------------------------------------------------------- 33 s
+\begin{frame}{Our contribution: the accepted clock is wrong}
   \begin{center}
     \includegraphics[width=\textwidth]{Fig_slide_deux_horloges.png}
   \end{center}
   \vspace{0.2em}
   \begin{center}
-    \alert{\large The accepted date marks the first tree out of ten,
-    not a repaired forest.}
+    \alert{\large It marks the first tree out of ten, not a repaired forest.}
   \end{center}
   \note{To study a race you need a stopwatch, and that is where we found
-    something. The model is a forest of ten trees, and it repairs itself by
-    replacing them one at a time. The date everyone uses to say it has
-    recovered is the moment the very first tree is replaced: one out of ten.
-    Wait instead for three quarters of the forest, and you wait roughly ten
-    times longer. The accepted stopwatch does not time a repair. It times
-    the start of one, always too early.}
+    something. The forest replaces its trees one at a time. The date the
+    literature uses to say the model has recovered is the moment the very
+    first tree is replaced: one out of ten. Wait until three quarters of the
+    forest has been renewed, and you wait roughly ten times longer. That
+    stopwatch does not time a repair. It times the start of one.}
 \end{frame}
 
-% ---------------------------------------------------------------- 25 s
+% ---------------------------------------------------------------- 22 s
 \begin{frame}{Where we stand}
   \begin{itemize}
-    \item The paradox is \alert{real and reproducible}, and we can now say
-          exactly when the evidence falls short.
-    \item The measure the field relies on is \alert{biased, always the same
-          way}. Any conclusion drawn from it inherits that bias.
+    \item The paradox is \alert{real and reproducible}, and we can say when
+          the evidence falls short of what the alarm needs.
+    \item The clock the field relies on is \alert{biased, always the same
+          way}. Every conclusion drawn from it inherits that bias.
     \item \textbf{Next}: watch the model and the watchdog on one common
           clock, and turn this into advice a practitioner can use.
   \end{itemize}
@@ -146,12 +165,11 @@
   \begin{center}
     \large Thank you.
   \end{center}
-  \note{Where we stand. The paradox is real and reproducible, and we can now
-    say exactly when the evidence falls short of what the alarm needs. The
-    measure the field relies on is biased, and always in the same direction,
-    so any conclusion drawn from it inherits that bias. What remains is to
-    watch the model and the watchdog on one common clock, and turn this into
-    advice a practitioner can actually use. Thank you.}
+  \note{Where we stand. The paradox is real and reproducible, and we can
+    say when the evidence falls short. The clock the field relies on is
+    biased, always the same way, so every conclusion drawn from it inherits
+    that bias. What remains is to watch both on one common clock, and turn
+    this into advice a practitioner can use. Thank you.}
 \end{frame}
 
 \end{document}

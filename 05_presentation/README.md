@@ -6,18 +6,25 @@ Les supports de présentation du sujet 39. Les rédactions restent dans
 ## `presentation_pitch_3min.tex`
 
 Pitch de 3 minutes **pour un auditoire qui ne connaît pas le sujet**.
-Six slides, 405 mots de texte parlé, soit environ 162 s de débit.
+Sept slides, 439 mots de texte parlé, soit environ 176 s de débit. C'est la
+limite haute : toute phrase ajoutée se paie sur une autre.
 
-**Parti pris : montrer le mécanisme, pas énumérer des résultats.** Un schéma
-porte le paradoxe (slide 2), un chiffre porte sa réalité (slide 3), une mesure
-porte l'avancée (slide 4). Les chiffres détaillés de C.1, C.2 et C.3 sont
-volontairement absents : chacun exige sa définition préalable, et trois minutes
-ne les financent pas. `Fig_slide_ecarts_swap.png` reste produite et disponible
-pour les questions, elle n'est plus projetée.
+**Parti pris : expliquer les concepts et l'avancement, pas énumérer des
+résultats.** Chaque slide pose une notion avant de s'en servir, et chaque
+chiffre arrive après le dispositif qui le produit. Les chiffres détaillés de
+C.1, C.2 et C.3 sont volontairement absents : chacun exige sa définition
+préalable, et trois minutes ne les financent pas.
+`Fig_slide_ecarts_swap.png` reste produite pour les questions, elle n'est
+plus projetée.
 
-**Périmètre : les résultats s'arrêtent à la fin de la question C.** La question D
-est annoncée comme le travail suivant, et aucun chiffre des `redaction_QD*.tex`
-n'apparaît. C'est un choix de cadrage, pas l'état réel du projet.
+| Slide | Ce qu'elle pose |
+|---|---|
+| 2 | ce qu'est un **changement de concept**, sur la frontière même que simule le banc |
+| 3 | les **deux défenses** : le modèle qui se répare, le détecteur qui alerte |
+| 4 | le **paradoxe** : mises ensemble, elles s'annulent |
+| 5 | **le dispositif** et son chiffre : 2 000 exécutions, 3 alarmes |
+| 6 | **l'avancée** : l'horloge admise date le premier arbre, pas la réparation |
+| 7 | où on en est, et la suite |
 
 Le texte parlé est dans les `\note{}` du `.tex`, jamais sur les slides.
 

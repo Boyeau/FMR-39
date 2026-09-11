@@ -278,10 +278,60 @@ def figure_deux_horloges():
     return out, court, long
 
 
+def figure_drift():
+    """Slide 2 : ce qu'est un changement de concept, et ce que le banc simule.
+
+    Fidele au generateur du depot officiel
+    (`exp_R2_instrumented_blind_spot.py` l. 74-76) : x0 et x1 sont deux
+    normales centrees reduites, l'etiquette vaut 1 si x0 + x1 depasse un
+    seuil, et le drift DEPLACE ce seuil de 0 a `boundary_shift`. La bande
+    entre les deux frontieres est exactement l'ensemble des points dont
+    l'etiquette change, et c'est la tout le changement : les points, eux,
+    ne bougent pas.
+
+    Graine fixee ici meme : la figure est un dessin d'illustration, pas une
+    mesure, mais elle doit se regenerer a l'identique.
+    """
+    rng = np.random.default_rng(7)
+    n = 420
+    x0, x1 = rng.normal(size=n), rng.normal(size=n)
+    b = 1.15
+    avant, apres = (x0 + x1 > 0.0), (x0 + x1 > b)
+    lim = 3.0
+    d = np.linspace(-lim, lim, 10)
+
+    with plt.rc_context(PLT):
+        fig, axes = plt.subplots(1, 2, figsize=(11, 4.6), sharey=True)
+        for ax, lab, titre in ((axes[0], avant, "before"),
+                               (axes[1], apres, "after the change")):
+            ax.scatter(x0[lab], x1[lab], s=26, marker="o", color="#1b1b1b")
+            ax.scatter(x0[~lab], x1[~lab], s=30, marker="x", color="#8a8a8a",
+                       linewidths=1.5)
+            ax.set_xlim(-lim, lim); ax.set_ylim(-lim, lim)
+            ax.set_title(titre)
+            ax.set_xticks([]); ax.set_yticks([])
+            ax.set_aspect("equal")
+
+        axes[0].plot(d, -d, color="#b03a2e", lw=2.6)
+        axes[1].plot(d, b - d, color="#b03a2e", lw=2.6)
+        axes[1].plot(d, -d, color="#b03a2e", lw=1.6, ls=":")
+        axes[1].fill_between(d, -d, b - d, color="#b03a2e", alpha=0.20)
+        axes[1].annotate("these points\nswapped sides", xy=(-0.50, 1.10),
+                         xytext=(-2.85, -2.60), fontsize=14, color="#b03a2e",
+                         weight="bold",
+                         arrowprops=dict(arrowstyle="->", color="#b03a2e", lw=1.8))
+
+        fig.tight_layout()
+        out = FIGURES / "Fig_slide_drift.png"
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+    return out
+
+
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--only", choices=["blindspot", "ecarts",
-                                      "mecanisme", "horloges"])
+    p.add_argument("--only", choices=["blindspot", "ecarts", "mecanisme",
+                                      "horloges", "drift"])
     a = p.parse_args()
 
     if a.only in (None, "blindspot"):
@@ -289,6 +339,8 @@ def main():
         print(f"[slide 3] {out.name}  | alarmes = {n_al} / {n_ru}")
     if a.only in (None, "ecarts"):
         print(f"[annexe ] {figure_ecarts().name}")
+    if a.only in (None, "drift"):
+        print(f"[slide 2] {figure_drift().name}")
     if a.only in (None, "mecanisme"):
         print(f"[slide 2] {figure_mecanisme().name}")
     if a.only in (None, "horloges"):
