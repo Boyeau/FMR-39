@@ -81,12 +81,11 @@
     time.
   \end{center}
   \note{The first defence repairs itself. Its building block is a decision
-    tree: it splits the picture with simple cuts, always straight across, so
-    it can only approximate a slanted boundary by a staircase. One tree is
-    fragile, so ten of them vote. That is the Adaptive Random Forest, the
-    model we study. And a tree whose answers start going wrong is thrown
-    away, while a fresh one grows in its place. Ten trees, replaced one at a
-    time.}
+    tree: it cuts the picture straight across, so a slanted boundary can
+    only be approximated by a staircase. One tree is fragile, so ten of them
+    vote. That is the Adaptive Random Forest, the model we study. A tree
+    whose answers go wrong is thrown away, and a fresh one grows in its
+    place. Ten trees, replaced one at a time.}
 \end{frame}
 
 % ---------------------------------------------------------------- 25 s
@@ -99,11 +98,10 @@
     Two communities, two tools, \alert{never measured against each other}.
   \end{center}
   \note{The second defence comes from a different community. A watchdog
-    reads the model's answers one at a time and keeps a pile of the excess
-    mistakes. While the model is doing well the pile falls back to zero. Let
-    the mistakes come, and it grows, until it crosses a threshold and calls
-    a human: audit, retraining, pause. That alarm is the only thing a human
-    ever sees. Two communities, two tools, never measured against each
+    keeps a pile of the model's excess mistakes. While the model does well
+    the pile falls back to zero; let the mistakes come and it grows, until
+    it crosses a threshold and calls a human. That alarm is the only thing a
+    human ever sees. Two communities, two tools, never measured against each
     other.}
 \end{frame}
 
@@ -117,10 +115,10 @@
     \small schematic
   \end{center}
   \note{Put the two together, and they cancel out. The boundary moves, the
-    mistakes begin: top curve. The watchdog needs exactly those mistakes.
-    But the forest repairs itself, the mistakes stop, and the pile stops
-    growing before it is high enough. The repair erased the evidence. The
-    better the model fixes itself, the more surely the alarm stays silent.}
+    mistakes begin, and the pile starts climbing. But the forest repairs
+    itself, the mistakes stop, and the pile drains back to zero without ever
+    reaching the threshold. The repair erased the evidence. The better the
+    model fixes itself, the more surely the alarm stays silent.}
 \end{frame}
 
 % ---------------------------------------------------------------- 34 s
@@ -143,20 +141,22 @@
 \end{frame}
 
 % ---------------------------------------------------------------- 33 s
-\begin{frame}{Our contribution: the accepted clock is wrong}
+\begin{frame}{Our contribution: when is the forest actually repaired?}
   \begin{center}
     \includegraphics[width=\textwidth]{Fig_slide_deux_horloges.png}
   \end{center}
-  \vspace{0.2em}
+  \vspace{0.1em}
   \begin{center}
-    \alert{\large It marks the first tree out of ten, not a repaired forest.}
+    \alert{\large The accepted date fires at the \emph{first} tree. It times
+    the start of a repair, not its end.}
   \end{center}
-  \note{To study a race you need a stopwatch, and that is where we found
-    something. The date the literature uses to say the model has recovered
-    is the moment the very first tree is replaced: one out of ten. Wait
-    until three quarters of the forest has been renewed, and you wait
-    roughly ten times longer. That stopwatch does not time a repair. It
-    times the start of one.}
+  \note{It is a race, so we have to time both runners. Timing the alarm is
+    easy. Timing the repair is where we found something. The literature has
+    a standard date for it, and that date turns out to be the moment the
+    very first tree out of ten is replaced. Wait until three quarters of the
+    forest has actually been renewed, and you wait roughly ten times longer.
+    That stopwatch times the start of a repair, not its end, and it is wrong
+    always in the same direction.}
 \end{frame}
 
 % ---------------------------------------------------------------- 22 s

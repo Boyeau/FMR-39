@@ -179,22 +179,29 @@ def figure_ecarts():
 
 
 def figure_mecanisme():
-    """Slide 2 : le mecanisme, en schema.
+    """Slide 5 : le mecanisme, en schema.
 
     SCHEMA STYLISE, aucune donnee. Pour un auditoire qui decouvre le sujet,
-    une vraie trajectoire est trop bruitee pour montrer le mecanisme : ce
-    qu'il faut voir, c'est que la preuve monte puis REDESCEND sans avoir
-    atteint le seuil. La legende de la slide dit « schematic ».
+    une vraie trajectoire est trop bruitee pour montrer le mecanisme.
+
+    La preuve suit LA MEME recurrence que la slide du detecteur,
+    S_t = max(0, S_{t-1} + x_t). Un cumul tronque la ferait plafonner, ce
+    qui contredirait la slide precedente ET raterait le coeur du sujet : la
+    preuve ne stagne pas, elle SE PERD des que la foret a repare. C'est
+    d'ailleurs pour cela que le detecteur travaille sur le maximum atteint.
     """
     t = np.linspace(0, 100, 800)
     t0, base, saut, tau = 20.0, 0.10, 0.32, 11.0
     err = np.where(t < t0, base, base + saut * np.exp(-(t - t0) / tau))
 
-    # Preuve accumulee : l'excedent d'erreur au-dessus du niveau de base,
-    # moins la tolerance du detecteur. C'est la recurrence de CUSUM.
-    exces = np.clip(err - base - 0.055, 0, None)
-    preuve = np.cumsum(exces) * (t[1] - t[0])
-    seuil = preuve.max() * 1.55
+    pas = t[1] - t[0]
+    preuve, s_t = [], 0.0
+    for e in err:
+        s_t = max(0.0, s_t + (e - base - 0.075) * pas * 22)
+        preuve.append(s_t)
+    preuve = np.array(preuve)
+    i_max = int(np.argmax(preuve))
+    seuil = preuve[i_max] * 1.5
 
     with plt.rc_context(PLT):
         fig, (h, b) = plt.subplots(2, 1, figsize=(10.5, 6.0), sharex=True,
@@ -218,16 +225,17 @@ def figure_mecanisme():
         b.annotate("alarm threshold", xy=(2, seuil), xytext=(0, -22),
                    textcoords="offset points", color="#b03a2e", weight="bold",
                    fontsize=14)
-        # La distance qui n'est jamais franchie : c'est tout le sujet.
-        b.annotate("", xy=(t[-1] * 0.86, seuil),
-                   xytext=(t[-1] * 0.86, preuve.max()),
+        # L'ecart qui n'est jamais comble, mesure au sommet de la pile.
+        b.annotate("", xy=(t[i_max], seuil), xytext=(t[i_max], preuve[i_max]),
                    arrowprops=dict(arrowstyle="<->", color="#b03a2e", lw=2.0))
-        b.text(t[-1] * 0.84, (seuil + preuve.max()) / 2, "the gap", ha="right",
-               va="center", color="#b03a2e", weight="bold", fontsize=14)
-        b.annotate("evidence stops here.\nthe alarm never fires",
-                   xy=(t[-1] * 0.62, preuve.max()), xytext=(-6, -18),
-                   textcoords="offset points", fontsize=14, ha="right", va="top")
-        b.set_ylabel("evidence for the\nexternal detector")
+        b.text(t[i_max] - 2.0, (seuil + preuve[i_max]) / 2, "never\nclosed",
+               ha="right", va="center", color="#b03a2e", weight="bold",
+               fontsize=14)
+        b.plot([t[i_max]], [preuve[i_max]], "o", color="#1b1b1b", ms=9)
+        b.annotate("the pile peaks here,\nthen the evidence drains away",
+                   xy=(t[i_max], preuve[i_max]), xytext=(22, -4),
+                   textcoords="offset points", fontsize=14, va="top")
+        b.set_ylabel("pile of excess\nmistakes")
         b.set_xlabel("time")
         b.set_yticks([])
         b.set_xticks([])
@@ -241,11 +249,16 @@ def figure_mecanisme():
 
 
 def figure_deux_horloges():
-    """Slide 5 : les deux dates, a une amplitude du milieu de grille.
+    """Slide 7 : les deux dates, et ce qu'elles comptent d'arbres.
 
     Medianes reelles, pas un schema. L'amplitude est choisie pour sa censure
     faible (2 % sur tau_swap(75 %)), et elle est ecrite sur la figure : une
     duree qui ne porte pas son point de grille n'est pas reproductible.
+
+    Les pictogrammes d'arbres reprennent ceux de la slide de la foret. Sans
+    eux, la slide tombait du ciel : rien ne disait ce que « la date de
+    reparation » compte au juste, ni pourquoi trois quarts de foret est le
+    point de comparaison.
     """
     df = pd.read_parquet(DATA / "QCD_indicateurs_full.parquet")
     g = df.groupby("delta_e")
@@ -254,28 +267,46 @@ def figure_deux_horloges():
     cible = med.index[np.argmin(np.abs(med.index - 0.24))]
     ligne = med.loc[cible]
     court, long = float(ligne.tau_arf), float(ligne.tau75)
+    # tau_swap(q) franchit q quand N_t/M >= q, donc 8 arbres sur 10 pour 75 %.
+    n_haut, n_bas = 1, int(np.ceil(0.75 * N_MODELS))
 
     with plt.rc_context(PLT):
-        fig, ax = plt.subplots(figsize=(10.5, 3.2))
-        ax.barh([1], [court], height=0.55, color="#b03a2e")
-        ax.barh([0], [long], height=0.55, color="#1b1b1b")
-        ax.set_ylim(-0.55, 1.55)
-        ax.text(court + long * 0.012, 1, f"{court:.0f}", va="center",
-                fontsize=17, weight="bold", color="#b03a2e")
-        ax.text(long + long * 0.012, 0, f"{long:.0f}", va="center",
-                fontsize=17, weight="bold", color="#1b1b1b")
-        ax.set_yticks([1, 0])
-        ax.set_yticklabels(['called "repaired"\nby the literature',
-                            "three quarters of\nthe forest renewed"],
-                           fontsize=15)
-        ax.set_xlim(0, long * 1.22)
-        ax.set_xlabel("observations seen since the change")
-        ax.spines[["top", "right", "left"]].set_visible(False)
-        ax.tick_params(axis="y", length=0)
-        ax.text(1.0, -0.42, f"median of 100 runs, forest of {N_MODELS} trees,"
-                f" change size {cible:.2f}", transform=ax.transAxes,
-                ha="right", va="top", fontsize=12, color="#6a6a6a")
+        fig, (pic, bar) = plt.subplots(
+            1, 2, figsize=(12.2, 3.6), gridspec_kw={"width_ratios": [1, 2.1]})
 
+        for rang, (n_rempl, y) in enumerate(((n_haut, 1.0), (n_bas, 0.0))):
+            for i in range(N_MODELS):
+                cx = 0.6 + (i % 5) * 1.0
+                cy = y * 2.1 + (0.62 if i < 5 else -0.10)
+                remplace = i < n_rempl
+                _petit_arbre(pic, cx, cy, 0.62,
+                             "#b03a2e" if remplace else "#c9c9c9")
+            pic.text(5.9, y * 2.1 + 0.26, f"{n_rempl} of {N_MODELS}\nreplaced",
+                     fontsize=14, weight="bold", va="center",
+                     color="#b03a2e" if rang == 0 else "#1b1b1b")
+        pic.set_xlim(0, 8.2); pic.set_ylim(-0.9, 3.1)
+        pic.axis("off")
+
+        bar.barh([1], [court], height=0.5, color="#b03a2e")
+        bar.barh([0], [long], height=0.5, color="#1b1b1b")
+        bar.set_ylim(-0.6, 1.6)
+        bar.text(court + long * 0.015, 1, f"{court:.0f}", va="center",
+                 fontsize=17, weight="bold", color="#b03a2e")
+        bar.text(long + long * 0.015, 0, f"{long:.0f}", va="center",
+                 fontsize=17, weight="bold", color="#1b1b1b")
+        bar.set_yticks([1, 0])
+        bar.set_yticklabels(['the date the\nliterature uses',
+                             "three quarters of\nthe forest renewed"],
+                            fontsize=14)
+        bar.set_xlim(0, long * 1.2)
+        bar.set_xlabel("observations seen since the change")
+        bar.spines[["top", "right", "left"]].set_visible(False)
+        bar.tick_params(axis="y", length=0)
+        bar.text(1.0, -0.40, f"median of 100 runs, forest of {N_MODELS} trees,"
+                 f" change size {cible:.2f}", transform=bar.transAxes,
+                 ha="right", va="top", fontsize=12, color="#6a6a6a")
+
+        fig.tight_layout()
         out = FIGURES / "Fig_slide_deux_horloges.png"
         fig.savefig(out, dpi=150, bbox_inches="tight")
         plt.close(fig)
