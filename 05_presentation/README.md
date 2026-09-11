@@ -6,7 +6,7 @@ Les supports de présentation du sujet 39. Les rédactions restent dans
 ## `presentation_pitch_3min.tex`
 
 Pitch de 3 minutes **pour un auditoire qui ne connaît pas le sujet**.
-Huit slides, 522 mots de texte parlé : **196 s à 160 mots/min**. Les schémas
+Huit slides, 546 mots de texte parlé : **205 s à 160 mots/min**. Les schémas
 portent assez pour que les notes restent brèves.
 C'est au-dessus de la cible, et c'est un arbitrage assumé — poser le drift, la
 forêt et le détecteur avant de s'en servir coûte une minute qu'on ne récupère
@@ -31,7 +31,7 @@ maintenant sa slide. Les chiffres détaillés de C.1, C.2 et C.3 restent absents
 | 5 | **le paradoxe, et la course** : la réparation a une date, l'alarme n'en a jamais |
 | 6 | **le compromis de réglage** : le seuil décide tout, et aucun ne convient |
 | 7 | **l'avancée** : la date admise compte 1 arbre sur 10, la réparation en demande 8 |
-| 8 | où on en est, et la suite |
+| 8 | où on en est : ce qui tient, ce qui cloche, la suite, et la question ouverte |
 
 ### Compiler
 
