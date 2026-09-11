@@ -70,6 +70,25 @@ PLT = {
 }
 
 
+def _police_latex():
+    """Variante --latex (11/09, Alexandre) : le texte des figures en Latin
+    Modern Sans, la police exacte de Beamer sous lualatex, pour que figures et
+    slides aient le meme texte. Les fichiers viennent de la distribution TeX
+    (kpsewhich) : aucune police telechargee a part.
+    """
+    import subprocess
+    from matplotlib import font_manager
+    for nom in ("lmsans10-regular.otf", "lmsans10-bold.otf",
+                "lmsans10-oblique.otf", "lmsans10-boldoblique.otf"):
+        chemin = subprocess.run(["kpsewhich", nom], capture_output=True,
+                                text=True).stdout.strip()
+        if not chemin:
+            raise SystemExit(f"{nom} introuvable : sudo tlmgr install lm")
+        font_manager.fontManager.addfont(chemin)
+    return {"font.family": "sans-serif", "font.sans-serif": ["Latin Modern Sans"],
+            "mathtext.fontset": "cm", "axes.unicode_minus": False}
+
+
 def delta_e_theorique(boundary_shift):
     """La conversion des auteurs, `exp_R2_instrumented_blind_spot.py` l. 114."""
     return norm.cdf(np.asarray(boundary_shift) / np.sqrt(2)) - 0.5
@@ -576,7 +595,15 @@ def main():
     p.add_argument("--only", choices=["blindspot", "ecarts", "mecanisme",
                                       "horloges", "drift", "seuils",
                                       "foret", "watchdog"])
+    # --latex : memes figures, texte en Latin Modern Sans, ecrites dans
+    # figures/slides_latex/. Les PNG d'origine ne sont pas touches.
+    p.add_argument("--latex", action="store_true")
     a = p.parse_args()
+    if a.latex:
+        global FIGURES
+        FIGURES = FIGURES / "slides_latex"
+        FIGURES.mkdir(parents=True, exist_ok=True)
+        PLT.update(_police_latex())
 
     if a.only in (None, "blindspot"):
         out, n_al, n_ru = figure_blindspot()

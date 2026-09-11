@@ -15,8 +15,11 @@
 % aucune fausse alarme sur 100 runs sans drift et detecte 98-100 % au-dessus
 % de Delta_e = 0,14 (a remonter a Minato, pas a trancher dans un pitch).
 %
-% Compilation :  latexmk -lualatex presentation_pitch_3min.tex
-% (metropolis charge les fontes Fira, ce que pdflatex ne fait pas.)
+% Compilation :  lualatex presentation_pitch_3min.tex  (deux passes)
+% Theme Madrid depuis le 11/09 (Alexandre : un rendu « presentation de
+% chercheur », moins lisse que metropolis). Les figures projetees sont les
+% variantes Latin Modern de figures/slides_latex/ (figures_slides.py --latex),
+% la meme police que Beamer ; les PNG d'origine restent dans figures/.
 %
 % Tracabilite des chiffres :
 %   ../04_experimentations/resultats_R2/scripts/chiffres_slides.py
@@ -28,29 +31,28 @@
 
 \documentclass[aspectratio=169,11pt]{beamer}
 
-\usetheme{metropolis}
+\usetheme{Madrid}
 \usepackage[english]{babel}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{booktabs}
-\setbeamertemplate{navigation symbols}{}
+% Icones de navigation laissees : la signature des decks LaTeX de labo.
 % Sortie « notes seules », pour repeter :
 %   lualatex "\def\NOTESSEULES{}\input{presentation_pitch_3min}"
 \ifdefined\NOTESSEULES\setbeameroption{show only notes}\fi
-\graphicspath{{../04_experimentations/resultats_R2/resultats/figures/}}
+\graphicspath{{../04_experimentations/resultats_R2/resultats/figures/slides_latex/}{../04_experimentations/resultats_R2/resultats/figures/}}
 
 % Fontes resserrees pour que les quatre auteurs tiennent sur une ligne.
-% (L'« Overfull vbox » de la page de titre vient du theme metropolis
-% lui-meme : il se reproduit a l'identique avec un titre d'un seul
-% caractere, et rien n'est coupe au rendu. Ne pas chercher a le corriger.)
+% Versions courtes entre crochets : celles du pied de page de Madrid, qui
+% deborde avec les quatre noms ET l'institut en entier.
 \setbeamerfont{author}{size=\small}
 \setbeamerfont{institute}{size=\scriptsize}
 
-\title{The Blind Spot Paradox}
+\title[The Blind Spot Paradox]{The Blind Spot Paradox}
 \subtitle{When a self-repairing model destroys the evidence its own monitor needs}
-\author{Alexandre Boyer \and Mélaine Gouillou \and Salomé Fonvielle \and Ulysse Petit-Tichanné}
-\institute{Research Track, Topic 39, CentraleSupélec. Supervisor: Raphaël Minato}
-\date{}
+\author[Boyer, Gouillou, Fonvielle, Petit-Tichanné]{Alexandre Boyer \and Mélaine Gouillou \and Salomé Fonvielle \and Ulysse Petit-Tichanné}
+\institute[CS]{Research Track, Topic 39, CentraleSupélec. Supervisor: Raphaël Minato}
+\date{September 2026}
 
 \begin{document}
 
@@ -60,18 +62,27 @@
 
 % ---------------------------------------------------------------- 32 s
 \begin{frame}{Concept drift: the rule changes, the data does not}
+  \vspace{-0.6em}
+  \[
+    \underbrace{P(X)}_{\text{the data}}\ \text{unchanged}
+    \qquad\qquad
+    \underbrace{P(Y \mid X)}_{\text{the rule}}\ \text{changes}
+  \]
+  \vspace{-0.9em}
   \begin{center}
-    \includegraphics[height=0.60\textheight]{Fig_slide_drift.png}
+    \includegraphics[height=0.46\textheight]{Fig_slide_drift.png}
   \end{center}
   \begin{center}
     A model trained on the left keeps predicting, confidently, and is now
     \alert{wrong on the shaded band}.
   \end{center}
   \note{First, the problem. A model learns a rule from data. Then the
-    world changes, and the rule becomes wrong: that is concept drift.
-    Here is the simple case we simulate. Points are split by a line. At
-    the change, the line moves. The points in the shaded band switch
-    labels, so a model trained before the change now gets them wrong.}
+    world changes, and the rule becomes wrong: that is concept drift. In
+    symbols, the inputs keep the same distribution, P of X, but the
+    rule, P of Y given X, changes. Here is the simple case we simulate.
+    Points are split by a line. At the change, the line moves. The
+    points in the shaded band switch labels, so a model trained before
+    the change now gets them wrong.}
 \end{frame}
 
 % ---------------------------------------------------------------- 33 s
@@ -128,7 +139,7 @@
 % ---------------------------------------------------------------- 34 s
 \begin{frame}{Why not just lower the threshold?}
   \begin{center}
-    \includegraphics[width=0.80\textwidth]{Fig_slide_seuils.png}
+    \includegraphics[width=0.68\textwidth]{Fig_slide_seuils.png}
   \end{center}
   \vspace{-0.3em}
   \begin{center}
@@ -209,32 +220,29 @@
 % Chiffres : 3 / 2 000 = comptes_r2 (regime A des auteurs, lambda = 50) ;
 % 14 = 1 225 / 86 (mesures_en_erreur), borne haute des 6,0 a 14,3 de C.1.
 \begin{frame}{Where we stand}
-  \vspace{1.2em}
+  \vspace{0.5em}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.31\textwidth}
-      \centering
-      {\scriptsize\color{gray} at the paper's strict threshold}\\[0.3em]
-      {\huge\bfseries 3\,/\,2\,000}\\[0.3em]
-      {\small alarms}\\[1.1em]
-      \textbf{The blind spot is real.}
+      \begin{block}{The blind spot is real}
+        At the paper's strict threshold, the alarm fired
+        \textbf{3 times in 2\,000} runs.
+      \end{block}
     \end{column}\hfill
     \begin{column}{0.31\textwidth}
-      \centering
-      {\scriptsize\color{gray} the paper's stopwatch stops}\\[0.3em]
-      {\huge\bfseries\alert{up to 14$\times$}}\\[0.3em]
-      {\small too early}\\[1.1em]
-      \textbf{The repair looks faster than it is.}
+      \begin{alertblock}{The stopwatch stops early}
+        Up to \textbf{14$\times$} too early: the repair looks
+        faster than it is.
+      \end{alertblock}
     \end{column}\hfill
     \begin{column}{0.31\textwidth}
-      \centering
-      {\scriptsize\color{gray} a better stopwatch}\\[0.3em]
-      {\huge\bfseries ?}\\[0.3em]
-      {\small candidates under test}\\[1.1em]
-      \textbf{The open question.}
+      \begin{exampleblock}{Open question}
+        What should replace that stopwatch? Candidates under
+        test, none has passed yet.
+      \end{exampleblock}
     \end{column}
   \end{columns}
   \vfill
-  \begin{center}\large Thank you.\end{center}
+  \begin{center}Thank you for your attention.\end{center}
   \note{Where we stand. Yes: with the paper's strict threshold, the alarm
     really stays silent, and we measured how often. But the paper's
     stopwatch stops at the first tree, so the forest looks faster than

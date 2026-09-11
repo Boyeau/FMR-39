@@ -6,7 +6,7 @@ Les supports de présentation du sujet 39. Les rédactions restent dans
 ## `presentation_pitch_3min.tex`
 
 Pitch de 3 minutes **pour un auditoire qui ne connaît pas le sujet**.
-Neuf slides, 506 mots de texte parlé : **190 s à 160 mots/min** (546 mots et
+Neuf slides, 526 mots de texte parlé : **197 s à 160 mots/min** (546 mots et
 205 s avant les retouches du 11/09). Les schémas
 portent assez pour que les notes restent brèves.
 C'est au-dessus de la cible, et c'est un arbitrage assumé — poser le drift, la
@@ -27,14 +27,14 @@ et un chiffre de D, sont réunis sur la slide 8 (ajout du 11/09, voir en bas).
 
 | Slide | Ce qu'elle pose |
 |---|---|
-| 2 | ce qu'est un **changement de concept**, sur la frontière même que simule le banc |
+| 2 | ce qu'est un **changement de concept**, sur la frontière même que simule le banc, avec la formule : `P(X)` inchangée, `P(Y | X)` change |
 | 3 | **l'arbre, la forêt, l'ARF** : l'escalier d'un arbre, puis dix arbres dont un remplacé |
 | 4 | **le détecteur** : la pile d'erreurs qui retombe à zéro, puis monte et franchit |
 | 5 | **le paradoxe, et la course** : la réparation a une date, l'alarme n'en a jamais |
 | 6 | **le compromis de réglage** : le seuil décide tout, et aucun ne convient |
 | 7 | **l'avancée** : la date admise compte 1 arbre sur 10, la réparation en demande 8 |
 | 8 | **nos mesures, en quantité d'erreur** : cinq indicateurs définis et chiffrés au même changement que la slide 7 |
-| 9 | où on en est, en trois chiffres : le point aveugle (3 / 2 000), le chronomètre (jusqu'à 14×), la question ouverte |
+| 9 | où on en est, en trois blocs : le point aveugle (3 / 2 000), le chronomètre (jusqu'à 14×), la question ouverte |
 
 ### Compiler
 
@@ -42,9 +42,12 @@ et un chiffre de D, sont réunis sur la slide 8 (ajout du 11/09, voir en bas).
 latexmk -lualatex presentation_pitch_3min.tex
 ```
 
-**lualatex, pas pdflatex** : le thème `metropolis` charge les fontes Fira.
-Avec `pdflatex` le document compile mais retombe sur les fontes par défaut.
-Le thème n'est **pas** dans BasicTeX : `sudo tlmgr install beamertheme-metropolis pgfopts`.
+**Thème Madrid** depuis le 11/09 : un rendu « présentation de chercheur », voulu
+moins lisse que metropolis (qui n'est plus nécessaire, ni Fira). Compile avec
+`lualatex` en deux passes. Les figures projetées sont les variantes **Latin
+Modern Sans** de `figures/slides_latex/`, produites par
+`figures_slides.py --only <figure> --latex` : même code, seule la police change,
+et les PNG d'origine de `figures/` ne sont pas touchés.
 
 Le texte parlé se sort en PDF séparé, une page par slide, miniature en regard :
 
@@ -193,3 +196,9 @@ pour qu'on lui fasse confiance et assez sensible pour voir la dérive.
   the repair », à la place de « The alarm is what we want. This date measures what
   stops it from ever firing », jugé peu clair.
 - `verif_chiffres_tex.py` sur le pitch : 18 littéraux contrôlés, 0 introuvable.
+- **Rendu « chercheur »** (demande d'Alexandre) : thème Madrid avec pied de page et
+  icônes de navigation, figures projetées en Latin Modern Sans
+  (`figures/slides_latex/`), dernière slide en trois `block` Beamer.
+- **Slide 2** : la formule du changement de concept, `P(X)` inchangée et
+  `P(Y | X)` qui change, exacte pour notre banc (entrées gaussiennes avant et
+  après, seule la frontière qui fixe `Y` bouge) ; une phrase de plus à l'oral.
