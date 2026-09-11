@@ -378,10 +378,142 @@ def figure_seuils():
     return out, lignes
 
 
+def _petit_arbre(ax, cx, cy, h, couleur, barre=False):
+    """Un pictogramme d'arbre binaire : une racine, deux branches, quatre feuilles."""
+    seg = [((cx, cy + h / 2), (cx - h / 3, cy)), ((cx, cy + h / 2), (cx + h / 3, cy)),
+           ((cx - h / 3, cy), (cx - h / 2, cy - h / 2)),
+           ((cx - h / 3, cy), (cx - h / 6, cy - h / 2)),
+           ((cx + h / 3, cy), (cx + h / 6, cy - h / 2)),
+           ((cx + h / 3, cy), (cx + h / 2, cy - h / 2))]
+    for (x0, y0), (x1, y1) in seg:
+        ax.plot([x0, x1], [y0, y1], color=couleur, lw=2.0, solid_capstyle="round")
+    if barre:
+        ax.plot([cx - h / 2, cx + h / 2], [cy + h / 2, cy - h / 2],
+                color="#b03a2e", lw=3.0)
+
+
+def figure_foret():
+    """Slide 3 : ce qu'est un arbre de decision, et pourquoi une foret.
+
+    A gauche, le MEME espace et la MEME frontiere que la figure du drift :
+    l'arbre ne sait couper que parallelement aux axes, donc il approche la
+    diagonale par un escalier. C'est aussi la raison du socle d'erreur
+    mesure a 0,0231 pour une erreur de Bayes nulle (JOURNAL.md section 2 a),
+    mais ici il ne sert qu'a montrer ce qu'est un arbre.
+
+    A droite, les dix arbres, dont un barre : la foret se repare en
+    remplacant ses arbres un par un.
+    """
+    rng = np.random.default_rng(7)
+    n = 300
+    x0, x1 = rng.normal(size=n), rng.normal(size=n)
+    lab = (x0 + x1 > 0.0)
+    lim = 3.0
+
+    with plt.rc_context(PLT):
+        fig, (g, d) = plt.subplots(1, 2, figsize=(11.5, 4.5),
+                                   gridspec_kw={"width_ratios": [1, 1.35]})
+
+        g.scatter(x0[lab], x1[lab], s=18, marker="o", color="#1b1b1b")
+        g.scatter(x0[~lab], x1[~lab], s=22, marker="x", color="#8a8a8a",
+                  linewidths=1.3)
+        dd = np.linspace(-lim, lim, 10)
+        g.plot(dd, -dd, color="#b03a2e", lw=1.6, ls=":")
+        # L'escalier : des coupes parallelement aux axes, jamais obliques.
+        marches = np.linspace(-lim, lim, 9)
+        xs, ys = [], []
+        for i in range(len(marches) - 1):
+            xs += [marches[i], marches[i + 1]]
+            ys += [-marches[i], -marches[i]]
+        g.plot(xs, ys, color="#1b1b1b", lw=2.4, drawstyle="default")
+        g.set_xlim(-lim, lim); g.set_ylim(-lim, lim)
+        g.set_xticks([]); g.set_yticks([]); g.set_aspect("equal")
+        g.set_title("one tree", fontsize=16)
+        g.set_xlabel("it can only cut straight across", fontsize=13)
+
+        for i in range(10):
+            cx, cy = 0.9 + (i % 5) * 1.5, 1.25 if i < 5 else -0.6
+            _petit_arbre(d, cx, cy, 0.95, "#1b1b1b", barre=(i == 7))
+        d.annotate("failing: thrown away,\na fresh one grows back",
+                   xy=(4.45, -0.95), xytext=(7.0, -1.5), fontsize=13,
+                   color="#b03a2e", weight="bold", ha="center",
+                   arrowprops=dict(arrowstyle="->", color="#b03a2e", lw=1.8))
+        d.set_xlim(0, 9.2); d.set_ylim(-2.3, 2.2)
+        d.axis("off")
+        d.set_title("ten trees, and they vote", fontsize=16)
+
+        fig.tight_layout()
+        out = FIGURES / "Fig_slide_foret.png"
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+    return out
+
+
+def figure_watchdog():
+    """Slide 4 : comment le detecteur decide.
+
+    Il lit les reponses une par une, empile ce qui depasse du taux normal,
+    et alerte au franchissement. Schema stylise, aucune donnee.
+    """
+    rng = np.random.default_rng(3)
+    n = 26
+    # Deux regimes, pour que la pile fasse voir les deux choses qui comptent :
+    # elle retombe a zero tant que le modele va bien, elle ne monte que
+    # pendant la rafale d'erreurs.
+    taux = np.where(np.arange(n) < 13, 0.12, 0.62)
+    faux = rng.random(n) < taux
+    # La vraie recurrence du detecteur, S_t = max(0, S_{t-1} + x_t), et non
+    # un cumsum tronque apres coup : c'est la forme que C.2 demontre, et la
+    # seule qui reparte de zero quand les erreurs cessent.
+    pile, s_t = [], 0.0
+    for est_faux in faux:
+        s_t = max(0.0, s_t + (1.0 if est_faux else -0.45))
+        pile.append(s_t)
+    pile = np.array(pile)
+    seuil = 3.2
+
+    with plt.rc_context(PLT):
+        fig, (h, b) = plt.subplots(2, 1, figsize=(10.5, 4.8), sharex=True,
+                                   gridspec_kw={"height_ratios": [1, 2.1]})
+
+        for i in range(n):
+            h.text(i, 0, "x" if faux[i] else "o", ha="center", va="center",
+                   fontsize=15, weight="bold",
+                   color="#b03a2e" if faux[i] else "#8a8a8a")
+        h.set_xlim(-1, n); h.set_ylim(-0.6, 0.6)
+        h.axis("off")
+        h.text(-0.9, 0.45, "the model answers, one observation at a time"
+               "   (x = wrong)", fontsize=13, color="#6a6a6a", ha="left")
+
+        b.fill_between(range(n), 0, pile, step="mid", color="#cfcfcf")
+        b.plot(range(n), pile, drawstyle="steps-mid", color="#1b1b1b", lw=2.4)
+        b.axhline(seuil, color="#b03a2e", lw=2.2, ls=":")
+        b.text(0, seuil + 0.25, "threshold", color="#b03a2e", weight="bold",
+               fontsize=14)
+        franchi = int(np.argmax(pile >= seuil)) if (pile >= seuil).any() else None
+        if franchi:
+            b.plot([franchi], [pile[franchi]], "v", color="#b03a2e", ms=14)
+            b.annotate("alarm", xy=(franchi, pile[franchi]), xytext=(12, 16),
+                       textcoords="offset points", color="#b03a2e",
+                       weight="bold", fontsize=15)
+        b.set_ylabel("pile of excess\nmistakes")
+        b.set_xlim(-1, n); b.set_ylim(0, seuil * 1.45)
+        b.set_xticks([]); b.set_yticks([])
+        b.set_xlabel("time")
+        b.grid(alpha=0.15, lw=0.6)
+
+        fig.tight_layout()
+        out = FIGURES / "Fig_slide_watchdog.png"
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+    return out
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--only", choices=["blindspot", "ecarts", "mecanisme",
-                                      "horloges", "drift", "seuils"])
+                                      "horloges", "drift", "seuils",
+                                      "foret", "watchdog"])
     a = p.parse_args()
 
     if a.only in (None, "blindspot"):
@@ -391,6 +523,10 @@ def main():
         print(f"[annexe ] {figure_ecarts().name}")
     if a.only in (None, "drift"):
         print(f"[slide 2] {figure_drift().name}")
+    if a.only in (None, "foret"):
+        print(f"[slide 3] {figure_foret().name}")
+    if a.only in (None, "watchdog"):
+        print(f"[slide 4] {figure_watchdog().name}")
     if a.only in (None, "mecanisme"):
         print(f"[slide 2] {figure_mecanisme().name}")
     if a.only in (None, "seuils"):

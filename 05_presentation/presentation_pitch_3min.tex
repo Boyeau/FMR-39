@@ -72,44 +72,39 @@
 
 % ---------------------------------------------------------------- 33 s
 \begin{frame}{Defence one: a model that repairs itself}
-  \begin{itemize}
-    \item A \alert{decision tree} splits the picture with simple cuts, and
-          answers by asking which piece a new point falls into.
-    \item One tree is fragile, so ten of them \alert{vote}. That is the
-          Adaptive Random Forest, the model we study.
-    \item \alert{It repairs itself}: a tree whose answers start going wrong
-          is thrown away, and a fresh one grows in its place.
-  \end{itemize}
-  \vfill
   \begin{center}
-    \large Ten trees, replaced one at a time. Remember that number.
+    \includegraphics[width=0.94\textwidth]{Fig_slide_foret.png}
+  \end{center}
+  \vspace{-0.2em}
+  \begin{center}
+    This is the \alert{Adaptive Random Forest}. Ten trees, replaced one at a
+    time.
   \end{center}
   \note{The first defence repairs itself. Its building block is a decision
-    tree: it splits the picture with simple cuts, and answers by asking
-    which piece a new point falls into. One tree is fragile, so ten of them
-    vote. That is the Adaptive Random Forest, the model we study. A tree
-    whose answers start going wrong is thrown away, and a fresh one grows in
-    its place. Ten trees, replaced one at a time.}
+    tree: it splits the picture with simple cuts, always straight across, so
+    it can only approximate a slanted boundary by a staircase. One tree is
+    fragile, so ten of them vote. That is the Adaptive Random Forest, the
+    model we study. And a tree whose answers start going wrong is thrown
+    away, while a fresh one grows in its place. Ten trees, replaced one at a
+    time.}
 \end{frame}
 
 % ---------------------------------------------------------------- 25 s
 \begin{frame}{Defence two: a watchdog that raises the alarm}
-  \begin{itemize}
-    \item It reads the model's mistakes, one observation at a time, and
-          \alert{adds up the excess}.
-    \item Once the pile crosses a \alert{threshold}, it calls a human: audit,
-          retraining, pause.
-  \end{itemize}
-  \vfill
   \begin{center}
-    \large The alarm is the only thing a human ever sees.\\[0.3em]
-    \normalsize Two communities, two tools, never measured against each other.
+    \includegraphics[width=0.94\textwidth]{Fig_slide_watchdog.png}
+  \end{center}
+  \vspace{-0.2em}
+  \begin{center}
+    Two communities, two tools, \alert{never measured against each other}.
   \end{center}
   \note{The second defence comes from a different community. A watchdog
-    reads the model's mistakes, one observation at a time, and adds up the
-    excess. Once that pile crosses a threshold it calls a human: audit,
-    retraining, pause. That alarm is the only thing a human ever sees. Two
-    communities, two tools, never measured against each other.}
+    reads the model's answers one at a time and keeps a pile of the excess
+    mistakes. While the model is doing well the pile falls back to zero. Let
+    the mistakes come, and it grows, until it crosses a threshold and calls
+    a human: audit, retraining, pause. That alarm is the only thing a human
+    ever sees. Two communities, two tools, never measured against each
+    other.}
 \end{frame}
 
 % ---------------------------------------------------------------- 35 s

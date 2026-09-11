@@ -6,11 +6,11 @@ Les supports de présentation du sujet 39. Les rédactions restent dans
 ## `presentation_pitch_3min.tex`
 
 Pitch de 3 minutes **pour un auditoire qui ne connaît pas le sujet**.
-Huit slides, 469 mots de texte parlé : **176 s à 160 mots/min, 188 s à 150**.
+Huit slides, 493 mots de texte parlé : **185 s à 160 mots/min**.
 C'est au-dessus de la cible, et c'est un arbitrage assumé — poser le drift, la
 forêt et le détecteur avant de s'en servir coûte une minute qu'on ne récupère
 pas ailleurs. La coupe la moins chère, si les trois minutes sont fermes, est la
-slide 5 (le compromis de réglage) : elle vaut 62 mots et ne porte aucun résultat
+slide 6 (le compromis de réglage) : elle vaut 62 mots et ne porte aucun résultat
 du groupe.
 
 **Parti pris : rien n'est employé avant d'avoir été posé.** Un audit des slides
@@ -25,8 +25,8 @@ maintenant sa slide. Les chiffres détaillés de C.1, C.2 et C.3 restent absents
 | Slide | Ce qu'elle pose |
 |---|---|
 | 2 | ce qu'est un **changement de concept**, sur la frontière même que simule le banc |
-| 3 | **l'arbre, la forêt, l'ARF** : dix arbres qui votent, remplacés un par un |
-| 4 | **le détecteur** : il empile les erreurs et alerte au franchissement d'un seuil |
+| 3 | **l'arbre, la forêt, l'ARF** : l'escalier d'un arbre, puis dix arbres dont un remplacé |
+| 4 | **le détecteur** : la pile d'erreurs qui retombe à zéro, puis monte et franchit |
 | 5 | **le paradoxe** : mis ensemble, les deux s'annulent |
 | 6 | **le compromis de réglage** : le seuil décide tout, et aucun ne convient |
 | 7 | **l'avancée** : l'horloge admise date le premier arbre, pas la réparation |
@@ -73,6 +73,24 @@ PYTHONHASHSEED=0 python figures_slides.py     # les deux figures projetées
 
 `verif_chiffres_tex.py` signale `2014` comme introuvable : c'est l'année de la
 citation Gama, pas une mesure. Aucun littéral n'a été ajouté à sa liste `EXCLUS`.
+
+### Cinq schémas plutôt que des listes à puces
+
+Six des huit slides portent une figure, et quatre sont des schémas dessinés :
+l'espace du drift, l'escalier d'un arbre et les dix arbres, la pile du
+détecteur, et l'annulation des deux. Les trois derniers sont **stylisés, sans
+données**, ce que la légende dit à chaque fois.
+
+Deux points de fidélité qui ne sont pas cosmétiques :
+
+- l'escalier de `Fig_slide_foret` est tracé dans **le même espace et sur la même
+  frontière** que `Fig_slide_drift` : un arbre ne coupe que parallèlement aux
+  axes, c'est aussi la raison du socle d'erreur de `0,0231` mesuré pour une
+  erreur de Bayes nulle (`JOURNAL.md` § 2 a) ;
+- la pile de `Fig_slide_watchdog` suit la vraie récurrence `S_t = max(0,
+  S_{t−1} + x_t)`, celle que C.2 démontre, et non un cumul tronqué après coup.
+  C'est la seule forme qui **retombe à zéro** quand les erreurs cessent, et
+  c'est précisément ce que la slide doit faire voir.
 
 ### Un chiffre qui ne se cite jamais seul
 
