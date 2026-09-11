@@ -202,3 +202,6 @@ pour qu'on lui fasse confiance et assez sensible pour voir la dérive.
 - **Slide 2** : la formule du changement de concept, `P(X)` inchangée et
   `P(Y | X)` qui change, exacte pour notre banc (entrées gaussiennes avant et
   après, seule la frontière qui fixe `Y` bouge) ; une phrase de plus à l'oral.
+- **Marges de texte fixées à 1 cm** (`\setbeamersize`) : sous Madrid en 16:9, la
+  marge par défaut n'est que de 10,95 pt (3,9 mm) ; figures, blocs et tableau
+  venaient à 4 mm du bord et semblaient déborder en plein écran.

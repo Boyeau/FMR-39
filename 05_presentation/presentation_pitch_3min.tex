@@ -32,6 +32,10 @@
 \documentclass[aspectratio=169,11pt]{beamer}
 
 \usetheme{Madrid}
+% Marges de texte explicites : sous Madrid, en 16:9, la marge par defaut n'est
+% que de 10,95 pt (3,9 mm) ; figures en \textwidth, blocks et tableau venaient
+% alors a 4 mm du bord et semblaient deborder en plein ecran (11/09).
+\setbeamersize{text margin left=1cm, text margin right=1cm}
 \usepackage[english]{babel}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
@@ -229,9 +233,9 @@
       \end{block}
     \end{column}\hfill
     \begin{column}{0.31\textwidth}
-      \begin{alertblock}{The stopwatch stops early}
+      \begin{alertblock}{Stopwatch stops early}
         Up to \textbf{14$\times$} too early: the repair looks
-        faster than it is.
+        faster than it really is.
       \end{alertblock}
     \end{column}\hfill
     \begin{column}{0.31\textwidth}
