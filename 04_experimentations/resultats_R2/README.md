@@ -55,10 +55,19 @@ scripts/
   chiffres_QC.py         LECTURE SEULE : rejeu des constats d'audit de C.1 / C.2 et des
                          chiffres de C.3.
   figures_revision_QCD.py  les 9 figures ajoutées à C.3 et D.1-D.4 le 10 septembre.
+
+  # pitch de 3 minutes (11 septembre), arrêté à la fin de C
+  figures_slides.py      les 2 figures projetées de `presentation_pitch_3min.tex`,
+                         regénérées et non recadrées (taille de police, panneau bas
+                         de R2 qui mesure autre chose, em-dashes dans les pixels).
+  chiffres_slides.py     LECTURE SEULE : les 3 comptes d'alarmes de la campagne R2
+                         des auteurs, que `verif_chiffres_tex.py` ne peut pas
+                         atteindre, et le contrôle qui établit que leur campagne
+                         et la nôtre sont distinctes (tau_arf commun sur 96,65 %).
 resultats/data/          75 Parquet : 4 de campagne, 6 d'étalon, 9 tables de banc, le
                          reste en tables d'analyse et de dérivés
-resultats/figures/       20 figures (11 d'`analyse_QCD.py` et du banc, 9 de
-                         `figures_revision_QCD.py`)
+resultats/figures/       22 figures (11 d'`analyse_QCD.py` et du banc, 9 de
+                         `figures_revision_QCD.py`, 2 de `figures_slides.py`)
 ```
 
 ## Relancer
@@ -93,6 +102,10 @@ PYTHONHASHSEED=0 python derives_QC.py --tag full     # fin d'horizon pour C.3
 PYTHONHASHSEED=0 python chiffres_QD.py               # traçabilité de D
 PYTHONHASHSEED=0 python chiffres_QC.py               # traçabilité de C, audit de C.1/C.2
 PYTHONHASHSEED=0 python figures_revision_QCD.py      # 9 figures
+
+# pitch de 3 minutes (11 septembre)
+PYTHONHASHSEED=0 python figures_slides.py            # 2 figures projetées
+PYTHONHASHSEED=0 python chiffres_slides.py           # traçabilité de l'accroche R2
 ```
 
 Les traces pré-rupture `QCD_etalon_traces_pre_*` ne sont pas versionnées : elles sont

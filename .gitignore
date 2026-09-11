@@ -13,6 +13,10 @@ __pycache__/
 *.fls
 *.fdb_latexmk
 *.toc
+# artefacts propres a beamer
+*.nav
+*.snm
+*.vrb
 
 # ... mais les logs de campagne restent versionnes (regle experimentation.md)
 !**/resultats/data/*.log
