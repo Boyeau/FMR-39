@@ -215,6 +215,15 @@ def figure_mecanisme():
         h.annotate("the forest repairs itself", xy=(t0 + 2.2 * tau, base + 0.05),
                    xytext=(24, 34), textcoords="offset points", fontsize=14,
                    arrowprops=dict(arrowstyle="->", color="#1b1b1b", lw=1.6))
+        # Le premier coureur a une date d'arrivee. Le second n'en a pas : la
+        # course est le vrai sujet, et c'est elle qui oblige a dater la
+        # reparation. Sans ce reperage, la slide des horloges tombe du ciel.
+        t_rep = t0 + 3.4 * tau
+        for ax in (h, b):
+            ax.axvline(t_rep, color="#1b1b1b", lw=1.6, ls="-.")
+        h.annotate("repaired", xy=(t_rep, base + 0.20), xytext=(8, 0),
+                   textcoords="offset points", fontsize=14, weight="bold",
+                   va="center")
         h.set_ylabel("model error")
         h.set_yticks([])
         h.grid(alpha=0.15, lw=0.6)
@@ -233,8 +242,10 @@ def figure_mecanisme():
                fontsize=14)
         b.plot([t[i_max]], [preuve[i_max]], "o", color="#1b1b1b", ms=9)
         b.annotate("the pile peaks here,\nthen the evidence drains away",
-                   xy=(t[i_max], preuve[i_max]), xytext=(22, -4),
-                   textcoords="offset points", fontsize=14, va="top")
+                   xy=(t[i_max], preuve[i_max]), xytext=(16, -6),
+                   textcoords="offset points", fontsize=13, va="top")
+        b.text(t_rep + 2.0, seuil * 0.80, "no alarm, ever", fontsize=14,
+               weight="bold", color="#b03a2e", va="center")
         b.set_ylabel("pile of excess\nmistakes")
         b.set_xlabel("time")
         b.set_yticks([])

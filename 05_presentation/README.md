@@ -28,7 +28,7 @@ maintenant sa slide. Les chiffres détaillés de C.1, C.2 et C.3 restent absents
 | 2 | ce qu'est un **changement de concept**, sur la frontière même que simule le banc |
 | 3 | **l'arbre, la forêt, l'ARF** : l'escalier d'un arbre, puis dix arbres dont un remplacé |
 | 4 | **le détecteur** : la pile d'erreurs qui retombe à zéro, puis monte et franchit |
-| 5 | **le paradoxe** : mis ensemble, les deux s'annulent |
+| 5 | **le paradoxe, et la course** : la réparation a une date, l'alarme n'en a jamais |
 | 6 | **le compromis de réglage** : le seuil décide tout, et aucun ne convient |
 | 7 | **l'avancée** : la date admise compte 1 arbre sur 10, la réparation en demande 8 |
 | 8 | où on en est, et la suite |
@@ -98,6 +98,19 @@ Deux points de fidélité qui ne sont pas cosmétiques :
 - `Fig_slide_deux_horloges` reprend les **pictogrammes d'arbres** de la slide 3,
   un sur dix contre huit sur dix. Sans eux la slide tombait du ciel : rien ne
   disait ce que « la date de réparation » compte au juste.
+
+### Pourquoi la slide 7 ne tombe pas du ciel
+
+La date de réparation n'est pas une mesure parmi d'autres : **c'est la course
+qui l'exige**. Le paradoxe s'énonce « la réparation arrive avant l'alarme », et
+une course ne se tranche qu'en datant les deux coureurs. Dater l'alarme est
+trivial, elle part ou non ; dater la réparation demande une convention, et toute
+la quantification de l'article repose sur celle qu'elle a choisie.
+
+C'est pour cela que la slide 5 porte maintenant un repère `repaired` sur la
+courbe d'erreur et un `no alarm, ever` en regard : le premier coureur a une date
+d'arrivée, le second n'en a pas. Sans ce repérage, la slide 7 mesurait un temps
+dont personne n'avait dit à quoi il sert.
 
 ### Un chiffre qui ne se cite jamais seul
 
