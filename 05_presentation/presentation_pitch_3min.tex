@@ -4,20 +4,24 @@
 %
 % Parti pris : expliquer les concepts et l'avancement, pas enumerer des
 % resultats. Chaque slide pose une notion avant de s'en servir, et chaque
-% chiffre arrive apres le dispositif qui le produit. Les chiffres detailles
-% de C.1, C.2 et C.3 sont volontairement absents : chacun exige sa
-% definition prealable, et trois minutes ne les financent pas.
+% chiffre arrive apres le dispositif qui le produit.
 %
-% Les resultats s'arretent a la fin de la question C. La question D est
-% annoncee comme le travail suivant, et aucun chiffre des
-% `redaction_QD*.tex` n'apparait ici.
+% 11/09 (Alexandre) : le deroule tire de l'article est inchange. Une slide
+% « Measuring the repair in mistakes » ajoute nos indicateurs, chacun avec
+% sa definition et sa valeur AU MEME changement que la slide precedente
+% (Delta_e = 0,24), plus un chiffre de D (tau_ARF contre A(H) : 0/18).
+% La these « aucun seuil ne sauve l'alarme » est desormais attribuee a
+% l'article, pas assumee par nous : sur le banc Bernoulli, lambda = 15 n'a
+% aucune fausse alarme sur 100 runs sans drift et detecte 98-100 % au-dessus
+% de Delta_e = 0,14 (a remonter a Minato, pas a trancher dans un pitch).
 %
 % Compilation :  latexmk -lualatex presentation_pitch_3min.tex
 % (metropolis charge les fontes Fira, ce que pdflatex ne fait pas.)
 %
 % Tracabilite des chiffres :
 %   ../04_experimentations/resultats_R2/scripts/chiffres_slides.py
-%       (les 3 alarmes de R2, et les six chiffres de C.1)
+%       (les 3 alarmes de R2, les six chiffres de C.1, et ceux de la
+%        slide des mesures, bloc `mesures_en_erreur`)
 %   ../04_experimentations/resultats_R2/scripts/verif_chiffres_tex.py
 %       ../../05_presentation/presentation_pitch_3min.tex
 % Les figures sortent de resultats_R2/scripts/figures_slides.py.
@@ -28,6 +32,7 @@
 \usepackage[english]{babel}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
+\usepackage{booktabs}
 \setbeamertemplate{navigation symbols}{}
 % Sortie « notes seules », pour repeter :
 %   lualatex "\def\NOTESSEULES{}\input{presentation_pitch_3min}"
@@ -62,12 +67,11 @@
     A model trained on the left keeps predicting, confidently, and is now
     \alert{wrong on the shaded band}.
   \end{center}
-  \note{First, the phenomenon. A model learns a rule: this input goes with
-    that answer. Then the world changes and the rule no longer holds. That
-    is concept drift, and here is the cleanest version of it, the one we
-    simulate. Two inputs, a straight boundary, a label on each side. The
-    change moves the boundary, and nothing else. Only the shaded band has
-    swapped sides, and a model trained before is now wrong there.}
+  \note{First, the problem. A model learns a rule from data. Then the
+    world changes, and the rule becomes wrong: that is concept drift.
+    Here is the simple case we simulate. Points are split by a line. At
+    the change, the line moves. The points in the shaded band switch
+    labels, so a model trained before the change now gets them wrong.}
 \end{frame}
 
 % ---------------------------------------------------------------- 33 s
@@ -80,12 +84,11 @@
     This is the \alert{Adaptive Random Forest}. Ten trees, replaced one at a
     time.
   \end{center}
-  \note{The first defence repairs itself. Its building block is a decision
-    tree: it cuts straight across, so a slanted boundary is only ever a
-    staircase. One tree is fragile, so ten of them vote. That is the
-    Adaptive Random Forest, the model we study. A tree whose answers go
-    wrong is thrown away, and a fresh one grows in its place. Ten trees,
-    replaced one at a time.}
+  \note{The first defence is a model that repairs itself: the Adaptive
+    Random Forest. It is made of ten decision trees that vote. A single
+    tree can only draw step-shaped borders, so it is never perfect. When
+    one tree starts making too many mistakes, it is thrown away and a
+    new one grows in its place.}
 \end{frame}
 
 % ---------------------------------------------------------------- 25 s
@@ -95,13 +98,13 @@
   \end{center}
   \vspace{-0.2em}
   \begin{center}
-    Two communities, two tools, \alert{never measured against each other}.
+    Two communities, two tools. \alert{What happens when both run at once?}
   \end{center}
-  \note{The second defence comes from a different community. A watchdog
-    keeps a pile of the model's excess mistakes: it falls back to zero while
-    the model does well, and grows until it crosses a threshold and calls a
-    human. That alarm is the only thing a human ever sees. Two communities,
-    two tools, never measured against each other.}
+  \note{The second defence is a watchdog. Each mistake adds to a pile,
+    each correct answer removes a little, never below zero. If the pile
+    crosses a threshold, the alarm goes off and a human steps in. That
+    alarm is all the human ever sees. So what happens when both defences
+    run together?}
 \end{frame}
 
 % ---------------------------------------------------------------- 35 s
@@ -114,12 +117,12 @@
     \alert{The repair has a date. The alarm never gets one.}
     {\small\hspace{1em}(schematic)}
   \end{center}
-  \note{Put the two together, and they cancel out. The boundary moves, the
-    mistakes begin, the pile starts climbing. But the forest repairs itself,
-    the mistakes stop, and the pile drains back to zero without ever
-    reaching the threshold. It is a race between a repair and an alarm, and
-    the repair wins it every time. The better the model fixes itself, the
-    more surely the alarm stays silent.}
+  \note{Here is what happens. The line moves, the mistakes start, and the
+    pile begins to grow. But the forest replaces its trees, the mistakes
+    stop, and the pile drains back to zero before it reaches the
+    threshold. It is a race between the repair and the alarm. With a
+    strict threshold, the repair almost always wins, and nobody is
+    warned.}
 \end{frame}
 
 % ---------------------------------------------------------------- 34 s
@@ -132,20 +135,19 @@
     A low threshold also fires when \alert{nothing has happened}, and an
     alarm that cries wolf gets switched off.
   \end{center}
-  \note{Does the alarm ever fire? That depends on the threshold. We re-ran
-    the benchmark at three settings, two thousand runs each. At the highest
-    it fired three times out of two thousand; lower it and it fires almost
-    every time. So why not lower it? Because a low threshold also fires when
-    nothing happened, and an alarm that cries wolf gets switched off. The
-    setting quiet enough to be trusted is the one that never sees the
-    drift.}
+  \note{So why not simply lower the threshold? We re-ran the paper's
+    experiment at three thresholds, two thousand runs each. With the
+    strictest one, the alarm went off three times in two thousand. With
+    a lower one, it goes off almost every time. But a low threshold also
+    goes off when nothing has changed, and an alarm that cries wolf ends
+    up ignored. The paper concludes that no threshold is both
+    trustworthy and sensitive.}
 \end{frame}
 
 % ---------------------------------------------------------------- 33 s
 \begin{frame}{Our contribution: when is the forest actually repaired?}
   \begin{center}
-    \small The alarm is what we \emph{want}. This date measures what
-    \alert{stops it} from ever firing.
+    \small To call the race, you have to \alert{time the repair}.
   \end{center}
   \vspace{-0.1em}
   \begin{center}
@@ -155,44 +157,90 @@
     \alert{\large It fires at the \emph{first} tree. It times the start of a
     repair, not its end.}
   \end{center}
-  \note{The two dates do different jobs. The alarm warns a human. This
-    second one warns nobody: it exists to time the thing that stops the
-    alarm, and the whole claim rests on it. The date the literature uses is
-    the moment the very first tree out of ten is replaced. Wait until three
-    quarters of the forest has really been renewed, and you wait ten times
-    longer. It times the start of a repair, not its end, always in the same
-    direction.}
+  \note{To say who wins the race, you have to time the repair. The paper
+    times it at the moment the first of the ten trees is replaced. But
+    one tree out of ten is only the start of the repair. Wait until
+    three quarters of the forest is renewed, and you wait fourteen times
+    longer. The paper's stopwatch stops too early, and always in the
+    forest's favour.}
 \end{frame}
 
-% ---------------------------------------------------------------- 22 s
-\begin{frame}{Where we stand}
-  \begin{itemize}
-    \item[\textbf{Yes}] the alarm really does stay silent, and we measured
-          how often. Turning the threshold down does not rescue it, it only
-          trades silence for false alarms.
-    \item[\textbf{But}] the stopwatch the field uses starts at the
-          \alert{first tree out of ten}. It makes the forest look faster
-          than it is, so every published figure about this race is
-          optimistic.
-    \item[\textbf{Next}] put the model and the watchdog on one shared clock,
-          and say which setting a practitioner should actually pick.
-    \item[\textbf{Open}] what should replace that stopwatch is a research
-          question of its own. We have started testing candidates, and none
-          has passed our bar yet.
-  \end{itemize}
-  \vfill
+% ---------------------------------------------------------------- 25 s
+% Chiffres : chiffres_slides.py, bloc mesures_en_erreur (Delta_e = 0,2426,
+% medianes sur 100 graines ; tau_rec sur la courbe moyennee, rho = 0,25).
+\begin{frame}{Measuring the repair in mistakes, not in trees}
   \begin{center}
-    \large Thank you.
+    \small
+    \begin{tabular}{@{}llr@{}}
+      \toprule
+      Measure & What it counts & Value \\
+      \midrule
+      \textbf{First tree replaced} {\scriptsize\color{gray}$\tau_{\mathrm{ARF}}$}
+        & the date the paper uses & $86$ \\
+      \textbf{Error back to normal} {\scriptsize\color{gray}$\tau_{\mathrm{rec}}$}
+        & the error settles back to its usual level & $261$ \\
+      \textbf{Forest 3/4 renewed} {\scriptsize\color{gray}$\tau_{\mathrm{swap}}$}
+        & 8 trees out of 10 replaced & $1\,225$ \\
+      \midrule
+      \textbf{Excess mistakes} {\scriptsize\color{gray}$A(H)$}
+        & the extra errors the change caused & $38$ \\
+      \textbf{Watchdog's peak} {\scriptsize\color{gray}$S_{\max}(H)$}
+        & the highest point of the watchdog's pile & $33$ \\
+      \bottomrule
+    \end{tabular}
+
+    \vspace{0.2em}
+    {\scriptsize\color{gray} Same change as the previous slide, median of 100 runs.
+    First three: observations after the change. Excess mistakes: counted over the
+    next $2\,000$ observations. Watchdog thresholds: 8, 25 and 50.}
   \end{center}
-  \note{Where we stand. Yes, the alarm really does stay silent, and we
-    measured how often. Lowering the threshold does not rescue it, it trades
-    silence for false alarms. But the stopwatch the field uses starts at the
-    first tree out of ten: it makes the forest look faster than it is, so
-    every published figure about this race is optimistic. What is left is
-    one shared clock for both, and a setting a practitioner can actually
-    pick. And finding a better stopwatch is a research question of its own:
-    we have started testing candidates, and none has passed our bar yet.
-    Thank you.}
+  \begin{center}
+    \alert{The paper's date says nothing about the damage.}
+  \end{center}
+  \note{So we also measure the repair in mistakes. Same change as before.
+    The first tree goes after 86 observations. The error is back to
+    normal only after 261, and three quarters of the forest after 1,225.
+    The change costs about 38 extra mistakes. And the paper's stopwatch
+    says nothing about that cost, at any of the eighteen change sizes we
+    tested.}
+\end{frame}
+
+% ---------------------------------------------------------------- 18 s
+% Chiffres : 3 / 2 000 = comptes_r2 (regime A des auteurs, lambda = 50) ;
+% 14 = 1 225 / 86 (mesures_en_erreur), borne haute des 6,0 a 14,3 de C.1.
+\begin{frame}{Where we stand}
+  \vspace{1.2em}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.31\textwidth}
+      \centering
+      {\scriptsize\color{gray} at the paper's strict threshold}\\[0.3em]
+      {\huge\bfseries 3\,/\,2\,000}\\[0.3em]
+      {\small alarms}\\[1.1em]
+      \textbf{The blind spot is real.}
+    \end{column}\hfill
+    \begin{column}{0.31\textwidth}
+      \centering
+      {\scriptsize\color{gray} the paper's stopwatch stops}\\[0.3em]
+      {\huge\bfseries\alert{up to 14$\times$}}\\[0.3em]
+      {\small too early}\\[1.1em]
+      \textbf{The repair looks faster than it is.}
+    \end{column}\hfill
+    \begin{column}{0.31\textwidth}
+      \centering
+      {\scriptsize\color{gray} a better stopwatch}\\[0.3em]
+      {\huge\bfseries ?}\\[0.3em]
+      {\small candidates under test}\\[1.1em]
+      \textbf{The open question.}
+    \end{column}
+  \end{columns}
+  \vfill
+  \begin{center}\large Thank you.\end{center}
+  \note{Where we stand. Yes: with the paper's strict threshold, the alarm
+    really stays silent, and we measured how often. But the paper's
+    stopwatch stops at the first tree, so the forest looks faster than
+    it is, and the paper's figures are too optimistic. A better
+    stopwatch is still an open question: we are testing candidates, and
+    none has passed yet. Thank you.}
 \end{frame}
 
 \end{document}

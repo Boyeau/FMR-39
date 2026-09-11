@@ -131,7 +131,60 @@ def chiffres_QC1():
     print("  table = QCD_indicateurs_full.parquet\n")
 
 
+def mesures_en_erreur():
+    """Slide 8 (« Measuring the repair in mistakes ») : nos indicateurs.
+
+    Ajoutee le 11/09 a la demande d'Alexandre. Chaque valeur est prise AU
+    MEME point de grille que la slide 7 (Delta_e le plus proche de 0,24,
+    choisi comme dans `figures_slides.figure_deux_horloges`), pour que le
+    public lise les horloges sur une seule echelle.
+
+    tau_rec est `tau_err_p20` de `QCD_tau_err_full` : l'instant ou la courbe
+    d'erreur MOYENNEE sur les graines revient sous p0 + rho * Delta_e
+    (rho = 0,25) et y reste 20 pas. Il n'existe pas run par run.
+
+    Le 15/18 de S_max(H) est la regle de l'IC retenue en D (JOURNAL.md
+    section 10.8) ; la colonne `discernable` applique la regle du seuil et
+    donne 14/18 (seule Delta_e = 0,287 bascule). Les deux sont imprimes.
+    """
+    q = pd.read_parquet(DATA / "QCD_indicateurs_full.parquet")
+    te = pd.read_parquet(DATA / "QCD_tau_err_full.parquet")
+    co = pd.read_parquet(DATA / "QCD_correlations_stratifiees_full.parquet")
+
+    grille = np.sort(q.delta_e.unique())
+    cible = grille[np.argmin(np.abs(grille - 0.24))]
+    s = q[q.delta_e == cible]
+    ligne_te = te.iloc[np.argmin(np.abs(te.delta_e.to_numpy() - cible))]
+
+    t_arf = float(s.tau_arf.median())
+    t_75 = float(s.tau_swap_75.median())
+    t_rec = float(ligne_te.tau_err_p20)
+    a_h = float(s.A_H.median())
+    s_max = float(s.S_max_H.median())
+
+    print(f"[slide 8] nos indicateurs, a Delta_e = {cible:.4f} "
+          f"(le point de la slide 7), mediane sur {len(s)} graines\n")
+    print(f"  first tree replaced (tau_ARF)   | ecrit = 86     | mesure = {t_arf:.0f}")
+    print(f"  error back to normal (tau_rec)  | ecrit = 261    | mesure = {t_rec:.0f}"
+          f"  (rho = {ligne_te.rho}, persistance 20 pas, courbe moyenne)")
+    print(f"  forest 3/4 renewed (tau_swap75) | ecrit = 1225   | mesure = {t_75:.0f}")
+    print(f"  excess mistakes A(H)            | ecrit = 38     | mesure = {a_h:.1f}")
+    print(f"  watchdog's peak S_max(H)        | ecrit = 33     | mesure = {s_max:.1f}")
+    print(f"  « fourteen times longer » (7)   | ecrit = 14     | mesure = {t_75 / t_arf:.1f}")
+
+    d = co[co.dans_domaine_decision]
+    for comp, ecrit in (("A_H", "0/18"), ("S_max_H", "15/18")):
+        x = d[d.comparateur == comp]
+        ic = int(((x.ci_lo > 0) | (x.ci_hi < 0)).sum())
+        seuil = int(x.discernable.sum())
+        print(f"  tau_ARF vs {comp:8s}          | ecrit = {ecrit:6s} | mesure = "
+              f"{ic}/{len(x)} (regle de l'IC) ; {seuil}/{len(x)} (regle du seuil)")
+    print("  tables = QCD_indicateurs_full, QCD_tau_err_full,"
+          " QCD_correlations_stratifiees_full\n")
+
+
 if __name__ == "__main__":
     comptes_r2()
     deux_campagnes_distinctes()
     chiffres_QC1()
+    mesures_en_erreur()

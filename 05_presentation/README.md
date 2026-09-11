@@ -6,7 +6,8 @@ Les supports de présentation du sujet 39. Les rédactions restent dans
 ## `presentation_pitch_3min.tex`
 
 Pitch de 3 minutes **pour un auditoire qui ne connaît pas le sujet**.
-Huit slides, 546 mots de texte parlé : **205 s à 160 mots/min**. Les schémas
+Neuf slides, 506 mots de texte parlé : **190 s à 160 mots/min** (546 mots et
+205 s avant les retouches du 11/09). Les schémas
 portent assez pour que les notes restent brèves.
 C'est au-dessus de la cible, et c'est un arbitrage assumé — poser le drift, la
 forêt et le détecteur avant de s'en servir coûte une minute qu'on ne récupère
@@ -20,7 +21,8 @@ d'être d'une *forêt*, `λ`, `Δe`, `M`, et l'unité de temps. Les trois notati
 ont disparu des figures (l'axe dit « threshold the watchdog must cross », plus
 `λ` ; « observations seen since the change », plus « steps » ; « forest of 10
 trees, change size 0.24 », plus `M` ni `Δe`), et l'arbre de décision a
-maintenant sa slide. Les chiffres détaillés de C.1, C.2 et C.3 restent absents.
+maintenant sa slide. Les chiffres de C.2 restent absents ; ceux de C.1 et C.3,
+et un chiffre de D, sont réunis sur la slide 8 (ajout du 11/09, voir en bas).
 `Fig_slide_ecarts_swap.png` est produite pour les questions, pas projetée.
 
 | Slide | Ce qu'elle pose |
@@ -31,7 +33,8 @@ maintenant sa slide. Les chiffres détaillés de C.1, C.2 et C.3 restent absents
 | 5 | **le paradoxe, et la course** : la réparation a une date, l'alarme n'en a jamais |
 | 6 | **le compromis de réglage** : le seuil décide tout, et aucun ne convient |
 | 7 | **l'avancée** : la date admise compte 1 arbre sur 10, la réparation en demande 8 |
-| 8 | où on en est : ce qui tient, ce qui cloche, la suite, et la question ouverte |
+| 8 | **nos mesures, en quantité d'erreur** : cinq indicateurs définis et chiffrés au même changement que la slide 7 |
+| 9 | où on en est, en trois chiffres : le point aveugle (3 / 2 000), le chronomètre (jusqu'à 14×), la question ouverte |
 
 ### Compiler
 
@@ -41,6 +44,7 @@ latexmk -lualatex presentation_pitch_3min.tex
 
 **lualatex, pas pdflatex** : le thème `metropolis` charge les fontes Fira.
 Avec `pdflatex` le document compile mais retombe sur les fontes par défaut.
+Le thème n'est **pas** dans BasicTeX : `sudo tlmgr install beamertheme-metropolis pgfopts`.
 
 Le texte parlé se sort en PDF séparé, une page par slide, miniature en regard :
 
@@ -61,6 +65,7 @@ diverger de la table qui le produit.
 |---|---|---|
 | 6 | **3 / 2 000** à `λ = 50`, **801 / 2 000** à `λ = 25`, **1 926 / 2 000** à `λ = 8` | `03_repo_officiel_.../results/R2_instrumented_blind_spot/data/` |
 | 7 | `86` observations contre `1 225`, médiane à `Δe = 0,24` | `04_experimentations/resultats_R2/resultats/data/QCD_indicateurs_full.parquet` |
+| 8 | `86`, `261`, `1 225`, `38`, `33` à `Δe = 0,24` ; `0/18` et `15/18` | `chiffres_slides.py`, bloc `mesures_en_erreur` (`QCD_indicateurs_full`, `QCD_tau_err_full`, `QCD_correlations_stratifiees_full`) |
 
 La slide 5 est un **schéma stylisé, sans données** : pour un auditoire qui
 découvre le sujet, une vraie trajectoire est trop bruitée pour montrer que la
@@ -115,7 +120,7 @@ dont personne n'avait dit à quoi il sert.
 ### Les deux dates ne font pas le même métier
 
 C'est la confusion la plus facile à faire, et la slide 7 la lève désormais en
-une ligne : **l'alarme est ce qu'on veut, `τ_ARF` mesure ce qui l'empêche.**
+une ligne : **il faut chronométrer la réparation pour arbitrer la course**
 
 - `τ_det` est un **outil** : elle prévient un humain, elle déclenche l'audit, le
   réentraînement, la pause. C'est la seule sortie visible du dispositif.
@@ -140,6 +145,16 @@ cas général. La slide 6 montre les trois, parce que **c'est la dépendance au
 réglage qui est le résultat** : il n'existe pas de seuil à la fois assez discret
 pour qu'on lui fasse confiance et assez sensible pour voir la dérive.
 
+> **Nuance du 11/09.** Cette thèse est celle de l'article (« no CUSUM threshold
+> escapes it »), et le pitch la lui attribue désormais (« That is the paper's
+> verdict ») au lieu de l'assumer. Sur le banc Bernoulli, `λ = 15` — la valeur que
+> l'article calibre lui-même sur ProteuS (note 2) — n'a déclenché **aucune** fausse
+> alarme sur les 100 runs sans drift de A1 (Wilson ≤ 3,7 %) et détecte 98 à 100 %
+> à toute amplitude ≥ 0,141, sans signature paradoxale (elle apparaît à `λ = 20`).
+> Portée : `H = 2 000`, banc homoscédastique ; ne réfute pas la « Fundamental
+> Tension » du résumé, qui porte sur des flux GARCH. À remonter à Minato, pas à
+> trancher dans un pitch.
+
 ### Deux pièges à ne pas rouvrir
 
 - **Le panneau du bas des figures `Fig_R2_*` ne montre pas le taux de silence
@@ -151,3 +166,30 @@ pour qu'on lui fasse confiance et assez sensible pour voir la dérive.
   20 `boundary_shift`, mêmes 100 graines, mais `τ_ARF` ne coïncide que sur
   96,65 % des runs. La slide 3 dit « we re-ran the authors' experiment », la
   slide 5 « our own instrumented campaign ». Les confondre serait une faute.
+
+### Ajout du 11/09 (Alexandre)
+
+- **Slide 8, « Measuring the repair in mistakes, not in trees »** : cinq indicateurs,
+  chacun avec sa définition, au même changement que la slide 7 (`Δe = 0,2426`,
+  médiane de 100 runs) : premier arbre `86`, erreur revenue à la normale `261`
+  (`τ_rec`, courbe moyennée, `ρ = 0,25`, persistance 20 pas), trois quarts de forêt
+  `1 225`, erreurs en trop `A(H) = 38`, pic du détecteur `S_max(H) = 33`. Chute :
+  `τ_ARF` n'a de lien avec `A(H)` à aucune des 18 amplitudes (0/18), mais suit
+  `S_max(H)` à 15/18 (règle de l'IC ; la colonne `discernable` donne 14/18).
+- **Quatre formulations corrigées** : « the repair wins it every time » → « at a
+  strict threshold … almost every time » (à `λ = 8` le détecteur gagne 91 % des
+  courses) ; « ten times longer » → « fourteen » (1 225 / 86 = 14,2) ; « never
+  measured against each other » → « What happens when both run at once? »
+  (l'article fait cette comparaison) ; « every published figure » → « the paper's
+  figures ».
+- **Dernière slide refaite** : trois chiffres en colonnes au lieu de puces
+  (3 / 2 000 alarmes au seuil strict ; « up to 14× » — la borne haute des 6,0 à 14,3
+  de C.1, 14,2 au changement de la slide 7 ; « ? » pour la question ouverte).
+  « Next » est retiré, il faisait doublon avec la slide 8.
+- **Notes réécrites pour la clarté** (603 → 506 mots) : une idée par phrase, un
+  même mot pour une même chose — repair, alarm, watchdog, stopwatch —, et
+  « stopwatch » est désormais introduit slide 7 au lieu d'arriver sans définition
+  sur la dernière. Texte affiché slide 7 : « To call the race, you have to time
+  the repair », à la place de « The alarm is what we want. This date measures what
+  stops it from ever firing », jugé peu clair.
+- `verif_chiffres_tex.py` sur le pitch : 18 littéraux contrôlés, 0 introuvable.

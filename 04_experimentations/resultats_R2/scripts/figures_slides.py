@@ -212,8 +212,12 @@ def figure_mecanisme():
         h.annotate("the world changes", xy=(t0, base + saut), xytext=(6, -6),
                    textcoords="offset points", color="#b03a2e", weight="bold",
                    fontsize=14, va="top")
-        h.annotate("the forest repairs itself", xy=(t0 + 2.2 * tau, base + 0.05),
-                   xytext=(24, 34), textcoords="offset points", fontsize=14,
+        # A gauche de la ligne « repaired », au-dessus de la courbe : le
+        # texte ne croise plus le trait mixte (11/09).
+        h.annotate("the forest repairs itself",
+                   xy=(t0 + 2.0 * tau, base + saut * np.exp(-2.0)),
+                   xytext=(t0 + 3.4 * tau - 1.5, base + 0.15),
+                   ha="right", va="bottom", fontsize=14,
                    arrowprops=dict(arrowstyle="->", color="#1b1b1b", lw=1.6))
         # Le premier coureur a une date d'arrivee. Le second n'en a pas : la
         # course est le vrai sujet, et c'est elle qui oblige a dater la
@@ -231,9 +235,11 @@ def figure_mecanisme():
         b.plot(t, preuve, color="#1b1b1b", lw=2.6)
         b.axhline(seuil, color="#b03a2e", lw=2.2, ls=":")
         b.axvline(t0, color="#b03a2e", lw=1.8, ls="--")
-        b.annotate("alarm threshold", xy=(2, seuil), xytext=(0, -22),
+        # A droite, sous la ligne : a gauche, le trait rouge du changement
+        # coupait le mot « threshold » (11/09).
+        b.annotate("alarm threshold", xy=(99, seuil), xytext=(0, -8),
                    textcoords="offset points", color="#b03a2e", weight="bold",
-                   fontsize=14)
+                   fontsize=14, ha="right", va="top")
         # L'ecart qui n'est jamais comble, mesure au sommet de la pile.
         b.annotate("", xy=(t[i_max], seuil), xytext=(t[i_max], preuve[i_max]),
                    arrowprops=dict(arrowstyle="<->", color="#b03a2e", lw=2.0))
@@ -241,9 +247,14 @@ def figure_mecanisme():
                ha="right", va="center", color="#b03a2e", weight="bold",
                fontsize=14)
         b.plot([t[i_max]], [preuve[i_max]], "o", color="#1b1b1b", ms=9)
+        # Sous l'arche, dans le vide, avec une fleche vers le sommet : a
+        # droite du sommet, le texte chevauchait la descente (11/09).
         b.annotate("the pile peaks here,\nthen the evidence drains away",
-                   xy=(t[i_max], preuve[i_max]), xytext=(16, -6),
-                   textcoords="offset points", fontsize=13, va="top")
+                   xy=(t[i_max], preuve[i_max]),
+                   xytext=(t[i_max] + 3.0, preuve[i_max] * 0.22),
+                   ha="center", va="center", fontsize=13,
+                   arrowprops=dict(arrowstyle="->", color="#1b1b1b", lw=1.4,
+                                   shrinkA=4, shrinkB=6))
         b.text(t_rep + 2.0, seuil * 0.80, "no alarm, ever", fontsize=14,
                weight="bold", color="#b03a2e", va="center")
         b.set_ylabel("pile of excess\nmistakes")
@@ -443,7 +454,7 @@ def figure_foret():
     mesure a 0,0231 pour une erreur de Bayes nulle (JOURNAL.md section 2 a),
     mais ici il ne sert qu'a montrer ce qu'est un arbre.
 
-    A droite, les dix arbres, dont un barre : la foret se repare en
+    A droite, les dix arbres, dont un en rouge : la foret se repare en
     remplacant ses arbres un par un.
     """
     rng = np.random.default_rng(7)
@@ -475,12 +486,21 @@ def figure_foret():
 
         for i in range(10):
             cx, cy = 0.9 + (i % 5) * 1.5, 1.25 if i < 5 else -0.6
-            _petit_arbre(d, cx, cy, 0.95, "#1b1b1b", barre=(i == 7))
+            # L'arbre qui lache est dessine comme les autres, en rouge : la
+            # meme convention que les arbres remplaces de la slide 7 (11/09,
+            # la barre en travers etait jugee peu lisible).
+            _petit_arbre(d, cx, cy, 0.95, "#b03a2e" if i == 7 else "#1b1b1b")
+        # Le texte sous l'arbre rouge, fleche verticale vers le pied de
+        # l'arbre (11/09) : l'ancienne fleche, presque horizontale, passait
+        # entre les pieds de l'arbre voisin et visait le bout de la barre.
+        cx_rouge = 0.9 + (7 % 5) * 1.5
         d.annotate("failing: thrown away,\na fresh one grows back",
-                   xy=(4.45, -0.95), xytext=(7.0, -1.5), fontsize=13,
-                   color="#b03a2e", weight="bold", ha="center",
-                   arrowprops=dict(arrowstyle="->", color="#b03a2e", lw=1.8))
-        d.set_xlim(0, 9.2); d.set_ylim(-2.3, 2.2)
+                   xy=(cx_rouge, -1.15), xytext=(cx_rouge, -1.62),
+                   fontsize=13, color="#b03a2e", weight="bold",
+                   ha="center", va="top",
+                   arrowprops=dict(arrowstyle="->", color="#b03a2e", lw=1.8,
+                                   shrinkA=2, shrinkB=2))
+        d.set_xlim(0, 9.2); d.set_ylim(-2.55, 2.2)
         d.axis("off")
         d.set_title("ten trees, and they vote", fontsize=16)
 
