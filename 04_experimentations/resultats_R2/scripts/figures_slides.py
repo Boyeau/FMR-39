@@ -574,9 +574,11 @@ def figure_watchdog():
         franchi = int(np.argmax(pile >= seuil)) if (pile >= seuil).any() else None
         if franchi:
             b.plot([franchi], [pile[franchi]], "v", color="#b03a2e", ms=14)
-            b.annotate("alarm", xy=(franchi, pile[franchi]), xytext=(12, 16),
+            # A gauche du triangle, dans le vide au-dessus du seuil : place en
+            # haut a droite, le mot chevauchait la marche suivante (11/09).
+            b.annotate("alarm", xy=(franchi, pile[franchi]), xytext=(-12, 4),
                        textcoords="offset points", color="#b03a2e",
-                       weight="bold", fontsize=15)
+                       weight="bold", fontsize=15, ha="right", va="bottom")
         b.set_ylabel("pile of excess\nmistakes")
         b.set_xlim(-1, n); b.set_ylim(0, seuil * 1.45)
         b.set_xticks([]); b.set_yticks([])

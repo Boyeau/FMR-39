@@ -40,7 +40,9 @@
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{booktabs}
-% Icones de navigation laissees : la signature des decks LaTeX de labo.
+% Icones de navigation retirees (11/09) : en 16:9 elles sont a 1,1 mm du bord
+% droit, et en plein ecran elles semblaient deborder de chaque slide.
+\setbeamertemplate{navigation symbols}{}
 % Sortie « notes seules », pour repeter :
 %   lualatex "\def\NOTESSEULES{}\input{presentation_pitch_3min}"
 \ifdefined\NOTESSEULES\setbeameroption{show only notes}\fi
@@ -176,8 +178,8 @@
     times it at the moment the first of the ten trees is replaced. But
     one tree out of ten is only the start of the repair. Wait until
     three quarters of the forest is renewed, and you wait fourteen times
-    longer. The paper's stopwatch stops too early, and always in the
-    forest's favour.}
+    longer. The paper's date comes too early, and always in the forest's
+    favour.}
 \end{frame}
 
 % ---------------------------------------------------------------- 25 s
@@ -203,20 +205,20 @@
         & the highest point of the watchdog's pile & $33$ \\
       \bottomrule
     \end{tabular}
-
-    \vspace{0.2em}
-    {\scriptsize\color{gray} Same change as the previous slide, median of 100 runs.
-    First three: observations after the change. Excess mistakes: counted over the
-    next $2\,000$ observations. Watchdog thresholds: 8, 25 and 50.}
   \end{center}
   \begin{center}
     \alert{The paper's date says nothing about the damage.}
   \end{center}
+  \vfill
+  % Note de bas de page, en bas (11/09) : sous le tableau elle coupait la slide.
+  {\scriptsize\color{gray} Same change as the previous slide, median of 100 runs.
+  First three: observations after the change. Excess mistakes: counted over the
+  next $2\,000$ observations. Watchdog thresholds: 8, 25 and 50.\par}
   \note{So we also measure the repair in mistakes. Same change as before.
     The first tree goes after 86 observations. The error is back to
     normal only after 261, and three quarters of the forest after 1,225.
-    The change costs about 38 extra mistakes. And the paper's stopwatch
-    says nothing about that cost, at any of the eighteen change sizes we
+    The change costs about 38 extra mistakes. And the paper's date says
+    nothing about that cost, at any of the eighteen change sizes we
     tested.}
 \end{frame}
 
@@ -233,26 +235,26 @@
       \end{block}
     \end{column}\hfill
     \begin{column}{0.31\textwidth}
-      \begin{alertblock}{Stopwatch stops early}
-        Up to \textbf{14$\times$} too early: the repair looks
-        faster than it really is.
+      \begin{alertblock}{Repair dated too early}
+        The paper times it at the \textbf{first tree} replaced:
+        up to \textbf{14$\times$} too early.
       \end{alertblock}
     \end{column}\hfill
     \begin{column}{0.31\textwidth}
       \begin{exampleblock}{Open question}
-        What should replace that stopwatch? Candidates under
-        test, none has passed yet.
+        What should replace the first-tree date? Candidates
+        under test, none has passed yet.
       \end{exampleblock}
     \end{column}
   \end{columns}
   \vfill
   \begin{center}Thank you for your attention.\end{center}
   \note{Where we stand. Yes: with the paper's strict threshold, the alarm
-    really stays silent, and we measured how often. But the paper's
-    stopwatch stops at the first tree, so the forest looks faster than
-    it is, and the paper's figures are too optimistic. A better
-    stopwatch is still an open question: we are testing candidates, and
-    none has passed yet. Thank you.}
+    really stays silent, and we measured how often. But the paper dates
+    the repair at the first tree replaced, so the forest looks faster
+    than it is, and the paper's figures are too optimistic. What should
+    replace that date is still an open question: we are testing
+    candidates, and none has passed yet. Thank you.}
 \end{frame}
 
 \end{document}

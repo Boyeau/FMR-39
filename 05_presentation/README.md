@@ -6,7 +6,7 @@ Les supports de présentation du sujet 39. Les rédactions restent dans
 ## `presentation_pitch_3min.tex`
 
 Pitch de 3 minutes **pour un auditoire qui ne connaît pas le sujet**.
-Neuf slides, 526 mots de texte parlé : **197 s à 160 mots/min** (546 mots et
+Neuf slides, 530 mots de texte parlé : **199 s à 160 mots/min** (546 mots et
 205 s avant les retouches du 11/09). Les schémas
 portent assez pour que les notes restent brèves.
 C'est au-dessus de la cible, et c'est un arbitrage assumé — poser le drift, la
@@ -196,8 +196,8 @@ pour qu'on lui fasse confiance et assez sensible pour voir la dérive.
   the repair », à la place de « The alarm is what we want. This date measures what
   stops it from ever firing », jugé peu clair.
 - `verif_chiffres_tex.py` sur le pitch : 18 littéraux contrôlés, 0 introuvable.
-- **Rendu « chercheur »** (demande d'Alexandre) : thème Madrid avec pied de page et
-  icônes de navigation, figures projetées en Latin Modern Sans
+- **Rendu « chercheur »** (demande d'Alexandre) : thème Madrid avec pied de page
+  (icônes de navigation retirées : à 1,1 mm du bord, elles débordaient en plein écran), figures projetées en Latin Modern Sans
   (`figures/slides_latex/`), dernière slide en trois `block` Beamer.
 - **Slide 2** : la formule du changement de concept, `P(X)` inchangée et
   `P(Y | X)` qui change, exacte pour notre banc (entrées gaussiennes avant et
@@ -205,3 +205,8 @@ pour qu'on lui fasse confiance et assez sensible pour voir la dérive.
 - **Marges de texte fixées à 1 cm** (`\setbeamersize`) : sous Madrid en 16:9, la
   marge par défaut n'est que de 10,95 pt (3,9 mm) ; figures, blocs et tableau
   venaient à 4 mm du bord et semblaient déborder en plein écran.
+- **« stopwatch » retiré** (écran et notes) : le mot n'était pas clair pour le
+  public. On dit ce qu'il désigne, la date du premier arbre remplacé ; le block
+  du milieu de la dernière slide devient « Repair dated too early ».
+- Slide 8 : la note grise est descendue en bas de page. Slide 4 : « alarm » placé
+  à gauche du triangle (il chevauchait la marche suivante).
