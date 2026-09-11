@@ -6,7 +6,7 @@ Les supports de présentation du sujet 39. Les rédactions restent dans
 ## `presentation_pitch_3min.tex`
 
 Pitch de 3 minutes **pour un auditoire qui ne connaît pas le sujet**.
-Huit slides, 493 mots de texte parlé : **185 s à 160 mots/min**. Les schémas
+Huit slides, 522 mots de texte parlé : **196 s à 160 mots/min**. Les schémas
 portent assez pour que les notes restent brèves.
 C'est au-dessus de la cible, et c'est un arbitrage assumé — poser le drift, la
 forêt et le détecteur avant de s'en servir coûte une minute qu'on ne récupère
@@ -111,6 +111,24 @@ C'est pour cela que la slide 5 porte maintenant un repère `repaired` sur la
 courbe d'erreur et un `no alarm, ever` en regard : le premier coureur a une date
 d'arrivée, le second n'en a pas. Sans ce repérage, la slide 7 mesurait un temps
 dont personne n'avait dit à quoi il sert.
+
+### Les deux dates ne font pas le même métier
+
+C'est la confusion la plus facile à faire, et la slide 7 la lève désormais en
+une ligne : **l'alarme est ce qu'on veut, `τ_ARF` mesure ce qui l'empêche.**
+
+- `τ_det` est un **outil** : elle prévient un humain, elle déclenche l'audit, le
+  réentraînement, la pause. C'est la seule sortie visible du dispositif.
+- `τ_ARF` n'alerte personne. C'est un **instrument de mesure**, et il n'existe
+  que parce que le paradoxe est une course : pour dire que la réparation bat
+  l'alarme, il faut chronométrer la réparation.
+
+Conséquence à avoir en tête pour les questions, et qui n'est pas sur les slides :
+`τ_ARF` étant une borne inférieure unilatérale, il fait paraître la forêt **plus
+rapide qu'elle n'est**. La course est donc arbitrée en faveur de la forêt plus
+facilement qu'elle ne devrait l'être, et le paradoxe tel que l'article le
+quantifie est exagéré par son propre instrument. Le phénomène, lui, tient : les
+3 alarmes sur 2 000 se mesurent sans passer par `τ_ARF`.
 
 ### Un chiffre qui ne se cite jamais seul
 

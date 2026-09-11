@@ -67,7 +67,7 @@
     is concept drift, and here is the cleanest version of it, the one we
     simulate. Two inputs, a straight boundary, a label on each side. The
     change moves the boundary, and nothing else. Only the shaded band has
-    swapped sides, and a model trained before is now wrong on it.}
+    swapped sides, and a model trained before is now wrong there.}
 \end{frame}
 
 % ---------------------------------------------------------------- 33 s
@@ -81,11 +81,11 @@
     time.
   \end{center}
   \note{The first defence repairs itself. Its building block is a decision
-    tree: it cuts the picture straight across, so a slanted boundary can
-    only be approximated by a staircase. One tree is fragile, so ten of them
-    vote. That is the Adaptive Random Forest, the model we study. A tree
-    whose answers go wrong is thrown away, and a fresh one grows in its
-    place. Ten trees, replaced one at a time.}
+    tree: it cuts straight across, so a slanted boundary is only ever a
+    staircase. One tree is fragile, so ten of them vote. That is the
+    Adaptive Random Forest, the model we study. A tree whose answers go
+    wrong is thrown away, and a fresh one grows in its place. Ten trees,
+    replaced one at a time.}
 \end{frame}
 
 % ---------------------------------------------------------------- 25 s
@@ -134,7 +134,7 @@
   \end{center}
   \note{Does the alarm ever fire? That depends on the threshold. We re-ran
     the benchmark at three settings, two thousand runs each. At the highest
-    it fired three times out of two thousand. Lower it, and it fires almost
+    it fired three times out of two thousand; lower it and it fires almost
     every time. So why not lower it? Because a low threshold also fires when
     nothing happened, and an alarm that cries wolf gets switched off. The
     setting quiet enough to be trusted is the one that never sees the
@@ -144,39 +144,50 @@
 % ---------------------------------------------------------------- 33 s
 \begin{frame}{Our contribution: when is the forest actually repaired?}
   \begin{center}
+    \small The alarm is what we \emph{want}. This date measures what
+    \alert{stops it} from ever firing.
+  \end{center}
+  \vspace{-0.1em}
+  \begin{center}
     \includegraphics[width=\textwidth]{Fig_slide_deux_horloges.png}
   \end{center}
-  \vspace{0.1em}
   \begin{center}
-    \alert{\large The accepted date fires at the \emph{first} tree. It times
-    the start of a repair, not its end.}
+    \alert{\large It fires at the \emph{first} tree. It times the start of a
+    repair, not its end.}
   \end{center}
-  \note{To claim the repair wins that race, you need a date for the repair,
-    and everything the paper concludes rests on that single date. Here is
-    the one it uses: the moment the very first tree out of ten is replaced.
-    Wait until three quarters of the forest has actually been renewed, and
-    you wait roughly ten times longer. So that stopwatch times the start of
-    a repair, not its end, and it is wrong always in the same direction.}
+  \note{The two dates do different jobs. The alarm warns a human. This
+    second one warns nobody: it exists to time the thing that stops the
+    alarm, and the whole claim rests on it. The date the literature uses is
+    the moment the very first tree out of ten is replaced. Wait until three
+    quarters of the forest has really been renewed, and you wait ten times
+    longer. It times the start of a repair, not its end, always in the same
+    direction.}
 \end{frame}
 
 % ---------------------------------------------------------------- 22 s
 \begin{frame}{Where we stand}
   \begin{itemize}
-    \item The paradox is \alert{real and reproducible}, and we can say when
-          the evidence falls short of what the alarm needs.
-    \item The clock the field relies on is \alert{biased, always the same
-          way}. Every conclusion drawn from it inherits that bias.
-    \item \textbf{Next}: watch the model and the watchdog on one common
-          clock, and turn this into advice a practitioner can use.
+    \item[\textbf{Yes}] the alarm really does stay silent, and we measured
+          how often. Turning the threshold down does not rescue it, it only
+          trades silence for false alarms.
+    \item[\textbf{But}] the stopwatch the field uses starts at the
+          \alert{first tree out of ten}. It makes the forest look faster
+          than it is, so every published figure about this race is
+          optimistic.
+    \item[\textbf{Next}] put the model and the watchdog on one shared clock,
+          and say which setting a practitioner should actually pick.
   \end{itemize}
   \vfill
   \begin{center}
     \large Thank you.
   \end{center}
-  \note{Where we stand. The paradox is real and reproducible. The clock the
-    field relies on is biased, always the same way, so every conclusion
-    drawn from it inherits that bias. What remains is to turn this into
-    advice a practitioner can use. Thank you.}
+  \note{Where we stand. Yes, the alarm really does stay silent, and we
+    measured how often. Lowering the threshold does not rescue it, it trades
+    silence for false alarms. But the stopwatch the field uses starts at the
+    first tree out of ten: it makes the forest look faster than it is, so
+    every published figure about this race is optimistic. What is left is
+    one shared clock for both, and a setting a practitioner can actually
+    pick. Thank you.}
 \end{frame}
 
 \end{document}
