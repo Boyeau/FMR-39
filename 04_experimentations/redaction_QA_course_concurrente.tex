@@ -26,44 +26,91 @@ functions of $\tau_{\mathrm{ARF}}$ and $\tau_{\mathrm{det}}$ respectively ; $H$ 
 post-drift observation horizon ($H = 2{,}000$) ; $\mathrm{Miss}$ the ``blind spot''
 event, defined in Section~1.
 
-\section{Probability Space and Boundary Cases}
+\section{Defining the Miss Event}
 
-\paragraph{The double-starvation case.} The event
-$\{\tau_{\mathrm{ARF}}=+\infty,\ \tau_{\mathrm{det}}=+\infty\}$ describes a run where
-neither did the forest ever repair itself, nor did the alarm ever sound. This is
-qualitatively different from the paradox under study: the blind spot narrative relies
-on a \emph{silent} repair erasing the evidence before the alarm gets its chance. If the
-repair itself never happened, there is nothing to erase --- the model simply remains
-broken, with no mechanism having ``cheated''. With the natural definition
-$\mathrm{Miss} := \{\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}\}$ on the extended reals,
-the strict inequality $\infty < \infty$ is false by convention: double starvation is
-therefore automatically excluded from $\mathrm{Miss}$, with no special handling needed.
+Every later result in this section is a statement about $P_{\mathrm{miss}}$. None of them
+means anything until $\mathrm{Miss}$ is an unambiguous event, and the natural reading ---
+the forest repairs itself before the alarm sounds --- is ambiguous in exactly three
+places: when the two clocks coincide, when the detector never fires, and when neither
+mechanism ever acts. This section settles the three, and shows that a single definition
+disposes of all of them.
 
-\paragraph{Strict or non-strict inequality?} The stream is discrete: two processes can
-legitimately land on the same time step, so $P(\tau_{\mathrm{ARF}}=\tau_{\mathrm{det}})$
-can be strictly positive --- the question is not cosmetic. Physical interpretation of an
-equality $\tau_{\mathrm{ARF}}=\tau_{\mathrm{det}}=t$: the alarm sounds \emph{exactly}
-when the forest repairs itself, the operator is informed at the same instant, no
-information is lost --- unlike the true blind spot, where the alarm arrives too late or
-never. An equality should therefore count as a detection success.
+\paragraph{1. Why a strict inequality.} Both clocks count integer steps, so nothing
+prevents them from landing on the same one and $P(\tau_{\mathrm{ARF}} =
+\tau_{\mathrm{det}})$ can be strictly positive: the choice is not cosmetic. No continuity
+argument rules ties out either --- real-valued times can coincide as well, and these two
+clocks are far from independent, being functionals of the same error stream. Whether ties
+actually occur is thus an empirical matter, settled in Section~4; the convention itself
+must be settled on physical grounds.
+
+Read physically, an equality $\tau_{\mathrm{ARF}} = \tau_{\mathrm{det}} = t$ means the
+alarm sounds \emph{exactly} when the forest repairs itself. The operator is informed at
+that very instant and no information is lost --- unlike the blind spot proper, where the
+alarm arrives too late or never at all. A tie is therefore a detection success, which
+fixes the definition:
+\[
+  \mathrm{Miss} \;:=\; \{\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}\}
+  \qquad\text{on the extended reals, with strict inequality.}
+\]
+
+Measured on the campaign, the convention carries almost no weight: among the runs where
+both clocks are observed, ties occur $0$ times out of $1\,906$ at $\lambda = 8$, $6$ times
+out of $778$ at $\lambda = 25$ ($0.77\%$ of them, $0.30\%$ of the campaign) and $0$ times
+out of $1$ at $\lambda = 50$. Switching to the non-strict convention would move
+$P_{\mathrm{miss}}$ by at most $0.003$, and only at $\lambda = 25$. The choice is thus
+justified on principle and immaterial in fact --- Section~4 returns to \emph{why} ties are
+this rare, which turns out to be part of the phenomenon rather than a technicality.
+
+\paragraph{2. Why a silent repair counts as a miss.} On the event
+$\{\tau_{\mathrm{ARF}} < +\infty,\ \tau_{\mathrm{det}} = +\infty\}$ the forest repaired
+itself while the alarm never sounded. This is the blind spot in its purest form, and
+strictly worse than $\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}} < +\infty$, where the
+operator is at least informed late: here the evidence is erased and nothing is ever
+reported. A finite $\tau_{\mathrm{ARF}}$ is strictly smaller than $+\infty$, so the event
+falls inside $\mathrm{Miss}$ with no special handling.
+
+That it should is not merely a convention. Excluding it would restrict the count to runs
+where the detector eventually spoke --- precisely the selection bias this question holds
+against the manuscript, since the runs discarded are those where the detector failed most
+completely. At $\lambda = 50$, where $1\,999$ of the $2\,000$ runs never fire, such an
+exclusion would compute a rate over a single run and erase the blind spot from the
+statistic exactly where it is total.
+
+\paragraph{3. Why double starvation does not.} On the event
+$\{\tau_{\mathrm{ARF}} = +\infty,\ \tau_{\mathrm{det}} = +\infty\}$ neither did the forest
+ever repair itself, nor did the alarm ever sound. This is qualitatively different from the
+paradox under study, which rests on a \emph{silent repair} erasing the evidence before the
+alarm gets its chance. If the repair never happened, there is nothing to erase: the model
+simply stays broken, and no mechanism has cheated. Since $\infty < \infty$ is false, the
+event is automatically excluded --- again with no special handling.
 
 \begin{center}
 \fbox{\parbox{0.93\textwidth}{\textbf{Adopted convention.}
-\[ \mathrm{Miss} := \{\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}\} \qquad \text{(strict inequality)} \]
-A tie is classified on the detector's side. Both clocks count integer steps, so
-ties are not ruled out by any continuity argument: their frequency has to be measured,
-and it is, in Section~4.}}
+\[ \mathrm{Miss} := \{\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}\} \qquad \text{(strict inequality, extended reals)} \]
+One definition settles the three cases: a tie is classified on the detector's side, a
+silent repair is a miss, a double starvation is not. No case needs a rule of its own ---
+which is what makes the definition trustworthy rather than fitted to the answer. The
+material weight of the tie convention is measured in Section~4.}}
 \end{center}
 
-\section{Identification Under a Finite Horizon}
+\section{Making the Miss Probability Observable}
 
-Absolute censoring is the event
-$C_H := \{\min(\tau_{\mathrm{ARF}},\tau_{\mathrm{det}}) > H\}$: neither event has
-happened yet at the horizon, so the winner of the race is unobservable. Conversely
-$\{\tau_{\mathrm{ARF}}\le H\}$ and $\{\tau_{\mathrm{det}}\le H\}$ are observable.
+$\mathrm{Miss} = \{\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}\}$ is defined on the complete
+race, with no time limit. The campaign observes $H = 2\,000$ steps. On runs where neither
+clock has fired by then, the winner is simply not known, and $P_{\mathrm{miss}}$ depends
+on what was never seen: it is not, as it stands, computable from the data.
 
-\paragraph{Four-region partition.} Every run falls into exactly one of the following
-four cases.
+Two ways out are available and both are unacceptable. Assuming that censored runs behave
+like the others cannot be checked. Discarding them reintroduces the selection bias of
+Section~1, and they are exactly the runs the phenomenon is about. The aim here is
+therefore to replace $P_{\mathrm{miss}}$ by the probability of an event that \emph{is}
+observable --- or, failing an exact rewriting, to trap it between two such probabilities.
+
+\paragraph{1. What the horizon lets us see.} Absolute censoring is
+$C_H := \{\min(\tau_{\mathrm{ARF}},\tau_{\mathrm{det}}) > H\}$: neither event has happened
+by the horizon, so the race is undecided. Conversely $\{\tau_{\mathrm{ARF}} \le H\}$ and
+$\{\tau_{\mathrm{det}} \le H\}$ are observable, and sorting runs by these two gives a
+partition in which the verdict is known everywhere except one cell.
 
 \begin{center}
 \begin{tabular}{cccl}
@@ -78,24 +125,40 @@ Region & $\tau_{\mathrm{ARF}}$ observed? & $\tau_{\mathrm{det}}$ observed? & Ver
 \end{tabular}
 \end{center}
 
-Regions 1 and 2 together form exactly $\{\tau_{\mathrm{ARF}}\le H\}\cap\mathrm{Miss}$
---- a quantity that is fully computable from the data, with no assumption whatsoever
-about what happens beyond $H$.
+Regions 1 and 2 together are exactly $\{\tau_{\mathrm{ARF}} \le H\} \cap \mathrm{Miss}$, a
+probability computable from the data with no assumption about what happens beyond $H$.
+Region 3 is never a Miss. Only region 4 is undetermined.
 
-\paragraph{The bound.} Ignoring region 4 (lower bound), then counting it entirely as a
-Miss in the worst case (upper bound):
+\paragraph{2. Trapping the unknown between two computable numbers.} Since region 4 is the
+only undetermined one, it can shift the total by its own mass and no more. Counting it as
+never a Miss gives the lower bound, counting it entirely as Miss gives the upper one:
 \[
   \underbrace{P(\{\tau_{\mathrm{ARF}}\le H\}\cap\mathrm{Miss})}_{\text{computable, no assumption}}
   \;\le\; P_{\mathrm{miss}} \;\le\;
   P(\{\tau_{\mathrm{ARF}}\le H\}\cap\mathrm{Miss}) + P(C_H)
 \]
+This is a Manski-type bound: partial identification. Nothing is assumed about the
+unobserved runs --- their possible influence is simply bounded by how many there are. The
+width of the interval is exactly $P(C_H)$, which is to say exactly the extent of our
+ignorance.
+
+\paragraph{3. On this campaign, the interval collapses.} Section~4 measures
+$P(C_H) = 0$: the forest, running at maximal reactivity ($c_{\mathrm{int}} = 1$), replaces
+a tree before the horizon on every one of the $2\,000$ runs --- the largest
+$\tau_{\mathrm{ARF}}$ observed is $1\,293$ steps. The minimum of the two clocks is
+therefore always finite, the race always decided, and the two bounds coincide:
+\[
+  P_{\mathrm{miss}} \;=\; P(\{\tau_{\mathrm{ARF}} \le H\} \cap \mathrm{Miss}).
+\]
 
 \begin{center}
-\fbox{\parbox{0.93\textwidth}{\textbf{Result.} The width of the bound is exactly
-$P(C_H)$, the proportion of doubly-censored runs: this is a Manski-type bound
-(partial identification). The more runs resolve before $H$, the tighter the interval.
-Section~4 computes $P(C_H)$ on the campaign and finds it equal to zero, which collapses
-the bound onto a point.}}
+\fbox{\parbox{0.93\textwidth}{\textbf{Result.} The unconditional miss probability equals
+the probability of an event observable within the horizon. This is an equality, not an
+assumption: the naive computation would have returned the same number, but nothing would
+have told us it was right. What the construction adds is the guarantee --- and the
+condition under which it would fail. Were the forest able to stay inert past $H$,
+$P_{\mathrm{miss}}$ would cease to be identified and only the interval above would
+survive.}}
 \end{center}
 
 \section{Universal Fréchet Bound}
@@ -106,10 +169,20 @@ alone, without any dependence assumption, we bound $P_{\mathrm{miss}}$.
 \paragraph{Lower bound.} For a fixed integer $s$, the event
 $\{\tau_{\mathrm{ARF}}\le s < \tau_{\mathrm{det}}\}$ always implies
 $\tau_{\mathrm{ARF}}<\tau_{\mathrm{det}}$ --- it is therefore a subset of
-$\mathrm{Miss}$, for any $s$. Fréchet's inequality for an intersection gives
+$\mathrm{Miss}$, for any $s$. Write $A = \{\tau_{\mathrm{ARF}} \le s\}$ and
+$B = \{\tau_{\mathrm{det}} > s\}$, so that $P(A) = F_A(s)$ and $P(B) = 1 - F_D(s)$.
+Fréchet's inequality for an intersection follows from $P(A \cup B) \le 1$:
+\[
+  P(A \cap B) \;=\; P(A) + P(B) - P(A \cup B) \;\ge\; P(A) + P(B) - 1 ,
+\]
+and since a probability is non-negative, $P(A \cap B) \ge \max\big(0, P(A)+P(B)-1\big)$.
+Substituting the two marginals, $P(A) + P(B) - 1 = F_A(s) + \bigl(1 - F_D(s)\bigr) - 1
+= F_A(s) - F_D(s)$, hence
 \[
   P(\tau_{\mathrm{ARF}}\le s,\ \tau_{\mathrm{det}}>s) \;\ge\; \max\big(0,\ F_A(s) - F_D(s)\big),
 \]
+an inequality that uses the two marginal laws only, and assumes nothing about how the two
+clocks are related.
 and since the inclusion holds for every $s$, we optimize by taking the largest value:
 \[
   P_{\mathrm{miss}} \;\ge\; \max\Big(0,\ \sup_{s\in\mathbb{Z}} \big[F_A(s)-F_D(s)\big]\Big).
