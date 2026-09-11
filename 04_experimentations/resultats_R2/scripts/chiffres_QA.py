@@ -152,5 +152,65 @@ def qa() -> None:
     )
 
 
+def _cdfs(sub: pd.DataFrame, lam: int, h: int = H):
+    """CDF empiriques de tau_ARF (propre) et tau_det (SOUS-stochastique : tau_det
+    vaut NaN quand il est censure, et ces runs ne sont jamais comptes dans F_D)."""
+    import numpy as np
+
+    grille = np.arange(0, h + 2)
+    n = len(sub)
+    ta = sub["tau_arf"].to_numpy()
+    td = sub[f"tau_det_{lam}"].to_numpy()
+    fa = np.array([(ta <= x).sum() for x in grille]) / n
+    fd = np.array([(td <= x).sum() for x in grille]) / n
+    return fa, fd, ta, td
+
+
+def frechet(sub: pd.DataFrame, lam: int):
+    """Encadrement universel de la section 3, evalue sur les marginales estimees.
+
+    inf : max(0, sup_s [F_A(s) - F_D(s)])
+    sup : min(1, inf_s [F_A(s) + 1 - F_D(s+1)])
+    et P_miss observe = region 1 gagnante + region 2 (Miss certain).
+    """
+    import numpy as np
+
+    fa, fd, ta, td = _cdfs(sub, lam)
+    lo = max(0.0, float((fa - fd).max()))
+    up = min(1.0, float((fa[:-1] + 1 - fd[1:]).min()))
+    miss = float(((ta < td) | np.isnan(td)).mean())
+    return lo, miss, up
+
+
+def qa_frechet() -> None:
+    import numpy as np
+
+    d = pd.read_parquet(DATA / "QCD_indicateurs_full.parquet")
+    grille = sorted(d["delta_e"].unique())
+
+    _sous_titre("section 3 : la borne de Frechet sur les marginales estimees")
+    print(f"      {'lam':>4} {'Delta_e':>9} {'inf':>7} {'P_miss':>7} {'sup':>7} {'largeur':>8}")
+    for lam in LAMBDAS:
+        larg, dedans = [], 0
+        for de in grille:
+            lo, m, up = frechet(d[d["delta_e"] == de], lam)
+            larg.append(up - lo)
+            dedans += int(lo - 1e-12 <= m <= up + 1e-12)
+            if de in (grille[0], grille[1], grille[2], grille[19]):
+                print(
+                    f"      {lam:>4} {de:>9.3f} {lo:>7.2f} {m:>7.2f} {up:>7.2f} {up - lo:>8.2f}"
+                )
+        lo_p, m_p, up_p = frechet(d, lam)
+        _ligne(
+            f"QA sec.3 lam={lam}",
+            "borne valable quelle que soit la dependance",
+            f"P_miss encadre sur {dedans}/20 amplitudes ; largeur par amplitude "
+            f"min {min(larg):.3f} max {max(larg):.3f} moyenne {np.mean(larg):.3f} ; "
+            f"en agregeant les 20 amplitudes [{lo_p:.3f} ; {up_p:.3f}], largeur {up_p - lo_p:.3f}",
+            "QCD_indicateurs_full",
+        )
+
+
 if __name__ == "__main__":
     qa()
+    qa_frechet()
