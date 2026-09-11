@@ -26,12 +26,12 @@
 $\tau_{\mathrm{ARF}}$, and that of the threshold $\lambda$? How does comparing them
 directly sidestep the sequential nature of the detector?
 
-\paragraph{The two units.} In a stream, there is no physical clock~: the only time
+\paragraph{The two units.} In a stream, there is no physical clock: the only time
 variable available is the index of the incoming example, so $\tau_{\mathrm{ARF}}$ is
 measured in \emph{observations}. The threshold, meanwhile, is read off the recurrence
 of the cumulative detector\footnote{Equation~(3) of the manuscript, section~III-D
 (``The Starvation Effect''), notation kept as is. The R2 protocol creates the detector
-at the drift instant, hence $S_{\tau^*} = 0$~; the manuscript's Proposition~3 instead
+at the drift instant, hence $S_{\tau^*} = 0$; the manuscript's Proposition~3 instead
 keeps $S_{\tau^*} = s_0 \ge 0$ --- setting $s_0 = 0$ here is a specialization of the
 protocol.}
 \begin{equation}
@@ -40,44 +40,44 @@ protocol.}
 \end{equation}
 where $e_t \in \{0,1\}$ flags an error at step $t$, $p_0$ the normal pre-drift error
 rate, and $\delta_P$ a tolerance subtracted at every step. Since $e_t$ is $0$ or $1$,
-an error pushes $S$ up by nearly one unit while a success barely brings it down~: up to
+an error pushes $S$ up by nearly one unit while a success barely brings it down: up to
 the tolerance, $S_t$ counts the errors accumulated beyond the baseline. Since
 $\lambda$ only ever appears in the comparison $S_t \ge \lambda$, it must be read in
 the same unit --- $\lambda = 50$ does not mean ``wait 50 steps'', but ``wait until
 roughly 50 excess errors have accumulated''. The two quantities are therefore counts
-of different natures~: writing $\tau_{\mathrm{ARF}} < \lambda$ makes no dimensional
+of different natures: writing $\tau_{\mathrm{ARF}} < \lambda$ makes no dimensional
 sense.
 
 \paragraph{What a direct comparison hides.} Comparing the two amounts to treating
-$\lambda$ as a duration~: ``it takes $\lambda$ errors, hence so many steps''. This
+$\lambda$ as a duration: ``it takes $\lambda$ errors, hence so many steps''. This
 shortcut assumes evidence accumulates at a fixed rate --- without an error-per-step
 rate, there is no way to convert one unit into the other --- and the assumption is
 baked into the very act of comparing, whether or not the conversion is written out.
-But no such rate exists~: the detector receives errors one at a time and does not
+But no such rate exists: the detector receives errors one at a time and does not
 output a number, but a date --- the one at which the trajectory of $S_t$ crosses
 $\lambda$. Three features of that trajectory disappear once it is replaced by a
 constant-slope ramp.
 
 \emph{The rate slows down.} Right after the drift, the counter's increment has
-expectation $\Delta e - \delta_P$~; but the forest repairs itself, the excess error
+expectation $\Delta e - \delta_P$; but the forest repairs itself, the excess error
 drifts back toward the baseline, and this gain dries up. The manuscript instead
 assumes a constant excess of $\Delta e$ throughout the whole transient, then none at
 all --- a rectangle, whose height is precisely the fixed rate the comparison requires.
 
 \emph{Acquired evidence can be destroyed.} When $S_t$ would go below zero, the
-$\max(0,\cdot)$ in~\eqref{eq:cusum} resets it to $0$~: this is not a pause, everything
+$\max(0,\cdot)$ in~\eqref{eq:cusum} resets it to $0$: this is not a pause, everything
 accumulated so far is lost. The same errors, clustered right after the drift or spread
 out over the horizon, therefore do not yield the same alarm date, whereas an average
 rate makes no distinction between the two. This is the precise meaning of
-``sequential''~: the date depends on the order of arrival, not only on the total.
+``sequential'': the date depends on the order of arrival, not only on the total.
 
 \emph{The alarm may never come.} Over the campaign's horizon $H = 2\,000$, the
 threshold may never be crossed\footnote{Beyond the horizon the crossing eventually
 happens, but its mean delay grows exponentially with $\lambda$ (manuscript,
-Remark~4)~: the alarm then no longer bears on the drift.}.
+Remark~4): the alarm then no longer bears on the drift.}.
 
 \paragraph{Conclusion.} An error count and an observation count cannot be compared by
-positing a rate. Homogeneity is restored the other way around~: by bringing both
+positing a rate. Homogeneity is restored the other way around: by bringing both
 quantities into the unit of evidence, where the comparison is threshold against
 accumulated evidence, on each run and without averaging. That is the object of the
 peak statistic $S_{\max}(H)$ and the deterministic certificate that follows from it,
@@ -124,7 +124,7 @@ By induction on $j$.
 
 \smallskip
 \noindent\emph{Base case.} For $j = 0$, the only admissible index is $k = 0$ and the
-corresponding sum is empty, hence zero~: the right-hand side equals $0 = S_0$.
+corresponding sum is empty, hence zero: the right-hand side equals $0 = S_0$.
 
 \smallskip
 \noindent\emph{Inductive step.} Assume~\eqref{eq:lindley} holds at rank $j-1$. Then
@@ -134,12 +134,12 @@ corresponding sum is empty, hence zero~: the right-hand side equals $0 = S_0$.
       \;=\; \max\Bigl(0,\; \max_{0 \le k \le j-1} \sum_{t=k+1}^{j} X_t\Bigr),
 \]
 the last equality following from $X_j$ not depending on $k$, so it may enter the
-maximum. Now the term $0$ is exactly the empty sum obtained for $k = j$~: the two
+maximum. Now the term $0$ is exactly the empty sum obtained for $k = j$: the two
 arguments of the outer maximum merge into a single maximum over $0 \le k \le j$,
 giving~\eqref{eq:lindley} at rank $j$.
 
 \smallskip
-\noindent\emph{Conclusion.} The second form follows by expanding the sum~:
+\noindent\emph{Conclusion.} The second form follows by expanding the sum:
 \[
   \sum_{t=k+1}^{j} X_t
   \;=\; \sum_{t=k+1}^{j} \bigl(e_t - \hat p_0\bigr) \;-\; (j-k)\,\delta_P
@@ -154,12 +154,12 @@ $S_{\max}(H) = \max_{0 \le j \le H} S_j
 
 \begin{remark}[Connection to Kadane's algorithm]
 The recurrence $S_t = \max(0, S_{t-1}+X_t)$ is exactly Kadane's algorithm for the
-maximum-subarray-sum problem, in its empty-subarray-allowed form~: $S_{\max}(H)$ is the
+maximum-subarray-sum problem, in its empty-subarray-allowed form: $S_{\max}(H)$ is the
 largest sum achievable by any contiguous block of the $X_t$'s, including the empty
 block (sum $0$). Proposition~\ref{prop:lindley}'s induction is the textbook proof of
 Kadane's correctness. The practical content is that the detector, by running this
 single $O(H)$ recurrence online, is already computing --- without knowing it --- the
-best of the $O(H^2)$ possible sub-windows~: the cheap, real-time statistic and the
+best of the $O(H^2)$ possible sub-windows: the cheap, real-time statistic and the
 brute-force search over every sub-window coincide exactly.
 \end{remark}
 
@@ -176,7 +176,7 @@ individual run, with no averaging and no distributional assumption.
 \end{corollary}
 
 \begin{proof}
-Immediate from Proposition~\ref{prop:lindley}~: $S_{\max}(H)$ \emph{is}, by definition,
+Immediate from Proposition~\ref{prop:lindley}: $S_{\max}(H)$ \emph{is}, by definition,
 the maximum of $A(k,j) - (j-k)\delta_P$ over all admissible $(k,j)$, so this maximum is
 $\ge \lambda$ if and only if at least one of its terms is.
 \end{proof}
@@ -184,11 +184,11 @@ $\ge \lambda$ if and only if at least one of its terms is.
 \paragraph{Necessary and sufficient, versus only sufficient.} The equivalence in
 Corollary~\ref{cor:certificate} holds only because it ranges over \emph{every}
 sub-window. Restricting the check to the single full window $(k,j) = (0,H)$ gives the
-one-directional statement used below~:
+one-directional statement used below:
 \[
   A(0,H) - H\,\delta_P \ge \lambda \ \Longrightarrow\ S_{\max}(H) \ge \lambda,
 \]
-which is only \emph{sufficient}~: it is one particular term in the maximum, so clearing
+which is only \emph{sufficient}: it is one particular term in the maximum, so clearing
 the bar on the full window certainly clears it overall, but failing to clear it proves
 nothing --- a burst of evidence concentrated in the middle of the horizon can be diluted,
 in the full-window average, by quiet periods before or after it, and still satisfy the
@@ -197,80 +197,88 @@ certificate on a short window near the drift (Section~\ref{sec:application}) can
 where the full-window version fails, without any contradiction.
 
 \paragraph{What the identity makes visible.} The reset to zero is not a technical
-correction~: it is \emph{equivalent} to the freedom to choose the starting point. A
+correction: it is \emph{equivalent} to the freedom to choose the starting point. A
 CUSUM that restarts from zero whenever the counter would go below the line does
 nothing other than retain, at every instant, the best recent sub-window. This is why
-the maximum ranges over pairs $(k,j)$ rather than over $j$ alone~: the detector does
+the maximum ranges over pairs $(k,j)$ rather than over $j$ alone: the detector does
 not measure the evidence accumulated since the drift, but the evidence accumulated
 over the most favorable sub-window.
 
 Two immediate consequences. First, $S_{\max}(H) \ge 0$, since the choice $k=j$ is
-always available. Second, and more importantly, the identity is \emph{deterministic}~:
+always available. Second, and more importantly, the identity is \emph{deterministic}:
 it holds on each individual run, with no averaging or distributional assumption. This
 is what licenses Corollary~\ref{cor:certificate}, applied to the campaign in
 Section~\ref{sec:application} below (and reused for the full-window discussion in
 Q~C.3).
 
 \paragraph{Numerical check.} The closed form~\eqref{eq:lindley} was checked against
-the naive recurrence over every trajectory of the campaign~: maximal deviation
-$1.07 \times 10^{-10}$, i.e.\ machine precision. The analysis script refuses to
-proceed further if this check fails.
+the naive recurrence on $200$ synthetic Bernoulli trajectories (seed $12345$, maximal
+deviation $1.07 \times 10^{-10}$) and on the $2\,000$ trajectories of the campaign
+(maximal deviation $1.26 \times 10^{-11}$), i.e.\ machine precision in both cases. The
+analysis script refuses to proceed further if this check fails.
 
 \section{Application to the Campaign}
 \label{sec:application}
 
-Both directions of Corollary~\ref{cor:certificate} are now confronted with data~: the
-one-directional full-window certificate first, then the two-directional short-window
-one that the corollary actually licenses.
+Both directions of Corollary~\ref{cor:certificate} are now confronted with data: the
+one-directional full-window certificate first, then the short-window one, which the
+corollary makes necessary and sufficient for $S_{\max}(w) \ge \lambda$ and hence
+sufficient for detection within $H$.
 
 \paragraph{Full window.} With $H = 2\,000$ and $\delta_P = 0.01$, the full-window
 requirement $A(0,H) \ge \lambda + H\delta_P$ demands a toll of $H\delta_P = 20$
 regardless of $\lambda$, i.e.\ raw areas of $28$, $45$ and $70$ for
 $\lambda \in \{8,25,50\}$. Against the evidence budget of about $18$ established in
-Q~C.3, these are met only exceptionally~: over the $2\,000$ runs, $A(0,H)$ reaches $28$
+Q~C.3, these are met only exceptionally: over the $2\,000$ runs, $A(0,H)$ reaches $28$
 in $473$ cases, $45$ in $66$, and $70$ in none. The full-window certificate therefore
-proves detection for $24\%$ of runs at $\lambda = 8$, $3\%$ at $\lambda = 25$ and none
-at $\lambda = 50$, and at the weakest amplitude ($\Delta e = 0.028$) for no run at all.
-Being only sufficient, this failure does not mean the alarm never fires~; it only means
+proves detection for $23.7\%$ of runs at $\lambda = 8$ (Wilson $95\%$ interval
+$[21.8;25.6]$), $3.3\%$ at $\lambda = 25$ ($[2.6;4.2]$) and none at $\lambda = 50$
+($[0.0;0.2]$), and at the weakest amplitude ($\Delta e = 0.028$) for no run at all.
+Being only sufficient, this failure does not mean the alarm never fires; it only means
 the full window is the wrong place to look for the proof.
 
 \paragraph{Short window.} Anchoring instead on a window
-$w = \lceil 3 \times 18.5/\Delta e \rceil$ steps right after the drift --- sized to the
+$w = \mathrm{round}(3 \times 18.5/\Delta e)$ steps right after the drift --- sized to the
 transient rather than to the whole horizon --- and checking the \emph{quantified}
-condition on that window, i.e.\ « some sub-window of $]0,w]$
-satisfies~\eqref{eq:certificate} », equivalently $S_{\max}(w) \ge \lambda$, gives a very
+condition on that window, i.e.\ ``some sub-window of $]0,w]$ satisfies the
+certificate inequality $A(k,j) - (j-k)\,\delta_P \ge \lambda$ of
+Corollary~\ref{cor:certificate}'', equivalently $S_{\max}(w) \ge \lambda$, gives a very
 different picture\footnote{Restricting instead to the single sub-window $]0,w]$, i.e.\
 $A(0,w) \ge \lambda + w\,\delta_P$, is a strictly stronger requirement and yields
-noticeably lower figures at $\lambda = 25$~: $0.39$ instead of $0.44$ at
+noticeably lower figures at $\lambda = 25$: $0.39$ instead of $0.44$ at
 $\Delta e = 0.141$, $0.30$ instead of $0.40$ at $\Delta e = 0.416$. The tabulated values
 are the quantified ones, as computed by \texttt{analyse\_QCD.py}.}.
 
 \begin{center}
-\begin{tabular}{rrrrrrr}
+\begin{tabular}{rrlllll}
 \toprule
 & & \multicolumn{2}{c}{$\lambda=8$} & \multicolumn{2}{c}{$\lambda=25$} & $\lambda=50$ \\
 $\Delta e$ & $w$ & certificate & detected & certificate & detected & certificate \\
 \midrule
-0.028 & 1\,969 & 0.10 & 0.10 & 0.00 & 0.00 & 0.00 \\
-0.085 &   650 & 0.95 & 0.96 & 0.09 & 0.15 & 0.00 \\
-0.141 &   394 & 1.00 & 1.00 & 0.44 & 0.70 & 0.00 \\
-0.194 &   287 & 1.00 & 1.00 & 0.73 & 0.91 & 0.00 \\
-0.243 &   229 & 1.00 & 1.00 & 0.78 & 0.94 & 0.00 \\
-0.361 &   154 & 1.00 & 1.00 & 0.57 & 0.83 & 0.00 \\
-0.498 &   112 & 1.00 & 1.00 & 0.02 & 0.02 & 0.00 \\
+0.028 & 1\,969 & 0.10 [0.06;0.17] & 0.10 [0.06;0.17] & 0.00 [0.00;0.04] & 0.00 [0.00;0.04] & 0.00 [0.00;0.04] \\
+0.085 &   650 & 0.95 [0.89;0.98] & 0.96 [0.90;0.98] & 0.09 [0.05;0.16] & 0.15 [0.09;0.23] & 0.00 [0.00;0.04] \\
+0.141 &   394 & 1.00 [0.96;1.00] & 1.00 [0.96;1.00] & 0.44 [0.35;0.54] & 0.70 [0.60;0.78] & 0.00 [0.00;0.04] \\
+0.194 &   287 & 1.00 [0.96;1.00] & 1.00 [0.96;1.00] & 0.73 [0.64;0.81] & 0.91 [0.84;0.95] & 0.00 [0.00;0.04] \\
+0.243 &   229 & 1.00 [0.96;1.00] & 1.00 [0.96;1.00] & 0.78 [0.69;0.85] & 0.94 [0.88;0.97] & 0.00 [0.00;0.04] \\
+0.361 &   154 & 1.00 [0.96;1.00] & 1.00 [0.96;1.00] & 0.57 [0.47;0.66] & 0.83 [0.74;0.89] & 0.00 [0.00;0.04] \\
+0.498 &   112 & 1.00 [0.96;1.00] & 1.00 [0.96;1.00] & 0.02 [0.01;0.07] & 0.02 [0.01;0.07] & 0.00 [0.00;0.04] \\
 \bottomrule
 \end{tabular}
+
+\smallskip
+{\small Brackets: Wilson $95\%$ interval, $n = 100$ seeds per amplitude.}
 \end{center}
 
 \paragraph{Reading the table.} Columns report, per amplitude, the fraction of the
 campaign's 100 seeds where the short-window certificate fires versus the fraction where
 the alarm was actually detected within $H$ (the $\lambda=50$ detected column is
-omitted~: it never exceeds $0.01$, consistent with the near-total blind spot already
+omitted: it never exceeds $0.01$, consistent with the near-total blind spot already
 reported for this threshold). Two things hold across every one of the $60$
-($\Delta e,\lambda$) cells computed, not only the seven shown~: the certificate
+($\Delta e,\lambda$) cells computed, not only the seven shown: the certificate
 \emph{never} exceeds observed detection --- exactly what sufficiency requires --- and
-for $\lambda = 8$ it very nearly \emph{equals} it (mean gap $0.037$ over all cells,
-median $0$), meaning the mathematical guarantee is almost never more pessimistic than
+for $\lambda = 8$ it very nearly \emph{equals} it (mean gap $0.0005$, median $0$, over
+the $20$ amplitudes; across the $60$ cells of the three thresholds the mean gap is
+$0.037$), meaning the mathematical guarantee is almost never more pessimistic than
 reality at this threshold. For $\lambda = 25$ the gap widens (e.g.\ $0.44$ vs.\ $0.70$
 at $\Delta e = 0.141$), and for $\lambda = 50$ the short window essentially never
 supplies the required evidence at all --- the window is sized to the transient, and
