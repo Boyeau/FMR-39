@@ -174,16 +174,126 @@ def figure_ecarts():
     return out
 
 
+def figure_mecanisme():
+    """Slide 2 : le mecanisme, en schema.
+
+    SCHEMA STYLISE, aucune donnee. Pour un auditoire qui decouvre le sujet,
+    une vraie trajectoire est trop bruitee pour montrer le mecanisme : ce
+    qu'il faut voir, c'est que la preuve monte puis REDESCEND sans avoir
+    atteint le seuil. La legende de la slide dit « schematic ».
+    """
+    t = np.linspace(0, 100, 800)
+    t0, base, saut, tau = 20.0, 0.10, 0.32, 11.0
+    err = np.where(t < t0, base, base + saut * np.exp(-(t - t0) / tau))
+
+    # Preuve accumulee : l'excedent d'erreur au-dessus du niveau de base,
+    # moins la tolerance du detecteur. C'est la recurrence de CUSUM.
+    exces = np.clip(err - base - 0.055, 0, None)
+    preuve = np.cumsum(exces) * (t[1] - t[0])
+    seuil = preuve.max() * 1.55
+
+    with plt.rc_context(PLT):
+        fig, (h, b) = plt.subplots(2, 1, figsize=(10.5, 6.0), sharex=True,
+                                   gridspec_kw={"height_ratios": [1, 1]})
+
+        h.plot(t, err, color="#1b1b1b", lw=2.6)
+        h.axvline(t0, color="#b03a2e", lw=1.8, ls="--")
+        h.annotate("the world changes", xy=(t0, base + saut), xytext=(6, -6),
+                   textcoords="offset points", color="#b03a2e", weight="bold",
+                   fontsize=14, va="top")
+        h.annotate("the forest repairs itself", xy=(t0 + 2.2 * tau, base + 0.05),
+                   xytext=(24, 34), textcoords="offset points", fontsize=14,
+                   arrowprops=dict(arrowstyle="->", color="#1b1b1b", lw=1.6))
+        h.set_ylabel("model error")
+        h.set_yticks([])
+        h.grid(alpha=0.15, lw=0.6)
+
+        b.plot(t, preuve, color="#1b1b1b", lw=2.6)
+        b.axhline(seuil, color="#b03a2e", lw=2.2, ls=":")
+        b.axvline(t0, color="#b03a2e", lw=1.8, ls="--")
+        b.annotate("alarm threshold", xy=(2, seuil), xytext=(0, -22),
+                   textcoords="offset points", color="#b03a2e", weight="bold",
+                   fontsize=14)
+        # La distance qui n'est jamais franchie : c'est tout le sujet.
+        b.annotate("", xy=(t[-1] * 0.86, seuil),
+                   xytext=(t[-1] * 0.86, preuve.max()),
+                   arrowprops=dict(arrowstyle="<->", color="#b03a2e", lw=2.0))
+        b.text(t[-1] * 0.84, (seuil + preuve.max()) / 2, "the gap", ha="right",
+               va="center", color="#b03a2e", weight="bold", fontsize=14)
+        b.annotate("evidence stops here.\nthe alarm never fires",
+                   xy=(t[-1] * 0.62, preuve.max()), xytext=(-6, -18),
+                   textcoords="offset points", fontsize=14, ha="right", va="top")
+        b.set_ylabel("evidence for the\nexternal detector")
+        b.set_xlabel("time")
+        b.set_yticks([])
+        b.set_xticks([])
+        b.grid(alpha=0.15, lw=0.6)
+
+        fig.tight_layout()
+        out = FIGURES / "Fig_slide_mecanisme.png"
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+    return out
+
+
+def figure_deux_horloges():
+    """Slide 5 : les deux dates, a une amplitude du milieu de grille.
+
+    Medianes reelles, pas un schema. L'amplitude est choisie pour sa censure
+    faible (2 % sur tau_swap(75 %)), et elle est ecrite sur la figure : une
+    duree qui ne porte pas son point de grille n'est pas reproductible.
+    """
+    df = pd.read_parquet(DATA / "QCD_indicateurs_full.parquet")
+    g = df.groupby("delta_e")
+    med = g.agg(tau_arf=("tau_arf", "median"), tau75=("tau_swap_75", "median"),
+                cens=("censored_swap_75", "mean"))
+    cible = med.index[np.argmin(np.abs(med.index - 0.24))]
+    ligne = med.loc[cible]
+    court, long = float(ligne.tau_arf), float(ligne.tau75)
+
+    with plt.rc_context(PLT):
+        fig, ax = plt.subplots(figsize=(10.5, 3.2))
+        ax.barh([1], [court], height=0.55, color="#b03a2e")
+        ax.barh([0], [long], height=0.55, color="#1b1b1b")
+        ax.set_ylim(-0.55, 1.55)
+        ax.text(court + long * 0.012, 1, f"{court:.0f} steps", va="center",
+                fontsize=16, weight="bold", color="#b03a2e")
+        ax.text(long + long * 0.012, 0, f"{long:.0f} steps", va="center",
+                fontsize=16, weight="bold", color="#1b1b1b")
+        ax.set_yticks([1, 0])
+        ax.set_yticklabels(['called "repaired"\nby the literature',
+                            "three quarters of\nthe forest renewed"],
+                           fontsize=15)
+        ax.set_xlim(0, long * 1.22)
+        ax.set_xlabel("time after the change  (steps)")
+        ax.spines[["top", "right", "left"]].set_visible(False)
+        ax.tick_params(axis="y", length=0)
+        ax.text(1.0, -0.42, f"median over 100 runs at $\\Delta e = {cible:.2f}$,"
+                f" $M = {N_MODELS}$", transform=ax.transAxes, ha="right",
+                va="top", fontsize=12, color="#6a6a6a")
+
+        out = FIGURES / "Fig_slide_deux_horloges.png"
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+    return out, court, long
+
+
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--only", choices=["blindspot", "ecarts"])
+    p.add_argument("--only", choices=["blindspot", "ecarts",
+                                      "mecanisme", "horloges"])
     a = p.parse_args()
 
     if a.only in (None, "blindspot"):
         out, n_al, n_ru = figure_blindspot()
         print(f"[slide 3] {out.name}  | alarmes = {n_al} / {n_ru}")
     if a.only in (None, "ecarts"):
-        print(f"[slide 5] {figure_ecarts().name}")
+        print(f"[annexe ] {figure_ecarts().name}")
+    if a.only in (None, "mecanisme"):
+        print(f"[slide 2] {figure_mecanisme().name}")
+    if a.only in (None, "horloges"):
+        out, c, l = figure_deux_horloges()
+        print(f"[slide 5] {out.name}  | {c:.0f} pas contre {l:.0f}")
 
 
 if __name__ == "__main__":

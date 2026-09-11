@@ -5,9 +5,15 @@ Les supports de présentation du sujet 39. Les rédactions restent dans
 
 ## `presentation_pitch_3min.tex`
 
-Pitch de 3 minutes : domaine, problématique, état de l'art, résultats.
-Six slides, 397 mots de texte parlé, soit environ 160 s de débit plus les
-transitions et la page de titre.
+Pitch de 3 minutes **pour un auditoire qui ne connaît pas le sujet**.
+Six slides, 405 mots de texte parlé, soit environ 162 s de débit.
+
+**Parti pris : montrer le mécanisme, pas énumérer des résultats.** Un schéma
+porte le paradoxe (slide 2), un chiffre porte sa réalité (slide 3), une mesure
+porte l'avancée (slide 4). Les chiffres détaillés de C.1, C.2 et C.3 sont
+volontairement absents : chacun exige sa définition préalable, et trois minutes
+ne les financent pas. `Fig_slide_ecarts_swap.png` reste produite et disponible
+pour les questions, elle n'est plus projetée.
 
 **Périmètre : les résultats s'arrêtent à la fin de la question C.** La question D
 est annoncée comme le travail suivant, et aucun chiffre des `redaction_QD*.tex`
@@ -41,9 +47,12 @@ diverger de la table qui le produit.
 
 | Slide | Chiffre | Source |
 |---|---|---|
-| 3 | le détecteur a tiré **3 fois sur 2 000 runs** à `λ = 50` | `03_repo_officiel_.../results/R2_instrumented_blind_spot/data/` |
-| 4 | `λ ≥ 15` contre `λ ≤ 12,4` | article source, cité comme tel sur la slide |
-| 5 | `6,0` à `14,3` fois `τ_ARF` | `04_experimentations/resultats_R2/resultats/data/QCD_indicateurs_full.parquet` |
+| 3 | le détecteur a tiré **3 fois sur 2 000 runs** | `03_repo_officiel_.../results/R2_instrumented_blind_spot/data/` |
+| 4 | `86` pas contre `1 225`, médiane à `Δe = 0,24` | `04_experimentations/resultats_R2/resultats/data/QCD_indicateurs_full.parquet` |
+
+La slide 2 est un **schéma stylisé, sans données** : pour un auditoire qui
+découvre le sujet, une vraie trajectoire est trop bruitée pour montrer que la
+preuve monte puis s'arrête sous le seuil. La légende de la figure le dit.
 
 ```bash
 cd ../04_experimentations/resultats_R2/scripts

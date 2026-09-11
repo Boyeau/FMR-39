@@ -1,8 +1,15 @@
 % presentation_pitch_3min.tex
 % =====================================================================
-% Pitch de 3 minutes. Les resultats s'arretent a la fin de la question C :
-% la question D est annoncee comme le travail suivant, et aucun chiffre
-% des `redaction_QD*.tex` n'apparait ici.
+% Pitch de 3 minutes, pour un auditoire qui ne connait PAS le sujet.
+%
+% Parti pris : montrer le mecanisme, pas enumerer des resultats. Un seul
+% schema porte le paradoxe, une seule mesure porte l'avancee. Les chiffres
+% detailles de C.1, C.2 et C.3 sont volontairement absents : ils exigent
+% chacun leur definition prealable, et trois minutes ne les financent pas.
+%
+% Les resultats s'arretent a la fin de la question C. La question D est
+% annoncee comme le travail suivant, et aucun chiffre des
+% `redaction_QD*.tex` n'apparait ici.
 %
 % Compilation :  latexmk -lualatex presentation_pitch_3min.tex
 % (metropolis charge les fontes Fira, ce que pdflatex ne fait pas.)
@@ -12,7 +19,7 @@
 %       (les 3 alarmes de R2, et les six chiffres de C.1)
 %   ../04_experimentations/resultats_R2/scripts/verif_chiffres_tex.py
 %       ../../05_presentation/presentation_pitch_3min.tex
-% Les deux figures sortent de resultats_R2/scripts/figures_slides.py.
+% Les figures sortent de resultats_R2/scripts/figures_slides.py.
 
 \documentclass[aspectratio=169,11pt]{beamer}
 
@@ -25,14 +32,6 @@
 %   lualatex "\def\NOTESSEULES{}\input{presentation_pitch_3min}"
 \ifdefined\NOTESSEULES\setbeameroption{show only notes}\fi
 \graphicspath{{../04_experimentations/resultats_R2/resultats/figures/}}
-
-% Notation unique sur toutes les slides. La notation non unique est le
-% point faible declare des sept redactions (JOURNAL.md section 11.4) : il
-% ne se reproduit pas ici.
-\newcommand{\tauarf}{\tau_{\mathrm{ARF}}}
-\newcommand{\taudet}{\tau_{\mathrm{det}}}
-\newcommand{\tauswap}[1]{\tau_{\mathrm{swap}}(#1)}
-\newcommand{\de}{\Delta e}
 
 % Fontes resserrees pour que les quatre auteurs tiennent sur une ligne.
 % (L'« Overfull vbox » de la page de titre vient du theme metropolis
@@ -54,109 +53,105 @@
   evidence its own monitor needs. Four students of the CentraleSupélec
   research track, supervised by Raphaël Minato.}
 
-% ---------------------------------------------------------------- 26 s
-\begin{frame}{Market finance: who tells you to retrain?}
+% ---------------------------------------------------------------- 30 s
+\begin{frame}{Two machines, and only one of them talks to you}
   \begin{itemize}
-    \item A classifier predicts the sign of tomorrow's CAC~40 return.
-    \item A macro shock reverses momentum: $P(y \mid X)$ changes while $X$
-          still looks the same.
-    \item Nobody retrains on intuition. A \alert{drift detector} watches the
-          error stream and triggers the retraining, the audit, the pause.
+    \item A \alert{model} predicts, learns as it goes, and \alert{repairs
+          itself} when the world stops matching what it learned.
+    \item A separate \alert{watchdog} reads the model's mistakes and raises
+          an alarm once they pile up.
+    \item The alarm is the only thing a human ever sees. It is what triggers
+          the audit, the retraining, the pause.
   \end{itemize}
   \vfill
   \begin{center}
-    \large So the detector is the part that must not fail.
+    \large Nobody watches the model. The watchdog does.
   \end{center}
-  \note{We work in market finance. Take a classifier that predicts the sign
-    of tomorrow's CAC 40 return. A macro shock reverses momentum: the
-    conditional law of y given X changes while X still looks the same. In
-    production nobody retrains on intuition. A drift detector watches the
-    error stream and triggers the retraining, the audit, the pause.}
+  \note{Picture two machines. The first one predicts something, learns as it
+    goes, and repairs itself when the world stops matching what it learned.
+    The second one is a watchdog. It reads the first one's mistakes and
+    raises an alarm once they pile up. That alarm is the only thing a human
+    ever sees: it is what triggers the audit, the retraining, the pause.
+    Nobody watches the model directly. The watchdog does.}
 \end{frame}
 
-% ---------------------------------------------------------------- 33 s
-\begin{frame}{The classifier erases its own alarm}
+% ---------------------------------------------------------------- 40 s
+\begin{frame}{The repair destroys the evidence}
   \begin{center}
-    \includegraphics[height=0.68\textheight]{Fig_slide_blindspot_R2.png}
+    \includegraphics[height=0.74\textheight]{Fig_slide_mecanisme.png}
   \end{center}
-  \vspace{-0.3em}
-  \begin{center}
-    \small Authors' experiment R2, re-run locally. $\lambda = 50$,
-    $2\,000$ runs, $20$ amplitudes $\times$ $100$ seeds.
-  \end{center}
-  \note{Modern models repair themselves. An adaptive random forest replaces
-    its worst trees within a few dozen steps, and the error goes back down.
-    The detector accumulates evidence on that error, and the evidence is
-    gone before its threshold is reached. The classifier working correctly
-    is what breaks the monitoring. We re-ran the authors' experiment. At
-    threshold fifty, over two thousand runs, the detector fired three times.
-    The red curve is missing because there is almost nothing to plot.}
+  \note{Here is what goes wrong. The world changes, so the model starts
+    making mistakes: that is the top curve. The watchdog needs those
+    mistakes. It adds them up and calls for help once the pile is high
+    enough. But the model repairs itself, the mistakes stop, and the pile
+    stops growing too early. The repair has erased the evidence. The better
+    the model fixes itself, the more surely the alarm stays silent.}
 \end{frame}
 
-% ---------------------------------------------------------------- 33 s
-\begin{frame}{Two literatures, one missing clock}
+% ---------------------------------------------------------------- 35 s
+\begin{frame}{It is the normal case, not a corner case}
+  \vspace{0.4em}
+  \begin{center}
+    {\fontsize{46}{52}\selectfont \alert{\textbf{3}} alarms\\[0.35em]
+     \fontsize{46}{52}\selectfont out of \alert{\textbf{2\,000}} runs}
+
+    \vspace{0.5em}
+    {\small re-running the source paper's own benchmark, here, on our machines}
+  \end{center}
+  \vspace{0.6em}
   \begin{itemize}
-    \item \textbf{CUSUM} (Page, 1954): the alarm delay grows as the threshold
-          divided by the size of the jump, $\taudet^{*} = \lambda / (\de - \delta_P)$.
-    \item \textbf{Adaptive Random Forest} (Gomes et al., 2017): evaluated on
-          predictive accuracy alone.
-    \item \textbf{Gama et al.\ 2014, Lu et al.\ 2018}, the two reference surveys:
-          neither lists a measure of how long a model takes to recover.
-    \item \textbf{Source paper}: on heteroscedastic streams, no admissible
-          threshold exists. $\lambda \ge 15$ to avoid false alarms,
-          $\lambda \le 12.4$ to catch the drift.
+    \item One research field measures how fast a model recovers. Another
+          measures how fast an alarm fires.
+    \item \alert{Neither has measured them against each other.}
   \end{itemize}
-  \note{CUSUM, nineteen fifty-four: the alarm delay grows as the threshold
-    divided by the size of the jump. Adaptive random forest, two thousand
-    seventeen: evaluated on predictive accuracy alone. Gama and Lu, the two
-    reference surveys, list detection delay and accuracy. Neither lists how
-    long a model takes to recover. And the source paper reports that on
-    heteroscedastic streams no admissible threshold exists: fifteen or above
-    to avoid false alarms, twelve point four or below to catch the drift.}
+  \note{This is not a corner case. We re-ran the benchmark of the paper we
+    are studying, and over two thousand runs the alarm fired three times.
+    Now, why had nobody caught this? Because two separate research fields
+    are involved. One studies models that repair themselves and measures how
+    fast they recover. The other studies alarms and measures how fast they
+    fire. Neither had measured the two against each other. That gap is our
+    subject.}
 \end{frame}
 
-% ---------------------------------------------------------------- 58 s
-\begin{frame}{We measured the missing clock}
+% ---------------------------------------------------------------- 40 s
+\begin{frame}{What we found: the clock was wrong}
   \begin{center}
-    \includegraphics[height=0.60\textheight]{Fig_slide_ecarts_swap.png}
+    \includegraphics[width=\textwidth]{Fig_slide_deux_horloges.png}
   \end{center}
-  \vspace{-0.2em}
+  \vspace{0.2em}
   \begin{center}
-    \alert{\large $\tauarf$ dates the first tree out of ten. A real forest
-    renewal comes $6.0$ to $14.3$ times later.}
+    \alert{\large The accepted date marks the first tree out of ten,
+    not a repaired forest.}
   \end{center}
-  \note{So we measured recovery, on our own instrumented campaign: two
-    thousand runs, twenty amplitudes, one hundred seeds, ten trees, every
-    tree replacement logged. The adaptation date used in the literature,
-    tau ARF, is the first replacement: one tree out of ten. We compared it
-    with the date at which a real fraction of the forest has been renewed.
-    Tau ARF is always a lower bound. Zero violations on five thousand seven
-    hundred and ninety-five uncensored comparisons, and this is a counting
-    argument, not a statistical one: it holds run by run. For three quarters
-    of the forest, the gap runs from one hundred sixty-seven to one thousand
-    three hundred sixty-eight steps. The clock used to say a model has
-    recovered is optimistic, always in the same direction.}
+  \note{To study a race you need a stopwatch, and that is where we found
+    something. The model is a forest of ten trees, and it repairs itself by
+    replacing them one at a time. The date everyone uses to say it has
+    recovered is the moment the very first tree is replaced: one out of ten.
+    Wait instead for three quarters of the forest, and you wait roughly ten
+    times longer. The accepted stopwatch does not time a repair. It times
+    the start of one, always too early.}
 \end{frame}
 
-% ---------------------------------------------------------------- 20 s
+% ---------------------------------------------------------------- 25 s
 \begin{frame}{Where we stand}
   \begin{itemize}
-    \item \textbf{Proved}: a deterministic certificate on the accumulated
-          evidence, true run by run, with no distributional assumption.
-    \item \textbf{Measured}: a violent shock leaves no more evidence than a
-          slow one.
-    \item \textbf{Next, question D}: instrument the forest and the detector on
-          one common time axis, and turn this into a decision rule.
+    \item The paradox is \alert{real and reproducible}, and we can now say
+          exactly when the evidence falls short.
+    \item The measure the field relies on is \alert{biased, always the same
+          way}. Any conclusion drawn from it inherits that bias.
+    \item \textbf{Next}: watch the model and the watchdog on one common
+          clock, and turn this into advice a practitioner can use.
   \end{itemize}
   \vfill
   \begin{center}
     \large Thank you.
   \end{center}
-  \note{Two more results are in the report: a deterministic certificate on
-    the evidence, and the measured finding that a violent shock leaves no
-    more evidence than a slow one. What remains is question D: instrumenting
-    the forest and the detector on one common time axis, and turning this
-    into a decision rule for the practitioner. Thank you.}
+  \note{Where we stand. The paradox is real and reproducible, and we can now
+    say exactly when the evidence falls short of what the alarm needs. The
+    measure the field relies on is biased, and always in the same direction,
+    so any conclusion drawn from it inherits that bias. What remains is to
+    watch the model and the watchdog on one common clock, and turn this into
+    advice a practitioner can actually use. Thank you.}
 \end{frame}
 
 \end{document}
