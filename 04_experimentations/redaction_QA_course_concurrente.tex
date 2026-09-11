@@ -18,7 +18,7 @@
 \maketitle
 
 \noindent We formalize and bound $P(\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}})$ without
-any assumption on the dependence between the two clocks. Notation reminder~: $\tau^*$
+any assumption on the dependence between the two clocks. Notation reminder: $\tau^*$
 is the (known) drift instant ; $\tau_{\mathrm{ARF}}$ the delay until the first tree is
 replaced, $\min_i \tau_i$ over $M$ trees ; $\tau_{\mathrm{det}}$ the delay until the
 first external alarm, possibly $+\infty$ ; $F_A$ and $F_D$ the cumulative distribution
@@ -31,18 +31,18 @@ event, defined in Section~1.
 \paragraph{The double-starvation case.} The event
 $\{\tau_{\mathrm{ARF}}=+\infty,\ \tau_{\mathrm{det}}=+\infty\}$ describes a run where
 neither did the forest ever repair itself, nor did the alarm ever sound. This is
-qualitatively different from the paradox under study~: the blind spot narrative relies
+qualitatively different from the paradox under study: the blind spot narrative relies
 on a \emph{silent} repair erasing the evidence before the alarm gets its chance. If the
 repair itself never happened, there is nothing to erase --- the model simply remains
 broken, with no mechanism having ``cheated''. With the natural definition
 $\mathrm{Miss} := \{\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}\}$ on the extended reals,
-the strict inequality $\infty < \infty$ is false by convention~: double starvation is
+the strict inequality $\infty < \infty$ is false by convention: double starvation is
 therefore automatically excluded from $\mathrm{Miss}$, with no special handling needed.
 
-\paragraph{Strict or non-strict inequality?} The stream is discrete~: two processes can
+\paragraph{Strict or non-strict inequality?} The stream is discrete: two processes can
 legitimately land on the same time step, so $P(\tau_{\mathrm{ARF}}=\tau_{\mathrm{det}})$
 can be strictly positive --- the question is not cosmetic. Physical interpretation of an
-equality $\tau_{\mathrm{ARF}}=\tau_{\mathrm{det}}=t$~: the alarm sounds \emph{exactly}
+equality $\tau_{\mathrm{ARF}}=\tau_{\mathrm{det}}=t$: the alarm sounds \emph{exactly}
 when the forest repairs itself, the operator is informed at the same instant, no
 information is lost --- unlike the true blind spot, where the alarm arrives too late or
 never. An equality should therefore count as a detection success.
@@ -51,7 +51,7 @@ never. An equality should therefore count as a detection success.
 \fbox{\parbox{0.93\textwidth}{\textbf{Adopted convention.}
 \[ \mathrm{Miss} := \{\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}\} \qquad \text{(strict inequality)} \]
 A tie is classified on the detector's side. To be checked empirically on the
-trajectories~: if the proportion of runs with $\tau_{\mathrm{ARF}}=\tau_{\mathrm{det}}$
+trajectories: if the proportion of runs with $\tau_{\mathrm{ARF}}=\tau_{\mathrm{det}}$
 exactly is negligible (expected, since both processes stem from underlying continuous
 draws), the convention choice has no material impact on the results.}}
 \end{center}
@@ -59,7 +59,7 @@ draws), the convention choice has no material impact on the results.}}
 \section{Identification Under a Finite Horizon}
 
 Absolute censoring is the event
-$C_H := \{\min(\tau_{\mathrm{ARF}},\tau_{\mathrm{det}}) > H\}$~: neither event has
+$C_H := \{\min(\tau_{\mathrm{ARF}},\tau_{\mathrm{det}}) > H\}$: neither event has
 happened yet at the horizon, so the winner of the race is unobservable. Conversely
 $\{\tau_{\mathrm{ARF}}\le H\}$ and $\{\tau_{\mathrm{det}}\le H\}$ are observable.
 
@@ -84,7 +84,7 @@ Regions 1 and 2 together form exactly $\{\tau_{\mathrm{ARF}}\le H\}\cap\mathrm{M
 about what happens beyond $H$.
 
 \paragraph{The bound.} Ignoring region 4 (lower bound), then counting it entirely as a
-Miss in the worst case (upper bound)~:
+Miss in the worst case (upper bound):
 \[
   \underbrace{P(\{\tau_{\mathrm{ARF}}\le H\}\cap\mathrm{Miss})}_{\text{computable, no assumption}}
   \;\le\; P_{\mathrm{miss}} \;\le\;
@@ -93,14 +93,14 @@ Miss in the worst case (upper bound)~:
 
 \begin{center}
 \fbox{\parbox{0.93\textwidth}{\textbf{Result.} The width of the bound is exactly
-$P(C_H)$, the proportion of doubly-censored runs~: this is a Manski-type bound
+$P(C_H)$, the proportion of doubly-censored runs: this is a Manski-type bound
 (partial identification). The more runs resolve before $H$, the tighter the interval
 --- to be computed directly on the campaign's 2{,}000 (or 4{,}000) runs.}}
 \end{center}
 
 \section{Universal Fréchet Bound}
 
-We return to the case with no finite horizon~: from the marginal laws $F_A$ and $F_D$
+We return to the case with no finite horizon: from the marginal laws $F_A$ and $F_D$
 alone, without any dependence assumption, we bound $P_{\mathrm{miss}}$.
 
 \paragraph{Lower bound.} For a fixed integer $s$, the event
@@ -110,7 +110,7 @@ $\mathrm{Miss}$, for any $s$. Fréchet's inequality for an intersection gives
 \[
   P(\tau_{\mathrm{ARF}}\le s,\ \tau_{\mathrm{det}}>s) \;\ge\; \max\big(0,\ F_A(s) - F_D(s)\big),
 \]
-and since the inclusion holds for every $s$, we optimize by taking the largest value~:
+and since the inclusion holds for every $s$, we optimize by taking the largest value:
 \[
   P_{\mathrm{miss}} \;\ge\; \max\Big(0,\ \sup_{s\in\mathbb{Z}} \big[F_A(s)-F_D(s)\big]\Big).
 \]
@@ -119,7 +119,7 @@ and since the inclusion holds for every $s$, we optimize by taking the largest v
 $\{\tau_{\mathrm{ARF}}\ge s+1\}$. If $\tau_{\mathrm{ARF}}\le s$, the inclusion in
 $\mathrm{Miss}$ is trivial. If $\tau_{\mathrm{ARF}}\ge s+1$ and $\mathrm{Miss}$ holds,
 then $\tau_{\mathrm{det}}>\tau_{\mathrm{ARF}}\ge s+1$, hence $\tau_{\mathrm{det}}>s+1$.
-In both cases~:
+In both cases:
 \[
   \mathrm{Miss} \;\subseteq\; \{\tau_{\mathrm{ARF}}\le s\} \cup \{\tau_{\mathrm{det}}> s+1\}.
 \]
@@ -139,7 +139,7 @@ Valid for any dependence structure between $\tau_{\mathrm{ARF}}$ and
 $\tau_{\mathrm{det}}$ --- which is what makes it a \emph{universal} bound.}}
 \end{center}
 
-\paragraph{Verification on a toy case.} Support $\{1,2\}$, uniform marginals~:
+\paragraph{Verification on a toy case.} Support $\{1,2\}$, uniform marginals:
 $F_A(1)=F_D(1)=\tfrac12$, $F_A(2)=F_D(2)=1$.
 
 \begin{center}
@@ -154,18 +154,18 @@ Anti-monotone & one equals 1 when the other equals 2 & $0.5$ & = upper bound \\
 \end{tabular}
 \end{center}
 
-Quick check~: $\sup_s[F_A(s)-F_D(s)]=0$ (identical marginals) gives a lower bound of
+Quick check: $\sup_s[F_A(s)-F_D(s)]=0$ (identical marginals) gives a lower bound of
 $0$, attained by the comonotone coupling. And
 $\inf_s[F_A(s)+1-F_D(s+1)]=0.5$ (attained at $s=0$ and $s=1$) gives an upper bound of
 $0.5$, attained by the anti-monotone coupling. The formula holds, and both bounds are
-attained exactly~: the bound is the tightest possible on this toy case.
+attained exactly: the bound is the tightest possible on this toy case.
 
 \section{Outlook}
 
 What remains is to apply the bounds from Sections 2 and 3 to the real campaign data
 ($\hat F_A$, $\hat F_D$ estimated empirically), and to check whether the Fréchet bound
 --- generally very wide --- tightens once the known structure of the problem is used ---
-which is exactly the point of Question B~: independence conditional on the stream
+which is exactly the point of Question B: independence conditional on the stream
 yields a sharper law than knowledge of the marginals alone.
 
 \end{document}

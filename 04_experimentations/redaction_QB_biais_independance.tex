@@ -19,7 +19,7 @@
 
 \noindent The $M$ trees of the forest share the same data stream --- in which
 direction does this bias the article's formula, which assumes the $\tau_i$ independent
-to compute $\tau_{\mathrm{ARF}} = \min_i \tau_i$? New objects relative to Question A~:
+to compute $\tau_{\mathrm{ARF}} = \min_i \tau_i$? New objects relative to Question A:
 $S$ is the complete realization of the stream (one seed) ; $U_i$ the randomness
 specific to tree $i$ (Poisson weights drawn online for bagging, random feature
 subspaces) ; $F(s)$ the marginal, unconditional law of a single tree ; $G_S(s) :=
@@ -29,11 +29,11 @@ trees in the R2 campaign.
 \section{Conditional Factorization}
 
 Once $S$ is fixed (the entire trajectory $(x_t,y_t)$ known), what still distinguishes
-each tree is $U_i$~: the Poisson weights drawn online for bagging (Oza \& Russell, 2001
+each tree is $U_i$: the Poisson weights drawn online for bagging (Oza \& Russell, 2001
 --- this is not classical bagging by resampling a fixed dataset, which is impossible in
 streaming, but a random weight assigned to each new observation), and the random
 feature subspaces tested at each node. These draws are, by construction, independent
-across trees~: tree $i$ never sees tree $j$'s weights, and a tree newly created at
+across trees: tree $i$ never sees tree $j$'s weights, and a tree newly created at
 replacement inherits no information (neither weights nor structure) from the tree it
 replaces --- the only link between the two is temporal, the new one having started
 learning more recently.
@@ -54,7 +54,7 @@ function $G_S(s) := P(\tau_1>s \mid S)$, conditional independence gives
 
 \section{The Direction of the Bias, via Convexity}
 
-We uncondition using the law of total probability~:
+We uncondition using the law of total probability:
 \[
   P(\tau_{\mathrm{ARF}}>s) = \mathbb{E}_S\big[\,G_S(s)^M\,\big].
 \]
@@ -72,7 +72,7 @@ since $\mathbb{E}_S[G_S(s)] = P(\tau_1>s) = 1-F(s)$ (the marginal law, unconditi
   P(\tau_{\mathrm{ARF}}\le s) \;\le\; 1-\big(1-F(s)\big)^M.
 \]
 The true probability of having already adapted by time $s$ is always less than or equal
-to what the independence formula predicts~: the manuscript \textbf{overestimates the
+to what the independence formula predicts: the manuscript \textbf{overestimates the
 repair speed} --- $\tau_{\mathrm{ARF}}$ is stochastically larger (slower) than the
 article claims.}}
 \end{center}
@@ -80,14 +80,14 @@ article claims.}}
 \paragraph{Equality condition.} Jensen's inequality is an equality if and only if
 $G_S(s)$ is almost surely constant --- that is, if the difficulty of adaptation does
 not actually depend on the specific stream realization. Physically, this case
-essentially never occurs here~: every seed produces a different noise trajectory after
+essentially never occurs here: every seed produces a different noise trajectory after
 the drift, so $G_S(s)$ genuinely varies across realizations. Independence is therefore
 never exact --- only an approximation, systematically optimistic.
 
 \section{Operational Consequence}
 
 A real repair that is slower than expected wins the race against the detector less
-often than the independence formula predicts. In two steps~:
+often than the independence formula predicts. In two steps:
 
 \begin{center}
 \begin{tabular}{ll}
@@ -100,7 +100,7 @@ $P_{\mathrm{miss}}$ & Too pessimistic --- overestimates the blind-spot risk \\
 \end{tabular}
 \end{center}
 
-Both hold simultaneously, with no contradiction~: these are two different quantities,
+Both hold simultaneously, with no contradiction: these are two different quantities,
 linked by the fact that a slower repair gives the detector more chances.
 
 \paragraph{$M_{\mathrm{crit}}$.} $M_{\mathrm{crit}}$ is defined via the CDF under
@@ -110,24 +110,24 @@ to $M_{\mathrm{crit}}$.
 
 \begin{center}
 \fbox{\parbox{0.93\textwidth}{\textbf{Result.} The corollary is not invalidated --- it
-is \textbf{reclassified as a conservative certificate}~: ``at least $M_{\mathrm{crit}}$
+is \textbf{reclassified as a conservative certificate}: ``at least $M_{\mathrm{crit}}$
 trees are needed'' remains true, but it is no longer an exact estimate of the
 sufficient number. It is a valid lower bound, not a tight answer.}}
 \end{center}
 
 \section{The Correlation Trap}
 
-Toy case $M=2$ on $\{1,2\}$~: is an anti-monotone coupling compatible with the real
+Toy case $M=2$ on $\{1,2\}$: is an anti-monotone coupling compatible with the real
 ARF?
 
 \paragraph{The counterexample.} Support $\{1,2\}$, marginals $P(\tau_i=1)=\tfrac12$.
-Anti-monotone coupling~: $\tau_1=1 \iff \tau_2=2$ (perfectly opposite). Under this
+Anti-monotone coupling: $\tau_1=1 \iff \tau_2=2$ (perfectly opposite). Under this
 coupling, $\{\tau_1=2\}$ implies $\{\tau_2=1\}$, so
 $P(\tau_1{>}1,\ \tau_2{>}1)=P(\tau_1{=}2,\tau_2{=}2)=0$, hence
 \[
   \mathrm{Cov}\big(\mathbf{1}\{\tau_1{>}1\},\mathbf{1}\{\tau_2{>}1\}\big) = 0 - \tfrac12\cdot\tfrac12 = -\tfrac14.
 \]
-Under independence this covariance equals $0$~: the anti-monotone coupling thus yields
+Under independence this covariance equals $0$: the anti-monotone coupling thus yields
 a strictly negative value.
 
 \paragraph{Why this is impossible in the real ARF.} Reusing the factorization from
@@ -136,9 +136,9 @@ Section 1 and the law of total covariance
   \mathrm{Cov}(X,Y) = \mathbb{E}_S[\mathrm{Cov}(X,Y\mid S)] +
   \mathrm{Cov}\big(\mathbb{E}[X\mid S],\mathbb{E}[Y\mid S]\big),
 \]
-with $X=\mathbf{1}\{\tau_1{>}1\}$, $Y=\mathbf{1}\{\tau_2{>}1\}$~: the first term is zero
+with $X=\mathbf{1}\{\tau_1{>}1\}$, $Y=\mathbf{1}\{\tau_2{>}1\}$: the first term is zero
 (conditional independence given $S$, Section 1). The second is computed directly,
-since $\mathbb{E}[X\mid S]=\mathbb{E}[Y\mid S]=G_S(1)$~:
+since $\mathbb{E}[X\mid S]=\mathbb{E}[Y\mid S]=G_S(1)$:
 \[
   \mathrm{Cov}\big(\mathbf{1}\{\tau_1{>}1\},\mathbf{1}\{\tau_2{>}1\}\big) = \mathrm{Var}\big(G_S(1)\big) \;\ge\; 0 \quad \text{always}.
 \]
@@ -147,9 +147,9 @@ since $\mathbb{E}[X\mid S]=\mathbb{E}[Y\mid S]=G_S(1)$~:
 \fbox{\parbox{0.93\textwidth}{\textbf{Conclusion --- the trap defused.} The real ARF
 can only produce a covariance $\ge 0$ between two trees --- never negative. The
 anti-monotone coupling, which requires a covariance of $-1/4$, is therefore
-structurally impossible in the real model~: the dependence shared through $S$ can only
+structurally impossible in the real model: the dependence shared through $S$ can only
 go one way (independence if $\mathrm{Var}(G_S)=0$, positive dependence otherwise),
-never the other. This confirms and locks in the conclusion of Section 2~: no negative
+never the other. This confirms and locks in the conclusion of Section 2: no negative
 dependence scenario could contradict ``independence is too optimistic about speed''.}}
 \end{center}
 
@@ -161,14 +161,14 @@ systematically and one-sidedly underestimates the time needed for a genuinely
 significant fraction of the forest to have been renewed --- an optimistic, one-sided
 bias, verified without exception across the campaign's 2{,}000 runs. This should not
 be read as a confirmation of Section 2's result, even though both push in the same
-practical direction~: they are two independent, compounding effects, not the same
+practical direction: they are two independent, compounding effects, not the same
 fact observed twice. Q~C.1's inequality
 $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{swap}}(q)$ is a purely combinatorial fact,
 true pathwise on every run regardless of any dependence structure between trees --- it
 would hold identically under independence. Section 2's result, by contrast, is about
-model misspecification~: it compares two different probability laws for
+model misspecification: it compares two different probability laws for
 $\tau_{\mathrm{ARF}}$ itself (the article's independence assumption versus the true,
-dependent law), and says nothing about $\tau_{\mathrm{swap}}(q)$. Put together~: even
+dependent law), and says nothing about $\tau_{\mathrm{swap}}(q)$. Put together: even
 with perfect knowledge of the true dependent law of $\tau_{\mathrm{ARF}}$, it would
 still underestimate real forest-wide recovery (Q~C.1) --- and, separately, the
 article's independence assumption additionally underestimates $\tau_{\mathrm{ARF}}$
