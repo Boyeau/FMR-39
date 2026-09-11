@@ -6,7 +6,7 @@ Les supports de présentation du sujet 39. Les rédactions restent dans
 ## `presentation_pitch_3min.tex`
 
 Pitch de 3 minutes **pour un auditoire qui ne connaît pas le sujet**.
-Sept slides, 439 mots de texte parlé, soit environ 176 s de débit. C'est la
+Sept slides, 447 mots de texte parlé, soit environ 179 s de débit. C'est la
 limite haute : toute phrase ajoutée se paie sur une autre.
 
 **Parti pris : expliquer les concepts et l'avancement, pas énumérer des
@@ -22,7 +22,7 @@ plus projetée.
 | 2 | ce qu'est un **changement de concept**, sur la frontière même que simule le banc |
 | 3 | les **deux défenses** : le modèle qui se répare, le détecteur qui alerte |
 | 4 | le **paradoxe** : mises ensemble, elles s'annulent |
-| 5 | **le dispositif** et son chiffre : 2 000 exécutions, 3 alarmes |
+| 5 | **le compromis de réglage** : le seuil décide tout, et aucun ne convient |
 | 6 | **l'avancée** : l'horloge admise date le premier arbre, pas la réparation |
 | 7 | où on en est, et la suite |
 
@@ -54,7 +54,7 @@ diverger de la table qui le produit.
 
 | Slide | Chiffre | Source |
 |---|---|---|
-| 3 | le détecteur a tiré **3 fois sur 2 000 runs** | `03_repo_officiel_.../results/R2_instrumented_blind_spot/data/` |
+| 5 | **3 / 2 000** à `λ = 50`, **801 / 2 000** à `λ = 25`, **1 926 / 2 000** à `λ = 8` | `03_repo_officiel_.../results/R2_instrumented_blind_spot/data/` |
 | 4 | `86` pas contre `1 225`, médiane à `Δe = 0,24` | `04_experimentations/resultats_R2/resultats/data/QCD_indicateurs_full.parquet` |
 
 La slide 2 est un **schéma stylisé, sans données** : pour un auditoire qui
@@ -69,6 +69,16 @@ PYTHONHASHSEED=0 python figures_slides.py     # les deux figures projetées
 
 `verif_chiffres_tex.py` signale `2014` comme introuvable : c'est l'année de la
 citation Gama, pas une mesure. Aucun littéral n'a été ajouté à sa liste `EXCLUS`.
+
+### Un chiffre qui ne se cite jamais seul
+
+**Le « 3 alarmes sur 2 000 » est le régime `λ = 50`, et rien d'autre.** Au même
+banc, sur les mêmes dérives et les mêmes graines, l'alarme part 801 fois sur
+2 000 à `λ = 25` et 1 926 fois sur 2 000 à `λ = 8`. Montrer le seul `λ = 50`
+revient à choisir le réglage le plus favorable à la thèse et à le donner pour le
+cas général. La slide 5 montre les trois, parce que **c'est la dépendance au
+réglage qui est le résultat** : il n'existe pas de seuil à la fois assez discret
+pour qu'on lui fasse confiance et assez sensible pour voir la dérive.
 
 ### Deux pièges à ne pas rouvrir
 

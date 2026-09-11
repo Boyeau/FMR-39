@@ -56,6 +56,10 @@ FIGURES.mkdir(parents=True, exist_ok=True)
 OFFICIEL = RACINE.parents[1] / "03_repo_officiel_TheBlindSpotParadox-ICDM2026"
 DATA_R2 = OFFICIEL / "results" / "R2_instrumented_blind_spot" / "data"
 
+# Les trois seuils de R2 sont definis une seule fois, dans le script de
+# tracabilite : deux listes qui divergent, c'est deux chiffres qui divergent.
+from chiffres_slides import REGIMES
+
 N_MODELS = 10
 LAMBDA_A = 50.0          # exp_R2_instrumented_blind_spot.py l. 55 : regime A
 
@@ -328,10 +332,50 @@ def figure_drift():
     return out
 
 
+def figure_seuils():
+    """Slide 5 : le taux d'alarme depend entierement du reglage du seuil.
+
+    Les trois regimes de R2 ne sont pas trois scenarios, ce sont trois
+    valeurs de lambda (`exp_R2_instrumented_blind_spot.py` l. 55-57). Citer
+    le seul lambda = 50, ou l'alarme ne part que 3 fois sur 2 000, revient a
+    choisir le reglage le plus favorable a la these et a le donner pour le
+    cas general : a lambda = 8 l'alarme part dans 96 % des cas. La figure
+    montre les trois, c'est la dependance au reglage qui est le resultat.
+    """
+    lignes = []
+    for nom, lam in REGIMES:
+        d = pd.read_parquet(DATA_R2 / f"R2_instrumented_{nom}_PHT_ARF.parquet")
+        lignes.append((lam, int(d["tau_det"].notna().sum()), len(d)))
+
+    with plt.rc_context(PLT):
+        fig, ax = plt.subplots(figsize=(10.5, 4.4))
+        lams = [f"$\\lambda = {l:.0f}$" for l, _, _ in lignes]
+        parts = [100 * t / n for _, t, n in lignes]
+        couleurs = ["#1b1b1b", "#6a6a6a", "#b03a2e"]
+        ax.bar(lams, parts, color=couleurs, width=0.55)
+        for i, ((lam, tire, n), part) in enumerate(zip(lignes, parts)):
+            ax.text(i, part + 2.5, f"{tire} / {n}", ha="center",
+                    fontsize=17, weight="bold", color=couleurs[i])
+        ax.set_ylim(0, 112)
+        ax.set_ylabel("runs where the alarm fired  (%)")
+        ax.set_xlabel("detector threshold")
+        ax.set_yticks([0, 25, 50, 75, 100])
+        ax.grid(axis="y", alpha=0.18, lw=0.6)
+        ax.spines[["top", "right"]].set_visible(False)
+        ax.text(0.99, -0.30, "2 000 runs per threshold, same drifts, same seeds",
+                transform=ax.transAxes, ha="right", va="top",
+                fontsize=12, color="#6a6a6a")
+
+        out = FIGURES / "Fig_slide_seuils.png"
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+    return out, lignes
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--only", choices=["blindspot", "ecarts", "mecanisme",
-                                      "horloges", "drift"])
+                                      "horloges", "drift", "seuils"])
     a = p.parse_args()
 
     if a.only in (None, "blindspot"):
@@ -343,6 +387,10 @@ def main():
         print(f"[slide 2] {figure_drift().name}")
     if a.only in (None, "mecanisme"):
         print(f"[slide 2] {figure_mecanisme().name}")
+    if a.only in (None, "seuils"):
+        out, lignes = figure_seuils()
+        print(f"[slide 5] {out.name}  | " +
+              ", ".join(f"lambda {l:.0f} : {t}/{n}" for l, t, n in lignes))
     if a.only in (None, "horloges"):
         out, c, l = figure_deux_horloges()
         print(f"[slide 5] {out.name}  | {c:.0f} pas contre {l:.0f}")

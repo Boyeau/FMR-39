@@ -67,8 +67,7 @@
     is concept drift. Here is the cleanest version of it, and it is what we
     simulate: two inputs, a straight boundary, a label on each side. The
     change moves the boundary, and nothing else. Only the shaded band has
-    swapped sides, and a model trained before is now confidently wrong on
-    it.}
+    swapped sides, and a model trained before is now wrong on it.}
 \end{frame}
 
 % ---------------------------------------------------------------- 33 s
@@ -85,12 +84,13 @@
   \begin{center}
     \large The alarm is the only thing a human ever sees.
   \end{center}
-  \note{There are two defences against drift, built by two separate
-    communities. First, a model that repairs itself: a forest of ten small
-    decision trees, and a tree that starts failing is thrown away and
-    replaced. Second, a watchdog: it reads the model's mistakes, adds up the
-    excess, and calls for a human once the pile crosses a threshold. That
-    alarm is the only thing a human ever sees.}
+  \note{Two defences against drift, built by two separate communities.
+    First, a model that repairs itself: a forest of ten small decision
+    trees, and a tree that starts failing is thrown away and replaced.
+    Second, a watchdog: it reads the model's mistakes and calls for a human
+    once the pile of errors crosses a threshold. That alarm is the only
+    thing a human ever sees. Two communities, and nobody had measured their
+    tools against each other.}
 \end{frame}
 
 % ---------------------------------------------------------------- 35 s
@@ -110,28 +110,23 @@
     more surely the alarm stays silent.}
 \end{frame}
 
-% ---------------------------------------------------------------- 30 s
-\begin{frame}{How often? We ran the experiment 2\,000 times}
+% ---------------------------------------------------------------- 34 s
+\begin{frame}{Why not just lower the threshold?}
   \begin{center}
-    {\small we move the boundary at an instant we choose, then watch whether
-     the alarm ever fires}
-
-    \vspace{0.6em}
-    {\fontsize{38}{46}\selectfont it fired \alert{\textbf{3}} times\\[0.1em]
-     out of \alert{\textbf{2\,000}} runs}
+    \includegraphics[width=0.80\textwidth]{Fig_slide_seuils.png}
   \end{center}
-  \vfill
-  \begin{itemize}
-    \item One community measures how fast a model recovers. The other
-          measures how fast an alarm fires.
-    \item \alert{Neither had measured them against each other.}
-  \end{itemize}
-  \note{How often? We re-ran the benchmark of the paper we are studying.
-    Two thousand runs, and in each one we move the boundary at an instant we
-    choose, so we know exactly when the change happened. The alarm fired
-    three times out of two thousand. This is the normal case. Nobody had
-    caught it because one community measures how fast a model recovers, the
-    other how fast an alarm fires, and neither measured them together.}
+  \vspace{-0.3em}
+  \begin{center}
+    A low threshold also fires when \alert{nothing has happened}, and an
+    alarm that cries wolf gets switched off.
+  \end{center}
+  \note{Does the alarm ever fire? That depends on one number: the
+    threshold. We re-ran the benchmark at the paper's three settings, two
+    thousand runs each. At the highest threshold it fired three times out of
+    two thousand. Lower it, and it fires almost every time. So why not lower
+    it? Because a low threshold also fires when nothing has happened, and an
+    alarm that cries wolf gets switched off. The setting quiet enough to be
+    trusted is the one that never sees the drift.}
 \end{frame}
 
 % ---------------------------------------------------------------- 33 s
@@ -168,8 +163,8 @@
   \note{Where we stand. The paradox is real and reproducible, and we can
     say when the evidence falls short. The clock the field relies on is
     biased, always the same way, so every conclusion drawn from it inherits
-    that bias. What remains is to watch both on one common clock, and turn
-    this into advice a practitioner can use. Thank you.}
+    that bias. What remains is to turn this into advice a practitioner can
+    use. Thank you.}
 \end{frame}
 
 \end{document}
