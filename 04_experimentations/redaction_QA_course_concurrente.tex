@@ -18,79 +18,75 @@
 \maketitle
 
 \noindent We formalize and bound $P(\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}})$ without
-any assumption on the dependence between the two clocks. Notation reminder: $\tau^*$
-is the (known) drift instant ; $\tau_{\mathrm{ARF}}$ the delay until the first tree is
-replaced, $\min_i \tau_i$ over $M$ trees ; $\tau_{\mathrm{det}}$ the delay until the
-first external alarm, possibly $+\infty$ ; $F_A$ and $F_D$ the cumulative distribution
-functions of $\tau_{\mathrm{ARF}}$ and $\tau_{\mathrm{det}}$ respectively ; $H$ the
-post-drift observation horizon ($H = 2{,}000$) ; $\mathrm{Miss}$ the ``blind spot''
-event, defined in Section~1.
+any assumption on the dependence between the two clocks.
+
+\begin{center}
+\fbox{\parbox{0.93\textwidth}{\textbf{Notation.}
+\smallskip
+
+\begin{tabular}{@{}ll@{}}
+  $\tau^*$ & the drift instant, known by construction \\
+  $\tau_{\mathrm{ARF}}$ & delay until the first tree is replaced, $\min_i \tau_i$ over the $M$ trees \\
+  $\tau_{\mathrm{det}}$ & delay until the first external alarm, possibly $+\infty$ \\
+  $F_A$, $F_D$ & cumulative distribution functions of $\tau_{\mathrm{ARF}}$ and $\tau_{\mathrm{det}}$ \\
+  $H$ & post-drift observation horizon, $H = 2\,000$ \\
+  $\mathrm{Miss}$ & the ``blind spot'' event, defined in Section~1 \\
+\end{tabular}
+
+\smallskip
+\noindent Both delays are counted from $\tau^*$ and take integer values, a fact the
+bounds of Section~3 rely on.}}
+\end{center}
 
 \section{Defining the Miss Event}
 
-Every later result in this section is a statement about $P_{\mathrm{miss}}$. None of them
-means anything until $\mathrm{Miss}$ is an unambiguous event, and the natural reading ---
-the forest repairs itself before the alarm sounds --- is ambiguous in exactly three
-places: when the two clocks coincide, when the detector never fires, and when neither
-mechanism ever acts. This section settles the three, and shows that a single definition
-disposes of all of them.
+Everything that follows is a statement about $P_{\mathrm{miss}}$, and none of it means
+anything until $\mathrm{Miss}$ is unambiguous. The natural reading --- the forest repairs
+itself before the alarm sounds --- leaves three cases open: the two clocks coincide, the
+detector never fires, or neither mechanism ever acts. We settle them by one definition
+rather than three rules.
 
-\paragraph{1. Why a strict inequality.} Both clocks count integer steps, so nothing
-prevents them from landing on the same one and $P(\tau_{\mathrm{ARF}} =
-\tau_{\mathrm{det}})$ can be strictly positive: the choice is not cosmetic. No continuity
-argument rules ties out either --- real-valued times can coincide as well, and these two
-clocks are far from independent, being functionals of the same error stream. Whether ties
-actually occur is thus an empirical matter, settled in Section~4; the convention itself
-must be settled on physical grounds.
-
-Read physically, an equality $\tau_{\mathrm{ARF}} = \tau_{\mathrm{det}} = t$ means the
-alarm sounds \emph{exactly} when the forest repairs itself. The operator is informed at
-that very instant and no information is lost --- unlike the blind spot proper, where the
-alarm arrives too late or never at all. A tie is therefore a detection success, which
-fixes the definition:
+\paragraph{1. A strict inequality.} Both clocks count integer steps, so they can land on
+the same one and $P(\tau_{\mathrm{ARF}} = \tau_{\mathrm{det}})$ can be strictly positive:
+the choice is not cosmetic, and no continuity argument disposes of it --- real-valued
+times can coincide too, all the more so for two functionals of the same error stream.
+It must therefore be settled on physical grounds. A tie means the alarm sounds
+\emph{exactly} when the forest repairs itself: the operator is informed at that instant
+and nothing is lost, unlike the blind spot proper where the alarm comes late or never. A
+tie is a detection success, whence
 \[
   \mathrm{Miss} \;:=\; \{\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}\}
-  \qquad\text{on the extended reals, with strict inequality.}
+  \qquad\text{on the extended reals, strict inequality.}
 \]
+The convention carries almost no weight in practice: ties occur $0$ times out of
+$1\,906$ observed races at $\lambda = 8$, $6$ out of $778$ at $\lambda = 25$, $0$ out of
+$1$ at $\lambda = 50$, so the non-strict reading would move $P_{\mathrm{miss}}$ by at
+most $0.003$. Section~4 returns to why they are this rare.
 
-Measured on the campaign, the convention carries almost no weight: among the runs where
-both clocks are observed, ties occur $0$ times out of $1\,906$ at $\lambda = 8$, $6$ times
-out of $778$ at $\lambda = 25$ ($0.77\%$ of them, $0.30\%$ of the campaign) and $0$ times
-out of $1$ at $\lambda = 50$. Switching to the non-strict convention would move
-$P_{\mathrm{miss}}$ by at most $0.003$, and only at $\lambda = 25$. The choice is thus
-justified on principle and immaterial in fact --- Section~4 returns to \emph{why} ties are
-this rare, which turns out to be part of the phenomenon rather than a technicality.
-
-\paragraph{2. Why a silent repair counts as a miss.} On the event
+\paragraph{2. A silent repair is a miss.} On
 $\{\tau_{\mathrm{ARF}} < +\infty,\ \tau_{\mathrm{det}} = +\infty\}$ the forest repaired
-itself while the alarm never sounded. This is the blind spot in its purest form, and
-strictly worse than $\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}} < +\infty$, where the
-operator is at least informed late: here the evidence is erased and nothing is ever
-reported. A finite $\tau_{\mathrm{ARF}}$ is strictly smaller than $+\infty$, so the event
-falls inside $\mathrm{Miss}$ with no special handling.
+itself and the alarm never sounded --- the blind spot in its purest form, worse than
+$\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}} < +\infty$ where the operator is at least
+informed late. A finite $\tau_{\mathrm{ARF}}$ is smaller than $+\infty$, so the event
+falls inside $\mathrm{Miss}$ on its own.
 
-That it should is not merely a convention. Excluding it would restrict the count to runs
-where the detector eventually spoke --- precisely the selection bias this question holds
-against the manuscript, since the runs discarded are those where the detector failed most
-completely. At $\lambda = 50$, where $1\,999$ of the $2\,000$ runs never fire, such an
-exclusion would compute a rate over a single run and erase the blind spot from the
-statistic exactly where it is total.
+It must. Excluding it would restrict the count to runs where the detector eventually
+spoke --- the very selection bias this question holds against the manuscript, since those
+discarded are the runs where it failed most completely. At $\lambda = 50$, where $1\,999$
+runs out of $2\,000$ never fire, the rate would be computed over a single run.
 
-\paragraph{3. Why double starvation does not.} On the event
-$\{\tau_{\mathrm{ARF}} = +\infty,\ \tau_{\mathrm{det}} = +\infty\}$ neither did the forest
-ever repair itself, nor did the alarm ever sound. This is qualitatively different from the
-paradox under study, which rests on a \emph{silent repair} erasing the evidence before the
-alarm gets its chance. If the repair never happened, there is nothing to erase: the model
-simply stays broken, and no mechanism has cheated. Since $\infty < \infty$ is false, the
-event is automatically excluded --- again with no special handling.
+\paragraph{3. A double starvation is not.} On
+$\{\tau_{\mathrm{ARF}} = +\infty,\ \tau_{\mathrm{det}} = +\infty\}$ neither mechanism
+ever acted. The paradox rests on a \emph{silent repair} erasing the evidence; if the
+repair never happened there is nothing to erase, and the model simply stays broken. Since
+$\infty < \infty$ is false, the event is excluded on its own.
 
 \begin{center}
 \fbox{\parbox{0.93\textwidth}{\textbf{Adopted convention.}
-\[ \mathrm{Miss} := \{\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}\} \qquad \text{(strict inequality, extended reals)} \]
-One definition settles the three cases: a tie is classified on the detector's side, a
-silent repair is a miss, a double starvation is not. No case needs a rule of its own ---
-which is what makes the definition trustworthy rather than fitted to the answer. The
-material weight of the tie convention is measured in Section~4.}}
+\[ \mathrm{Miss} := \{\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}\} \qquad \text{(strict, extended reals)} \]
+A tie goes to the detector, a silent repair is a miss, a double starvation is not --- all
+three from the definition, none from a rule of its own. That is what makes it
+trustworthy rather than fitted to the answer.}}
 \end{center}
 
 \section{Making the Miss Probability Observable}
@@ -188,11 +184,12 @@ and since the inclusion holds for every $s$, we optimize by taking the largest v
   P_{\mathrm{miss}} \;\ge\; \max\Big(0,\ \sup_{s\in\mathbb{Z}} \big[F_A(s)-F_D(s)\big]\Big).
 \]
 
-\paragraph{Upper bound.} We partition on $\{\tau_{\mathrm{ARF}}\le s\}$ and
-$\{\tau_{\mathrm{ARF}}\ge s+1\}$. If $\tau_{\mathrm{ARF}}\le s$, the inclusion in
-$\mathrm{Miss}$ is trivial. If $\tau_{\mathrm{ARF}}\ge s+1$ and $\mathrm{Miss}$ holds,
-then $\tau_{\mathrm{det}}>\tau_{\mathrm{ARF}}\ge s+1$, hence $\tau_{\mathrm{det}}>s+1$.
-In both cases:
+\paragraph{Upper bound.} Take a run in $\mathrm{Miss}$, so $\tau_{\mathrm{ARF}} <
+\tau_{\mathrm{det}}$, and split on where $\tau_{\mathrm{ARF}}$ falls. If
+$\tau_{\mathrm{ARF}} \le s$, the run already belongs to the first set below, and nothing
+more is needed. If $\tau_{\mathrm{ARF}} \ge s+1$, then $\tau_{\mathrm{det}} >
+\tau_{\mathrm{ARF}} \ge s+1$ gives $\tau_{\mathrm{det}} > s+1$, and the run belongs to the
+second. Every run in $\mathrm{Miss}$ therefore lies in one of the two:
 \[
   \mathrm{Miss} \;\subseteq\; \{\tau_{\mathrm{ARF}}\le s\} \cup \{\tau_{\mathrm{det}}> s+1\}.
 \]
@@ -235,16 +232,24 @@ attained exactly: the bound is the tightest possible on this toy case.
 
 \paragraph{The bound on the estimated marginals.} Evaluating the two formulas on
 $\hat F_A$ and $\hat F_D$, amplitude by amplitude (the $100$ seeds of a cell are i.i.d.,
-which pooling across amplitudes would not be), gives the following. $\hat F_D$ is
-sub-stochastic: a censored $\tau_{\mathrm{det}}$ never enters it, so its plateau sits at
-one minus the cell's censoring rate.
+which pooling across amplitudes would not be), gives the following. Within a cell,
+$\hat F_A(s)$ is the share of the $100$ runs with $\tau_{\mathrm{ARF}} \le s$ and
+$\hat F_D(s)$ the share with $\tau_{\mathrm{det}} \le s$ --- two staircases rising by
+$1/100$ at each observed value. $\hat F_A$ reaches $1$, since $\tau_{\mathrm{ARF}}$ is
+never censored; $\hat F_D$ does not, because a censored $\tau_{\mathrm{det}}$ enters it at
+no finite $s$. It is therefore \emph{sub-stochastic}, its plateau sitting at one minus the
+cell's censoring rate, with the missing mass at $+\infty$ --- which is how censored runs
+enter the bound as detector losses rather than as data to be filled in. All three columns below are \emph{estimates} on
+$100$ seeds --- the two bounds because they are computed from $\hat F_A$ and $\hat F_D$,
+the middle one because it is the empirical frequency $\hat P_{\mathrm{miss}}$ of the miss
+event, not the probability itself.
 
 \begin{center}
 \begin{tabular}{crrrcrrr}
 \toprule
 & \multicolumn{3}{c}{$\lambda = 8$} & & \multicolumn{3}{c}{$\lambda = 25$} \\
 \cmidrule(lr){2-4}\cmidrule(lr){6-8}
-$\Delta e$ & lower & $P_{\mathrm{miss}}$ & upper & & lower & $P_{\mathrm{miss}}$ & upper \\
+$\Delta e$ & lower & $\hat P_{\mathrm{miss}}$ & upper & & lower & $\hat P_{\mathrm{miss}}$ & upper \\
 \midrule
 $0.028$ & $0.91$ & $1.00$ & $1.00$ & & $1.00$ & $1.00$ & $1.00$ \\
 $0.085$ & $0.20$ & $0.38$ & $0.54$ & & $0.86$ & $0.95$ & $1.00$ \\
@@ -270,11 +275,15 @@ The reason is instructive: at $\lambda = 50$ the detector almost never alarms, $
 is flat at $0$, and both formulas degenerate to $P_{\mathrm{miss}} = 1$ on their own.
 The universal bound is sharpest exactly where the blind spot is total.
 
-Third, and most usefully, at $\Delta e = 0.028$ and $\lambda = 8$ the \emph{lower} bound
-is $0.91$. One can therefore prove $P_{\mathrm{miss}} \ge 91\%$ at the weakest amplitude
-\emph{without any assumption whatsoever} about how the two clocks depend on each other
---- from the marginal laws alone. At the bottom of the grid, the blind spot is not an
-artefact of an independence hypothesis: it is a consequence of the marginals.
+Third, and most usefully, at $\Delta e = 0.028$ and $\lambda = 8$ the estimated
+\emph{lower} bound is $0.91$. Being computed from $100$ seeds it carries sampling error
+of its own, and the bound is a supremum of a difference of empirical distribution
+functions rather than a simple proportion, so a bootstrap over the seeds is the right
+instrument: it gives $[0.87;0.97]$, hence $P_{\mathrm{miss}} \ge 0.88$ at the $95\%$
+level. Even at that reduced figure the statement holds \emph{without any assumption
+whatsoever} about how the two clocks depend on each other --- from the marginal laws
+alone. At the bottom of the grid, the blind spot is not an artefact of an independence
+hypothesis: it is a consequence of the marginals.
 
 \paragraph{Why amplitude by amplitude.} Applying the same two formulas to the $2{,}000$
 runs pooled gives $[0.048;0.485]$ at $\lambda = 8$ --- a width of $0.437$, against
