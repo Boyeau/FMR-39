@@ -1,0 +1,343 @@
+% =====================================================================
+% Rapport final — sujet 39, The Blind Spot Paradox
+%
+% Gabarit IEEEtran conference, deux colonnes : celui du manuscrit critiqué
+% (articleA_blindspot_v64_camera_ready.tex). Contrainte de l'énoncé :
+% 10 à 15 pages, 15 étant un maximum strict.
+%
+% État : question A intégrée (condensée depuis redaction_QA_course_concurrente).
+%        B, C, D à reprendre — voir les marqueurs en fin de fichier.
+%
+% Deux colonnes : le matériel large (encadré de notations, tables à plus de
+% quatre colonnes) passe en table*, qui s'étale sur les deux colonnes.
+%
+% Compiler depuis 04_experimentations/.
+% =====================================================================
+
+\documentclass[10pt,conference]{IEEEtran}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage[hidelinks,colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\IEEEoverridecommandlockouts
+\title{The Blind Spot Paradox: Formalizing the Race\\and Measuring the Adaptation}
+\author{\IEEEauthorblockN{Alexandre Boyer, Melaine Gouillou,
+Salomé Fonvielle, Ulysse Petit-Tichanné}
+\IEEEauthorblockA{Filière Recherche --- Subject 39}}
+
+\begin{document}
+\onecolumn
+
+% ---------------------------------------------------------------------
+% Page de garde
+% ---------------------------------------------------------------------
+\thispagestyle{empty}
+\vspace*{\fill}
+\begin{center}
+  {\LARGE\bfseries The Blind Spot Paradox\\[0.4em]
+   Formalizing the Race and Measuring the Adaptation\par}
+  \vspace{2.5em}
+  {\large Alexandre Boyer \quad Melaine Gouillou\\[0.4em]
+   Salomé Fonvielle \quad Ulysse Petit-Tichanné\par}
+  \vspace{2em}
+  {Filière Recherche --- Subject 39\par}
+  \vspace{1em}
+  % TODO : date de remise
+\end{center}
+\vspace*{\fill}
+\newpage
+
+% ---------------------------------------------------------------------
+% Mise en contexte et notations — pleine page, avant le corps
+% ---------------------------------------------------------------------
+\section*{Context and Scope}
+
+% TODO : mise en contexte (une page avec les notations). Doit poser le
+% phénomène, les deux améliorations demandées par les relecteurs, et
+% annoncer le partage théorique (A, B) / expérimental (C, D).
+Placeholder.
+
+\section*{Notation Used Throughout}
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+  \toprule
+  $\tau^*$ & the drift instant, known by construction \\
+  $\tau_{\mathrm{ARF}}$ & delay until the first tree is replaced, $\min_i \tau_i$ over the $M$ trees \\
+  $\tau_{\mathrm{det}}$ & delay until the first external alarm, possibly $+\infty$ \\
+  $F_A$, $F_D$ & cumulative distribution functions of $\tau_{\mathrm{ARF}}$ and $\tau_{\mathrm{det}}$ \\
+  $H$ & post-drift observation horizon, $H = 2\,000$ \\
+  $\lambda$, $\delta_P$ & the external detector's threshold and tolerance \\
+  $\Delta e$ & drift amplitude, the error jump a non-adapting model would suffer \\
+  $\mathrm{Miss}$ & the ``blind spot'' event, defined in Section~\ref{sec:miss} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Both delays are counted from $\tau^*$ and take integer values, a fact the
+Fréchet bounds of Question~A rely on. Every measured figure in this report comes from the
+instrumented campaign of $20$ amplitudes $\times\ 100$ seeds $= 2\,000$ runs,
+$H = 2\,000$, documented in \texttt{resultats\_R2/}.
+
+\newpage
+\twocolumn
+
+% =====================================================================
+\section{The Miss Probability: Definition, Identification, Bounds}
+% =====================================================================
+
+We formalize and bound $P_{\mathrm{miss}} = P(\tau_{\mathrm{ARF}} <
+\tau_{\mathrm{det}})$ without any assumption on the dependence between the two clocks.
+
+\subsection{Defining the Miss Event}
+\label{sec:miss}
+
+Everything that follows is a statement about $P_{\mathrm{miss}}$, and none of it means
+anything until $\mathrm{Miss}$ is unambiguous. The natural reading --- the forest repairs
+itself before the alarm sounds --- leaves three cases open: the two clocks coincide, the
+detector never fires, or neither mechanism ever acts. We settle them by one definition
+rather than three rules.
+
+\paragraph{1. A strict inequality.} Both clocks count integer steps, so they can land on
+the same one and $P(\tau_{\mathrm{ARF}} = \tau_{\mathrm{det}})$ can be strictly positive:
+the choice is not cosmetic, and no continuity argument disposes of it --- real-valued
+times can coincide too, all the more so for two functionals of the same error stream.
+It must therefore be settled on physical grounds. A tie means the alarm sounds
+\emph{exactly} when the forest repairs itself: the operator is informed at that instant
+and nothing is lost, unlike the blind spot proper where the alarm comes late or never. A
+tie is a detection success, whence
+\[
+  \mathrm{Miss} \;:=\; \{\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}\}
+\]
+on the extended reals, with strict inequality.
+The convention carries almost no weight in practice: ties occur $0$ times out of
+$1\,906$ observed races at $\lambda = 8$, $6$ out of $778$ at $\lambda = 25$, $0$ out of
+$1$ at $\lambda = 50$, so the non-strict reading would move $P_{\mathrm{miss}}$ by at
+most $0.003$. They are rare not for any reason of continuity but because the two
+mechanisms operate on visibly different time scales --- which is the substance of the
+paradox rather than a technicality.
+
+\paragraph{2. A silent repair is a miss.} On
+$\{\tau_{\mathrm{ARF}} < +\infty,\ \tau_{\mathrm{det}} = +\infty\}$ the forest repaired
+itself and the alarm never sounded --- the blind spot in its purest form, worse than
+$\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}} < +\infty$ where the operator is at least
+informed late. A finite $\tau_{\mathrm{ARF}}$ is smaller than $+\infty$, so the event
+falls inside $\mathrm{Miss}$ on its own.
+
+It must. Excluding it would restrict the count to runs where the detector eventually
+spoke --- the very selection bias this question holds against the manuscript, since those
+discarded are the runs where it failed most completely. At $\lambda = 50$, where $1\,999$
+runs out of $2\,000$ never fire, the rate would be computed over a single run.
+
+\paragraph{3. A double starvation is not.} On
+$\{\tau_{\mathrm{ARF}} = +\infty,\ \tau_{\mathrm{det}} = +\infty\}$ neither mechanism
+ever acted. The paradox rests on a \emph{silent repair} erasing the evidence; if the
+repair never happened there is nothing to erase, and the model simply stays broken. Since
+$\infty < \infty$ is false, the event is excluded on its own. Its empirical frequency is
+$0$ at all three thresholds, so the convention is never exercised on this grid --- but
+nothing in the model forbids it, and a slower forest would produce it.
+
+\begin{center}
+\fbox{\parbox{0.92\columnwidth}{\textbf{Adopted convention.}
+\[ \mathrm{Miss} := \{\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}\} \qquad \text{(strict, extended reals)} \]
+A tie goes to the detector, a silent repair is a miss, a double starvation is not --- all
+three from the definition, none from a rule of its own. That is what makes it
+trustworthy rather than fitted to the answer.}}
+\end{center}
+
+\subsection{Making the Miss Probability Observable}
+
+$\mathrm{Miss}$ is defined on the complete race, with no time limit; the campaign
+observes $H = 2\,000$ steps. On runs where neither clock has fired by then the winner is
+not known, and $P_{\mathrm{miss}}$ depends on what was never seen: it is not, as it
+stands, computable from the data. Two ways out are unacceptable --- assuming that
+censored runs behave like the others cannot be checked, and discarding them is the
+selection bias just rejected. The aim is therefore to replace $P_{\mathrm{miss}}$ by the
+probability of an event that \emph{is} observable, or failing that to trap it between two
+such probabilities.
+
+\paragraph{What the horizon lets us see.} Absolute censoring is
+$C_H := \{\min(\tau_{\mathrm{ARF}},\tau_{\mathrm{det}}) > H\}$, on which the race is
+undecided. Sorting runs by the two observable events $\{\tau_{\mathrm{ARF}} \le H\}$ and
+$\{\tau_{\mathrm{det}} \le H\}$ gives a partition where the verdict is known everywhere
+but one cell: regions~1 ($\le H$, $\le H$, decided directly) and~2 ($\le H$, $>H$, a
+certain Miss) together form exactly $\{\tau_{\mathrm{ARF}} \le H\} \cap \mathrm{Miss}$;
+region~3 ($>H$, $\le H$) is never a Miss; region~4 is $C_H$, undetermined.
+
+\paragraph{Trapping the unknown between two computable numbers.} Region~4 can shift the
+total by its own mass and no more. Write
+$L := P(\{\tau_{\mathrm{ARF}} \le H\} \cap \mathrm{Miss})$, computable from the data with
+no assumption about what happens beyond $H$. Counting region~4 as never a Miss gives the
+lower bound, entirely as Miss the upper one:
+\[
+  L \;\le\; P_{\mathrm{miss}} \;\le\; L + P(C_H).
+\]
+This is a Manski-type bound: nothing is assumed about the unobserved
+runs, their possible influence is bounded by how many there are, and the width of the interval is exactly
+$P(C_H)$ --- the extent of our ignorance.
+
+\paragraph{On this campaign, the interval collapses.} $\tau_{\mathrm{ARF}}$ is
+\emph{never} censored: $0$ runs out of $2\,000$, the largest value observed being
+$1\,293$ steps. The forest, at maximal reactivity ($c_{\mathrm{int}} = 1$), always
+replaces a tree before the horizon, so $\min(\tau_{\mathrm{ARF}},\tau_{\mathrm{det}})$
+is always finite, $C_H = \varnothing$, and the two bounds coincide:
+\[
+  P_{\mathrm{miss}} \;=\; P(\{\tau_{\mathrm{ARF}} \le H\} \cap \mathrm{Miss}).
+\]
+
+\begin{center}
+\fbox{\parbox{0.92\columnwidth}{\textbf{Result.} The unconditional miss probability equals
+the probability of an event observable within the horizon. This is an equality, not an
+assumption: the naive computation would have returned the same number, but nothing would
+have told us it was right. What the construction adds is the guarantee --- and the
+condition under which it would fail. Were the forest able to stay inert past $H$,
+$P_{\mathrm{miss}}$ would cease to be identified and only the interval would survive.}}
+\end{center}
+
+\subsection{Universal Fréchet Bound}
+
+We now drop the finite horizon and ask what the two marginal laws concede on their own,
+with no assumption on the coupling. This is a different kind of ignorance from the one
+just treated: there, data were missing; here, a structure is.
+
+\paragraph{Lower bound.} For a fixed $s \in \mathbb{N}$, the event
+$\{\tau_{\mathrm{ARF}}\le s < \tau_{\mathrm{det}}\}$ implies
+$\tau_{\mathrm{ARF}}<\tau_{\mathrm{det}}$, so it is a \emph{subset} of $\mathrm{Miss}$.
+Write $A = \{\tau_{\mathrm{ARF}} \le s\}$ and $B = \{\tau_{\mathrm{det}} > s\}$, so
+$P(A) = F_A(s)$ and $P(B) = 1 - F_D(s)$. Fréchet's inequality follows from
+$P(A \cup B) \le 1$:
+\[
+  P(A \cap B) \;=\; P(A) + P(B) - P(A \cup B) \;\ge\; P(A) + P(B) - 1 ,
+\]
+and since a probability is non-negative,
+$P(A \cap B) \ge \max\big(0, P(A)+P(B)-1\big)$. Substituting,
+$P(A) + P(B) - 1 = F_A(s) - F_D(s)$. The inclusion holding for every $s$, we keep the
+largest value:
+\[
+  P_{\mathrm{miss}} \;\ge\; \max\Big(0,\ \sup_{s\in\mathbb{N}} \big[F_A(s)-F_D(s)\big]\Big).
+\]
+
+\paragraph{Upper bound.} Here we proceed by \emph{superset}. We claim
+\[
+  \mathrm{Miss} \;\subseteq\; \{\tau_{\mathrm{ARF}}\le s\} \cup \{\tau_{\mathrm{det}}> s+1\},
+\]
+and prove it by taking a run in $\mathrm{Miss}$ and splitting on where
+$\tau_{\mathrm{ARF}}$ falls. If $\tau_{\mathrm{ARF}} \le s$ the run lies in the first set
+and nothing more is needed. If $\tau_{\mathrm{ARF}} \ge s+1$, then
+$\tau_{\mathrm{det}} > \tau_{\mathrm{ARF}} \ge s+1$ puts it in the second. In words:
+either the forest was early, or the alarm --- which comes after it --- was late. Boole's
+subadditivity, then optimizing over $s$ and truncating at $1$, gives
+\[
+  P_{\mathrm{miss}} \;\le\; \min\Big(1,\ \inf_{s\in\mathbb{N}} \big[F_A(s) + 1 - F_D(s+1)\big]\Big).
+\]
+
+\begin{center}
+\fbox{\parbox{0.92\columnwidth}{\textbf{Result.} The two bounds above hold for
+\emph{any} dependence structure between $\tau_{\mathrm{ARF}}$ and
+$\tau_{\mathrm{det}}$: they use the marginal laws alone, and assume nothing about how
+the two clocks are coupled. That is what makes them \emph{universal}.}}
+\end{center}
+
+\paragraph{Verification on a toy case.} Take both clocks uniform on $\{1,2\}$, so
+$F_A = F_D$ with $F_A(1) = \tfrac12$. Then $\mathrm{Miss}$ requires
+$\tau_{\mathrm{ARF}} = 1$ and $\tau_{\mathrm{det}} = 2$, and its probability depends
+entirely on the coupling: $0$ when the two clocks always agree, $0.25$ under
+independence, $0.5$ when one is $1$ exactly as the other is $2$. Identical marginals,
+three answers. The formulas give a lower bound of $0$ and an upper bound of $0.5$
+(attained at $s = 0$ and $s = 1$), both reached: the interval is exactly the set of
+achievable values, and nothing sharper can be had from marginals alone. Assuming
+independence, as the manuscript does, is therefore not a harmless convenience --- it
+selects one point out of $[0,\,0.5]$.
+
+\paragraph{On the campaign's marginals.} Within a cell, $\hat F_A(s)$ is the share of the
+$100$ seeds with $\tau_{\mathrm{ARF}} \le s$ and $\hat F_D(s)$ the share with
+$\tau_{\mathrm{det}} \le s$; the two bounds are the formulas above evaluated on these.
+$\hat F_D$ is sub-stochastic --- a censored $\tau_{\mathrm{det}}$ enters it at no finite
+$s$ --- so censored runs count as detector losses rather than as missing data. At
+$\lambda = 8$:
+
+\begin{table}[t]
+\centering
+\begin{tabular}{crrr}
+\toprule
+$\Delta e$ & lower & $\hat P_{\mathrm{miss}}$ & upper \\
+\midrule
+$0.028$ & $0.91$ & $1.00$ & $1.00$ \\
+$0.141$ & $0.10$ & $0.12$ & $0.26$ \\
+$0.498$ & $0.01$ & $0.01$ & $0.18$ \\
+\bottomrule
+\end{tabular}
+\caption{Fréchet bounds on the estimated marginals, $\lambda = 8$.}
+\end{table}
+
+\noindent The bound holds on all $60$ cells of the grid
+(\texttt{resultats\_R2/scripts/chiffres\_QA.py}), and is not vacuous: mean width $0.195$
+at $\lambda = 8$ and $0.106$ at $\lambda = 25$. At $\lambda = 50$ it falls to $0.001$,
+but only because the detector never alarms there, $\hat F_D$ stays flat at $0$, and both
+formulas reach $P_{\mathrm{miss}} = 1$ on their own --- exactness by degeneracy, not by
+sharpness. At the weakest amplitude the estimated lower bound of $0.91$ becomes $0.88$ at
+the $95\%$ level after a bootstrap resampling the $100$ seeds. There, the blind spot is
+forced by the marginals alone, with no assumption on the coupling: it is not an artefact
+of an independence hypothesis.
+
+\subsection{The Race, Measured}
+
+The event is now defined and its probability identified, so the campaign can be read
+directly. Table~\ref{tab:race} gives the partition and $P_{\mathrm{miss}}$ at the three
+thresholds.
+
+\begin{table}[t]
+\centering
+\begin{tabular}{crrrrl}
+\toprule
+$\lambda$ & region 1 & region 2 & $C_H$ & $\hat P_{\mathrm{miss}}$ & Wilson $95\%$ \\
+\midrule
+$8$  & $1{,}906$ & $94$    & $0$ & $0.0905$ & $[0.0787;0.1039]$ \\
+$25$ & $778$     & $1{,}222$ & $0$ & $0.9715$ & $[0.9633;0.9779]$ \\
+$50$ & $1$       & $1{,}999$ & $0$ & $1.0000$ & $[0.9981;1.0000]$ \\
+\bottomrule
+\end{tabular}
+\caption{The race, measured on the campaign. Regions 3 and 4 are empty, so
+$\hat P_{\mathrm{miss}}$ estimates $P_{\mathrm{miss}}$ itself rather than a bound on it.}
+\label{tab:race}
+\end{table}
+
+These totals pool cells of very unequal difficulty, and the per-cell breakdown belongs to
+Question~D.
+
+% =====================================================================
+% Convention de titre : les sections portent leur contenu, pas le numéro de
+% la question (« Question A » a été retiré). Le correcteur doit donc trouver
+% la correspondance question -> section dans « Context and Scope ».
+%
+% TODO : Question B --- reprendre redaction_QB_biais_independance.tex
+%
+% Phrase d'ouverture prête à l'emploi pour B, déplacée depuis la fin de A
+% (elle y occupait une sous-section pour trois lignes de pont) :
+%
+%   With $P_{\mathrm{miss}}$ point identified, the Fréchet interval of
+%   Question~A measures what the \emph{marginals alone} concede --- between
+%   $0.09$ and $0.34$ of probability mass at $\lambda = 8$, depending on the
+%   amplitude. Closing that gap is not a matter of more data: it requires the
+%   \emph{structure} of the dependence, which is the object of this question.
+% TODO : Question C --- reprendre QC1, QC2, QC3 (trois fichiers à fondre)
+% TODO : Question D --- reprendre QD1 à QD4 (quatre fichiers à fondre)
+% TODO : conclusion commune, et la déclaration d'usage des LLM
+%
+% Budget : 15 pages maximum, tout compris. La question A occupe environ
+% 4 pages sous cette forme ; à surveiller quand B, C et D arriveront.
+% =====================================================================
+
+\end{document}
