@@ -2,7 +2,8 @@
 figures_revision_QCD.py
 ===================================================================
 Les neuf figures ajoutees le 10 septembre aux redactions revisees de C.3 et
-de D.1 a D.4. Analyse pure : aucune simulation, aucun indicateur recalcule
+de D.1 a D.4, plus `Fig_QC_conjecture_tauerr_full` ajoutee le 13 septembre a C.1
+(la conjecture tau_ARF <= tau_err, qui n'avait aucune figure). Analyse pure : aucune simulation, aucun indicateur recalcule
 en dehors de ce que la figure trace. Tout est lu dans `resultats/data/`.
 
 AUCUNE FIGURE EXISTANTE N'EST REECRITE. Les figures de QC1 (`Fig_QC_ecarts_full`,
@@ -450,11 +451,62 @@ def fig_imputation():
     return _save(fig, "Fig_QD_imputation_full.png")
 
 
+def fig_conjecture_tauerr():
+    """Fig_QC_conjecture_tauerr_full : la conjecture tau_ARF <= tau_err(rho), vue
+    directement. Toute valeur de tau_err sous la courbe noire est une violation.
+
+    Sans persistance, quatre amplitudes violent ; avec 20 pas consecutifs, aucune.
+    Les deux plus faibles amplitudes sont hors domaine ET sans puissance de test
+    (seuil rho*Delta_e sous le plancher de bruit 2 sigma), d'ou la bande grisee.
+    """
+    d = _t("QCD_tau_err_full").sort_values("delta_e")
+    fig, ax = plt.subplots(figsize=(8.5, 4.8))
+
+    m, ls, c = STYLES[0]
+    ax.plot(d.delta_e, d.tau_arf_median, marker=m, ls=ls, color=c, lw=1.8, ms=5,
+            label=r"median $\tau_{\mathrm{ARF}}$ (first replacement)")
+    m, ls, c = STYLES[4]
+    ax.plot(d.delta_e, d.tau_err_p1, marker=m, ls=ls, color=c, lw=1.5, ms=5,
+            label=r"$\tau_{\mathrm{err}}(\rho)$, no persistence")
+    m, ls, c = STYLES[3]
+    ax.plot(d.delta_e, d.tau_err_p20, marker=m, ls=ls, color=c, lw=1.5, ms=5,
+            label=r"$\tau_{\mathrm{err}}(\rho)$, 20 consecutive steps")
+
+    viol = d[d.avant_tau_arf_p1]
+    ax.scatter(viol.delta_e, viol.tau_err_p1, s=190, facecolors="none",
+               edgecolors=STYLES[4][2], linewidths=1.8, zorder=5,
+               label=f"violation ({len(viol)} amplitudes, none after persistence)")
+
+    ax.set_xscale("log"); ax.set_yscale("log")
+    ax.set_xticks([0.03, 0.05, 0.1, 0.2, 0.3, 0.5])
+    ax.set_xticklabels(["0.03", "0.05", "0.1", "0.2", "0.3", "0.5"])
+    ax.set_yticks([1, 10, 30, 100, 300, 1000])
+    ax.set_yticklabels(["1", "10", "30", "100", "300", "1000"])
+    ax.minorticks_off()
+    ax.set_xlabel(r"$\Delta e$ — error jump amplitude")
+    ax.set_ylabel("post-drift step (log scale)")
+    ax.set_title(r"The conjecture $\tau_{\mathrm{ARF}} \leq \tau_{\mathrm{err}}(\rho)$: "
+                 "a point below the black curve violates it")
+    ax.set_ylim(0.6, 2200)
+    ax.grid(True, which="major", alpha=0.25)
+    # legende sous les axes : le coin bas-gauche porte les deux violations a y = 1
+    ax.legend(fontsize=8, loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=2,
+              frameon=False)
+
+    _grise_hors_domaine(ax, d.delta_e.min())
+    ax.text(0.0295, 7, "no test power\n" + r"($\rho\Delta e < 2\sigma$)", fontsize=7.5,
+            color="#555555", ha="left", va="center")
+    _coin_M(ax, "tr")
+    fig.tight_layout()
+    return _save(fig, "Fig_QC_conjecture_tauerr_full.png")
+
+
 FIGURES_DISPO = {
     "ajustement": fig_ajustement, "budget": fig_budget_utilisable,
     "course": fig_course_lambda, "palier": fig_palier,
     "boxplot": fig_boxplot, "kendall": fig_contre_exemple,
     "forest": fig_forest, "censure": fig_censure, "imputation": fig_imputation,
+    "conjecture": fig_conjecture_tauerr,
 }
 
 

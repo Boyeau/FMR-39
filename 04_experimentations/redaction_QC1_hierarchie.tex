@@ -51,14 +51,24 @@ consistency with the quotas fixed for the campaign (also used in Q~D), but shoul
 be read as ``at least 3 (resp.\ 8) trees renewed'', not a literal quarter or
 three-quarters of the forest.
 
-\paragraph{Empirical verification.} Across the campaign's 2\,000 runs,
-$\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(10\%)$ exactly in 100\% of cases (0 gap).
-Inequality~\eqref{eq:relation} holds without exception across the 5\,795 uncensored
-comparisons available for $q \in \{25\%, 50\%, 75\%\}$ (0 violations). Figure~\ref{fig:dispersion}
-shows this directly on every run rather than through an aggregate count: every point
-lies on or above the equality line, and the spread around it --- invisible in a median
-alone --- grows sharply with $q$, together with the fraction of runs that never reach
-the quota at all (red triangles).
+\paragraph{Pipeline consistency check.} Relation~\eqref{eq:relation} is deterministic,
+so no run can violate it: measuring it on the campaign says nothing about the forest, it
+checks the instrumentation. Two figures are reported in that light and in no other.
+$\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(10\%)$ holds on all $2\,000$ runs with zero
+gap --- necessarily, since $qM = 1$ makes the two the same extraction from the same event
+list. And no violation of~\eqref{eq:relation} appears across the $5\,795$ uncensored
+comparisons for $q \in \{25\%, 50\%, 75\%\}$ --- necessarily again, the event list being
+sorted and $N_t$ non-decreasing. Either result failing would have located a bug in the
+offline reconstruction, not a property of the ensemble.
+
+\paragraph{What the runs actually show.} The sign of the gap being settled in advance,
+what remains to be measured is its \emph{size} and its \emph{spread}.
+Figure~\ref{fig:dispersion} gives both, run by run rather than through an aggregate:
+every point lies on or above the equality line by construction, but how far above varies
+enormously, and the dispersion --- invisible in a median alone --- grows sharply with
+$q$, together with the fraction of runs that never reach the quota at all (red
+triangles). That dispersion is the empirical content of this section; the next one
+quantifies it.
 
 \begin{figure}[htbp]
   \centering
@@ -74,25 +84,25 @@ the quota at all (red triangles).
 \paragraph{Direction of the bias.} Since inequality~\eqref{eq:relation} is strict in
 the vast majority of cases, using $\tau_{\mathrm{ARF}}$ as the forest's adaptation date
 \emph{systematically and one-sidedly underestimates} the time needed for a genuinely
-significant fraction of the ensemble to have been renewed: this is a one-sided,
-optimistic bias, never offset by a symmetric overestimate.
+significant fraction of the ensemble to have been renewed: a one-sided, optimistic bias
+that averaging over seeds does not correct. The inequality holding run by run, the error
+always falls on the same side, so nothing cancels: $10\,000$ runs would leave the mean
+just as far below the truth as $2\,000$ do.
 
-\paragraph{Relation to the theoretical side (Q~B.2) --- two distinct effects, not one.}
-It is tempting to read this result as a confirmation of Q~B.2
-(\texttt{redaction\_QB\_biais\_independance.tex}), but the two should not be
-conflated. Inequality~\eqref{eq:relation} is a purely combinatorial fact about the
-counting process $N_t$: it holds pathwise, on every single run, regardless of any
-dependence structure between trees --- it would hold identically if the trees were
-independent, positively dependent, or anything else. Q~B.2, by contrast, is a
-statement about model misspecification: it compares two different probability laws
-for $\tau_{\mathrm{ARF}}$ itself (the article's independence assumption versus the
-true, positively-dependent law), and says nothing about $\tau_{\mathrm{swap}}(q)$.
-The two results are independent and \emph{compounding}, not the same fact observed
-twice: even with perfect knowledge of the true dependent law of
-$\tau_{\mathrm{ARF}}$, it would still underestimate real forest-wide recovery (this
-section) --- and, separately, the article's independence assumption additionally
-underestimates $\tau_{\mathrm{ARF}}$ itself (Q~B.2). Both push in the same practical
-direction, for unrelated reasons.
+\paragraph{Not the same bias as Q~B.2.} Two results in this project conclude that
+$\tau_{\mathrm{ARF}}$ is optimistic, and a reader meeting them in sequence will take the
+second for a confirmation of the first. They share nothing but their direction.
+
+Inequality~\eqref{eq:relation} is \emph{combinatorial}. It is a property of the counting
+process $N_t$, it holds pathwise on every run, and it would hold unchanged if the trees
+were independent. Q~B.2 is \emph{probabilistic}. It compares two candidate laws for
+$\tau_{\mathrm{ARF}}$ --- the article's independence assumption against the true,
+positively dependent one --- and says nothing whatever about $\tau_{\mathrm{swap}}(q)$.
+
+So they stack. Grant Q~B.2's correction in full, so that the law of
+$\tau_{\mathrm{ARF}}$ is known exactly: it still dates the forest's recovery too early,
+by the margins measured in the next section. Two errors, compounding; neither confirms
+the other.
 
 \section{Gap $\tau_{\mathrm{swap}}(q) - \tau_{\mathrm{ARF}}$ as a Function of $\Delta e$}
 
@@ -114,14 +124,56 @@ construction, since $\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(0.10)$.
   \label{fig:ecarts}
 \end{figure}
 
-\paragraph{Substitutability criterion.} Fixed before reading the final results: a gap
-exceeding 100 steps ($5\%$ of the horizon $H=2\,000$) is deemed disqualifying for
-$\tau_{\mathrm{ARF}}$ as a substitute for $\tau_{\mathrm{swap}}(q)$.
-%
-% Methodological note: Ulysse's folder proposes a second criterion -- the gap is
-% deemed decisive if it exceeds tau_det -- more directly tied to the object of the
-% study, but formulated after reading the measurements (flag as such if reused,
-% cf. his reservation C.1b in resultats_R2/README.md).
+\paragraph{At the bottom of the grid, the quota is reached by noise.} Censoring at
+$q = 75\%$ is \emph{not} monotone in $\Delta e$: $35\%$ at $\Delta e = 0.028$, $78\%$ at
+$0.085$, $54\%$ at $0.141$, $13\%$ at $0.194$, and $0\%$ from $0.287$ upwards. The
+weakest amplitude on the grid is thus \emph{less} censored than the next one up, which no
+account in terms of signal strength can explain.
+
+A no-drift control settles it. With no drift injected at all, the forest still renews a
+median of $9$ trees out of $10$ within the same horizon, on $14$ swap events per run, and
+only $18\%$ of runs fail to reach the $75\%$ quota. Tree replacement is therefore not
+evidence of adaptation: ADWIN fires on noise at a substantial rate regardless. At
+$\Delta e = 0.028$ the campaign records a median of $12.5$ swaps per run against $14$
+under no drift --- the drift adds essentially nothing, and the quota fills by accident.
+The count then \emph{drops} to $8$ at $\Delta e = 0.085$, below the no-drift rate, which
+is where censoring peaks.
+
+Two consequences. First, $\tau_{\mathrm{swap}}(q)$ measures adaptation only where swaps
+are drift-driven, so the two lowest rows of any table in this section carry a different
+object from the rest and should not be read as its continuation. Second, the dip below
+the no-drift rate has no established mechanism here --- a plausible one is that an early
+drift-driven replacement stabilizes the ensemble error and thereby suppresses the
+noise-driven swaps that would otherwise have followed --- and it is reported as a
+measurement, not as an explanation.
+
+\paragraph{Substitutability criterion.} A gap exceeding $100$ steps ($5\%$ of the
+horizon $H = 2\,000$) is deemed disqualifying for $\tau_{\mathrm{ARF}}$ as a substitute
+for $\tau_{\mathrm{swap}}(q)$. We claim no external grounding for that figure: no
+reference fixes what counts as too large a gap here, so this is a declared convention,
+adopted before the measurements were read.
+
+What makes it usable is that the conclusions do not turn on it. Re-running the criterion
+at $50$ and at $150$ steps moves the amplitude at which $\tau_{\mathrm{ARF}}$ becomes
+acceptable again by a single grid step --- for $q = 25\%$, from $\Delta e \approx 0.243$
+to $0.287$; for $q = 50\%$, from $0.327$ to $0.391$ --- and leaves the verdict on
+$q = 75\%$ untouched, the median gap there never falling below $167$ steps anywhere on
+the grid. Any threshold in $[50, 167]$ yields the same three conclusions.
+
+\paragraph{A second criterion, answering a different question.} A more operational rule
+is available: deem the gap decisive when it exceeds $\tau_{\mathrm{det}}$, on the grounds
+that the detector then had time to fire inside the very interval $\tau_{\mathrm{ARF}}$
+elides, so the substitution changes the outcome of the race. That is a far more
+meaningful yardstick than a fraction of an arbitrary horizon, and we record it as such.
+
+It cannot serve here, because $\tau_{\mathrm{det}}$ depends on $\lambda$. At
+$\lambda = 50$, where $1\,999$ runs out of $2\,000$ never alarm, $\tau_{\mathrm{det}}$ is
+infinite and the criterion is never met: $\tau_{\mathrm{ARF}}$ would be declared
+acceptable everywhere. At $\lambda = 8$ it is met almost everywhere. The same indicator
+would be valid or invalid according to how the monitor was tuned --- whereas construct
+validity is a property of the indicator, not of what it is raced against. The rule
+belongs to the operational question of whether the gap matters, not to the present one of
+whether $\tau_{\mathrm{ARF}}$ measures what it claims.
 
 With this criterion, on the full grid: for $q=25\%$, the gap falls below 100 steps as
 soon as $\Delta e \gtrsim 0.24$ (median gap of 291 at $\Delta e=0.028$, versus
@@ -142,10 +194,14 @@ forest have been renewed''.
 $e_t \in \{0,1\}$ is only statistically meaningful once averaged over seeds: on a
 single run, the sequence is too noisy for a threshold crossing to signal genuine
 recovery. $\tau_{\mathrm{err}}(\rho)$, which the other sections write
-$\tau_{\mathrm{rec}}$, is therefore computed only on the mean curve
-$\bar e_t$, one value per amplitude, never per run --- and compared to the
-\emph{inter-seed median} of $\tau_{\mathrm{ARF}}$ (the only quantity comparable on a
-run-by-run basis).
+$\tau_{\mathrm{rec}}$, is therefore computed on the mean curve $\bar e_t$ alone: one
+value per amplitude, never one per run.
+
+$\tau_{\mathrm{ARF}}$, by contrast, exists on every run, and comparing the two means
+giving up that resolution. The test is run amplitude by amplitude, between
+$\tau_{\mathrm{err}}(\rho)$ and the \emph{inter-seed median} of $\tau_{\mathrm{ARF}}$ ---
+so the conjecture is decided on $20$ paired values, not on $2\,000$ runs, and the
+dispersion of $\tau_{\mathrm{ARF}}$ within an amplitude plays no part in the verdict.
 
 \paragraph{Conjecture.} Incremental learning by the non-replaced Hoeffding trees can
 bring the ensemble error back down without any tree having changed, particularly at
@@ -157,7 +213,21 @@ $\Delta e$.
 ($\bar e_t - \hat p_0 \le \rho \Delta e$) with no persistence condition shows
 \textbf{4} apparent violations, at the four lowest amplitudes of the grid
 ($\Delta e = 0.028$, $0.085$, $0.141$ and $0.194$). They fall in two distinct ways, and
-the distinction matters.
+the distinction matters. Figure~\ref{fig:conjecture} shows the whole test at a glance:
+any point falling below the median-$\tau_{\mathrm{ARF}}$ curve is a violation.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{resultats_R2/resultats/figures/Fig_QC_conjecture_tauerr_full.png}
+  \caption{The conjecture tested directly, on all 20 amplitudes: median
+  $\tau_{\mathrm{ARF}}$ against $\tau_{\mathrm{err}}(\rho)$ under both crossing rules. A
+  point below the black curve violates $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{err}}(\rho)$.
+  Without a persistence requirement there are four, all at the low end of the grid;
+  requiring the condition to hold for 20 consecutive steps lifts every crossing above
+  $\tau_{\mathrm{ARF}}$ and leaves none. The shaded band marks the two amplitudes where
+  $\rho\Delta e < 2\sigma$ and the test has no power.}
+  \label{fig:conjecture}
+\end{figure}
 
 Two of them are artefacts of a powerless test. The residual noise of the mean curve
 ($\sigma$, estimated over the last 500 steps) is amplitude-dependent, ranging from
