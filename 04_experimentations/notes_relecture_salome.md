@@ -189,3 +189,34 @@ endroit.
 
 La règle est imposée, donc on l'applique — mais le signaler montre qu'on a compris
 pourquoi la dernière ligne du tableau décroche, et relie proprement C.2 à C.3.
+
+---
+
+## E. À placer dans le rapport fusionné
+
+### E.1 — Ne pas compter deux fois le biais de `τ_ARF`
+
+Q C.1 montre que `τ_ARF` sous-estime la récupération de l'ensemble de la forêt.
+La question B montre que l'hypothèse d'indépendance sous-estime `τ_ARF` lui-même.
+Un lecteur qui enchaîne les deux verra deux fois « `τ_ARF` est optimiste » et croira à une
+confirmation mutuelle. Ce sont deux effets **distincts qui se cumulent** :
+
+- l'inégalité `τ_ARF ≤ τ_swap(q)` de C.1 est **combinatoire**, vraie trajectoire par
+  trajectoire, quelle que soit la dépendance entre arbres — elle tiendrait à l'identique
+  sous indépendance ;
+- le résultat de B porte sur une **erreur de spécification** : il compare deux lois de
+  `τ_ARF`, et ne dit rien de `τ_swap(q)`.
+
+Formulation courte, à placer **à la fin de C.1** et non dans B — la remarque compare deux
+résultats, elle n'a de sens qu'une fois les deux lus :
+
+> Q~C.1 shows $\tau_{\mathrm{ARF}}$ underestimates forest-wide recovery; Question~B shows
+> independence underestimates $\tau_{\mathrm{ARF}}$ itself. The first is combinatorial and
+> holds pathwise under any dependence structure; the second is a misspecification of the
+> law. They compound rather than confirm one another.
+
+Cette remarque occupait une section entière de `redaction_QB_biais_independance.tex`
+(une vingtaine de lignes, avec les chiffres `5 795` et `205` empruntés à C.1 qui y étaient
+donnés une seconde fois). Elle en a été retirée le 12 septembre, en même temps que la
+section `Outlook`, qui était une liste de tâches et nommait un interlocuteur interne.
+

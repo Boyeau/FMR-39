@@ -82,6 +82,15 @@ Placeholder.
   $\lambda$, $\delta_P$ & the external detector's threshold and tolerance \\
   $\Delta e$ & drift amplitude, the error jump a non-adapting model would suffer \\
   $\mathrm{Miss}$ & the ``blind spot'' event, defined in Section~\ref{sec:miss} \\
+  \midrule
+  \multicolumn{2}{@{}l@{}}{\emph{for the inter-tree analysis:}} \\
+  $M = 10$ & number of trees in the forest \\
+  $\tau_i$ & adaptation delay of tree $i$, so $\tau_{\mathrm{ARF}} = \min_i \tau_i$ \\
+  $S$ & the complete realization of the stream (one seed) \\
+  $U_i$ & the randomness specific to tree $i$, identified in Section~\ref{sec:factorization} \\
+  $F$ & CDF of a \emph{single} tree $\tau_i$ --- distinct from $F_A$, which is that of $\tau_{\mathrm{ARF}}$ \\
+  $G_S(s)$ & $:= P(\tau_1 > s \mid S)$, the single-tree survival function \emph{given} the stream \\
+  $\beta$ & reliability target, the share of drifts the monitor should catch ($0.95$ in the manuscript) \\
   \bottomrule
 \end{tabular}
 \end{center}
@@ -318,11 +327,135 @@ These totals pool cells of very unequal difficulty, and the per-cell breakdown b
 Question~D.
 
 % =====================================================================
+\section{The Independence Assumption Between Trees}
+% =====================================================================
+
+The $M$ trees share the same stream, yet the manuscript treats the $\tau_i$ as
+independent when computing $\tau_{\mathrm{ARF}} = \min_i \tau_i$. In which direction does
+that bias its formula?
+
+\subsection{Conditional Factorization}
+\label{sec:factorization}
+
+Once $S$ is fixed --- the entire trajectory $(x_t,y_t)$ known --- what still distinguishes
+one tree from another is $U_i$: the Poisson weights drawn online for bagging, and the
+random feature subspaces tested at each node. The first is the mechanism the manuscript
+itself invokes, ``Poisson-weighted bootstrap (Oza bagging with $\lambda = 6$)''
+(Section~III-G, citing Gomes et al.\ 2017); the second is a defining property of the
+Adaptive Random Forest in the same reference\footnote{On the R2 stream it contributes
+little: with two features only, a random subspace selects roughly one of two at each node.
+Diversity there rests almost entirely on the Poisson weights, which suffices --- only the
+i.i.d.\ character of the $U_i$ is needed.}.
+
+These draws are independent across trees by construction: tree $i$ never sees tree $j$'s
+weights, and a tree created at replacement inherits neither weights nor structure from the
+one it replaces. Since $\tau_i$ is a deterministic function of $(S, U_i)$, fixing $S$
+leaves only the i.i.d.\ variation of $U_i$. Conditionally on $S$, the $\tau_i$ are
+therefore independent and identically distributed, and
+\[
+  P(\tau_{\mathrm{ARF}}>s \mid S) = \prod_{i=1}^{M} P(\tau_i>s\mid S) = G_S(s)^M .
+\]
+The independence assumption is thus not wrong in kind --- it is stated at the wrong level.
+It holds given the stream; it fails once the stream is averaged out.
+
+\subsection{The Direction of the Bias}
+\label{sec:convexity}
+
+Unconditioning by the law of total probability gives
+$P(\tau_{\mathrm{ARF}}>s) = \mathbb{E}_S[G_S(s)^M]$. Since $x \mapsto x^M$ is convex on
+$[0,1]$, Jensen's inequality yields
+\[
+  \mathbb{E}_S\big[G_S(s)^M\big] \;\ge\; \big(\mathbb{E}_S[G_S(s)]\big)^M
+  = \big(1-F(s)\big)^M ,
+\]
+the last equality because $\mathbb{E}_S[G_S(s)] = P(\tau_1>s) = 1-F(s)$.
+
+\begin{center}
+\fbox{\parbox{0.92\columnwidth}{\textbf{Result.}
+\[
+  P(\tau_{\mathrm{ARF}}\le s) \;\le\; 1-\big(1-F(s)\big)^M
+\]
+The probability of having already adapted by time $s$ is at most what the independence
+formula predicts: the manuscript \textbf{overestimates the repair speed}.}}
+\end{center}
+
+\paragraph{Equality condition.} Jensen is an equality exactly when $G_S(s)$ is almost
+surely constant --- when the difficulty of adapting does not depend on which stream was
+drawn. That never happens here: each seed produces a different noise trajectory after the
+drift. Independence is therefore never exact, only an approximation, and a systematically
+optimistic one.
+
+\subsection{Operational Consequence}
+
+Two quantities are affected in opposite directions, and the words below refer to different
+subjects --- which is what makes the pair look contradictory. The independence formula
+predicts a \emph{faster} repair than the real one, and therefore a \emph{larger}
+blind-spot risk: a slower repair leaves the monitor more time, so the forest wins the race
+less often than claimed. Read alone, our correction makes the blind spot \emph{less} severe
+than the article reports.
+
+\paragraph{Consequence for $M_{\mathrm{crit}}$.} Corollary~10 of the manuscript asks how
+many trees the forest may carry before the monitor stops being reliable. Requiring
+$P_{\mathrm{miss}} = 1-[1-F(\tau^*_{\mathrm{det}})]^M \le 1-\beta$ gives $[1-F]^M \ge
+\beta$, hence $M\ln(1-F) \ge \ln\beta$; since $\ln(1-F)<0$ the division flips the
+inequality:
+\[
+  M \;\le\; M_{\mathrm{crit}} := \left\lfloor \frac{\ln\beta}{\ln[1-F(\tau^*_{\mathrm{det}})]} \right\rfloor .
+\]
+$M_{\mathrm{crit}}$ is a \emph{ceiling} on the number of trees, not a floor --- the
+physically sensible reading, since more trees mean a faster repair and a worse position
+for the detector. As the true CDF lies below the independence one, the true
+$P_{\mathrm{miss}}$ is smaller at every $M$: whatever ensemble size the certificate
+admits, the real forest satisfies the guarantee too. The corollary is not invalidated but
+\textbf{reclassified as a conservative ceiling}.
+
+\paragraph{Two reservations.} The comparison holds at a \emph{fixed}
+$\tau^*_{\mathrm{det}}$, which Proposition~9 makes a constant. Read as a claim about the
+real blind-spot risk it assumes more, since the real $\tau_{\mathrm{det}}$ is computed on
+the ensemble's error stream and so depends on how correlated the trees are. Both effects
+in fact lower $P_{\mathrm{miss}}$ --- a slower repair alarms earlier, and weaker variance
+reduction leaves a burstier stream that breaches $\lambda$ on noise alone --- so the sign
+holds, but part of the decrease is bought with alarms that win the race without detecting
+anything.
+
+And the corollary is not rescued. At $\Delta e = 0.33$ the manuscript measures
+$\widehat F(\tau^*_{\mathrm{det}}) = 0.49$: one tree alone already gives
+$P_{\mathrm{miss}} = 0.49$, ten times the $5\%$ that $\beta = 0.95$ allows, whence
+$M_{\mathrm{crit}} = 0$. Our correction states the true ceiling is $\ge 0$, which says
+nothing --- rescuing the certificate would require $\ge 1$. The status changes, the verdict
+does not.
+
+\subsection{The Correlation Trap}
+
+Could the dependence run the other way and reverse the conclusion? On the toy case of
+two trees uniform on $\{1,2\}$, an anti-monotone coupling ($\tau_1 = 1 \iff \tau_2 = 2$)
+gives $P(\tau_{\mathrm{ARF}} \le 1) = 1$ against $0.75$ under independence --- a
+\emph{faster} adaptation. Its covariance is
+$0 - \tfrac12\cdot\tfrac12 = -\tfrac14$, strictly negative.
+
+No ARF can realize it. By the law of total covariance, with
+$X=\mathbf{1}\{\tau_1{>}1\}$ and $Y=\mathbf{1}\{\tau_2{>}1\}$, the conditional term
+vanishes by Section~\ref{sec:factorization} and both conditional expectations equal
+$G_S(1)$, so
+\[
+  \mathrm{Cov}(X,Y) = \mathrm{Var}\big(G_S(1)\big) \;\ge\; 0 .
+\]
+
+\begin{center}
+\fbox{\parbox{0.92\columnwidth}{\textbf{The trap defused.} The only channel of dependence
+between two trees is the stream they share, and sharing a stream can only make them fail
+together --- never in opposition. The covariance is therefore never negative, and the
+anti-monotone coupling is structurally out of reach. This is not a missing link in
+Section~\ref{sec:convexity}, whose proof never invokes the sign of the dependence: it is a
+second consequence of the same conditional factorization, and it closes the one objection
+a reader would raise against it.}}
+\end{center}
+
+% =====================================================================
 % Convention de titre : les sections portent leur contenu, pas le numéro de
 % la question (« Question A » a été retiré). Le correcteur doit donc trouver
 % la correspondance question -> section dans « Context and Scope ».
 %
-% TODO : Question B --- reprendre redaction_QB_biais_independance.tex
 %
 % Phrase d'ouverture prête à l'emploi pour B, déplacée depuis la fin de A
 % (elle y occupait une sous-section pour trois lignes de pont) :

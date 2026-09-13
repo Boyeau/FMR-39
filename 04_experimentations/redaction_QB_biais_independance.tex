@@ -20,20 +20,33 @@
 \noindent The $M$ trees of the forest share the same data stream --- in which
 direction does this bias the article's formula, which assumes the $\tau_i$ independent
 to compute $\tau_{\mathrm{ARF}} = \min_i \tau_i$? New objects relative to Question A:
-$S$ is the complete realization of the stream (one seed) ; $U_i$ the randomness
-specific to tree $i$ (Poisson weights drawn online for bagging, random feature
-subspaces) ; $F(s)$ the marginal, unconditional law of a single tree ; $G_S(s) :=
-P(\tau_1>s\mid S)$ its survival function \emph{given} the stream ; $M=10$ the number of
-trees in the R2 campaign.
+$S$ is the complete realization of the stream (one seed); $U_i$ the randomness specific
+to tree $i$, identified in Section~\ref{sec:factorization}; $F(s)$ the marginal,
+unconditional law of a single tree; $G_S(s) := P(\tau_1>s\mid S)$ its survival function
+\emph{given} the stream; $M=10$ the number of trees in the R2 campaign; $\beta$ a
+reliability target, the share of drifts one wants the external monitor to catch
+($\beta = 0.95$ in the manuscript).
 
 \section{Conditional Factorization}
+\label{sec:factorization}
 
 Once $S$ is fixed (the entire trajectory $(x_t,y_t)$ known), what still distinguishes
 each tree is $U_i$: the Poisson weights drawn online for bagging (Oza \& Russell, 2001
 --- this is not classical bagging by resampling a fixed dataset, which is impossible in
 streaming, but a random weight assigned to each new observation), and the random
-feature subspaces tested at each node. These draws are, by construction, independent
-across trees: tree $i$ never sees tree $j$'s weights, and a tree newly created at
+feature subspaces tested at each node.
+
+The first mechanism is the one the manuscript itself invokes: ``the $M$ trees in the ARF
+are trained on the \emph{same} data stream via Poisson-weighted bootstrap (Oza bagging
+with $\lambda = 6$)'' (manuscript, Section~III-G, citing Gomes et al.\ 2017). The second
+is a defining property of the Adaptive Random Forest in the same
+reference\footnote{On the R2 stream it contributes very little, though: the stream
+carries two features only ($x_0, x_1$), so a random subspace selects roughly one of two
+at each node. Inter-tree diversity there rests almost entirely on the Poisson weights,
+which suffices for what follows --- only the i.i.d.\ character of the $U_i$ is needed.
+The campaign leaves \texttt{max\_features} at \texttt{river}'s default, which should be
+read off the environment that produced the runs rather than assumed.}. These draws are,
+by construction, independent across trees: tree $i$ never sees tree $j$'s weights, and a tree newly created at
 replacement inherits no information (neither weights nor structure) from the tree it
 replaces --- the only link between the two is temporal, the new one having started
 learning more recently.
@@ -53,6 +66,7 @@ function $G_S(s) := P(\tau_1>s \mid S)$, conditional independence gives
 \end{center}
 
 \section{The Direction of the Bias, via Convexity}
+\label{sec:convexity}
 
 We uncondition using the law of total probability:
 \[
@@ -86,34 +100,91 @@ never exact --- only an approximation, systematically optimistic.
 
 \section{Operational Consequence}
 
-A real repair that is slower than expected wins the race against the detector less
-often than the independence formula predicts. In two steps:
+Section~\ref{sec:convexity} fixed the \emph{sign} of the error, and two quantities are
+affected in opposite directions. The words ``optimistic'' and ``pessimistic'' below refer
+to different subjects, which is what makes the pair look contradictory at first sight.
 
 \begin{center}
-\begin{tabular}{ll}
+\begin{tabular}{@{}ll@{}}
 \toprule
-Quantity & Effect of independence \\
+Quantity & What the independence formula gets wrong \\
 \midrule
-Adaptation speed ($\tau_{\mathrm{ARF}}$) & Too optimistic --- predicts faster than reality \\
-$P_{\mathrm{miss}}$ & Too pessimistic --- overestimates the blind-spot risk \\
+$\tau_{\mathrm{ARF}}$, the repair speed & it predicts a \emph{faster} repair than the real one \\
+$P_{\mathrm{miss}}$, the blind-spot risk & it predicts a \emph{larger} risk than the real one \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-Both hold simultaneously, with no contradiction: these are two different quantities,
-linked by the fact that a slower repair gives the detector more chances.
+\noindent The two are consistent, and one implies the other: a repair that is in truth
+slower leaves the external detector more time to accumulate, so the forest wins the race
+less often than the formula claims. Over-stating the repair speed therefore over-states
+the blind-spot risk. The manuscript is thus too flattering about the classifier and too
+alarming about the architecture --- and our correction, read alone, makes the blind spot
+\emph{less} severe than the article reports.
 
-\paragraph{$M_{\mathrm{crit}}$.} $M_{\mathrm{crit}}$ is defined via the CDF under
-independence. Since the true CDF is everywhere less than or equal to it (Section 2),
-the true $M$ needed to reach a given confidence level $\beta$ is greater than or equal
-to $M_{\mathrm{crit}}$.
+\paragraph{Consequence for $M_{\mathrm{crit}}$.} The manuscript's Corollary~10 turns
+Proposition~9 into a prescription on ensemble size, and answers this question: \emph{how
+many trees may the forest carry before the external monitor stops being reliable?} It is
+evaluated at $\tau^*_{\mathrm{det}} = \lambda/(\Delta e - \delta_P)$, the nominal
+accumulation time that Proposition~9 substitutes for the random $\tau_{\mathrm{det}}$ ---
+a substitution Question~A examines separately, and which we take as given here.
+
+Requiring
+$P_{\mathrm{miss}} = 1 - [1-F(\tau^*_{\mathrm{det}})]^M \le 1-\beta$ gives
+$[1-F]^M \ge \beta$, hence $M \ln(1-F) \ge \ln\beta$, and since $\ln(1-F) < 0$ the
+division flips the inequality:
+\[
+  M \;\le\; M_{\mathrm{crit}} := \left\lfloor \frac{\ln\beta}{\ln[1-F(\tau^*_{\mathrm{det}})]} \right\rfloor .
+\]
+$M_{\mathrm{crit}}$ is therefore a \emph{ceiling} on the number of trees, not a floor ---
+which is the physically sensible reading, since more trees mean a faster repair and hence
+a worse position for the detector. Adding trees can never help it.
+
+Section~\ref{sec:convexity} established that the true CDF of $\tau_{\mathrm{ARF}}$ lies
+everywhere below the independence CDF, so the true $P_{\mathrm{miss}}$ is \emph{smaller}
+than the formula's at every $M$. Whatever $M$ the independence certificate admits, the
+real forest satisfies the guarantee too.
 
 \begin{center}
-\fbox{\parbox{0.93\textwidth}{\textbf{Result.} The corollary is not invalidated --- it
-is \textbf{reclassified as a conservative certificate}: ``at least $M_{\mathrm{crit}}$
-trees are needed'' remains true, but it is no longer an exact estimate of the
-sufficient number. It is a valid lower bound, not a tight answer.}}
+\fbox{\parbox{0.93\textwidth}{\textbf{Result.} The corollary is not invalidated but
+\textbf{reclassified as a conservative ceiling}: ``at most $M_{\mathrm{crit}}$ trees''
+remains a safe prescription, and the true admissible ensemble size is $\ge
+M_{\mathrm{crit}}$. It is a valid upper limit, no longer a tight one.}}
 \end{center}
+
+\paragraph{One assumption left tacit.} The comparison above holds at a fixed
+$\tau^*_{\mathrm{det}}$: it opposes two laws for $\tau_{\mathrm{ARF}}$ against the same
+detector behaviour, which is legitimate because Proposition~9 makes
+$\tau^*_{\mathrm{det}} = \lambda/(\Delta e - \delta_P)$ a constant. Read as a claim about
+the \emph{real} blind-spot risk, the table above assumes more, since the real
+$\tau_{\mathrm{det}}$ is computed on the \emph{ensemble's} error stream and therefore
+depends on how correlated the trees are. We do not establish that its law is insensitive
+to that dependence.
+
+Both effects in fact lower $P_{\mathrm{miss}}$, so the direction of
+Section~\ref{sec:convexity} is reinforced rather than threatened. A slower repair leaves
+the excess error in place longer, so the monitor accumulates more and alarms earlier; and
+correlation weakens bagging's variance reduction, leaving a burstier error stream that
+breaches $\lambda$ on noise alone --- the \emph{stochastic resonance} the manuscript
+reports for a single tree, which the forest normally suppresses. What weakens is not the
+sign but the \emph{meaning} of $P_{\mathrm{miss}}$: part of the decrease is bought with
+alarms that win the race without detecting anything. $P_{\mathrm{miss}}$ remains a
+well-defined probability, and a poorer proxy for monitoring quality than the formula
+suggests.
+
+\paragraph{And the corollary is not rescued either.} On the operative grid the ceiling is
+already empty, which our loosening cannot fill. At $\Delta e = 0.33$ the manuscript
+measures $\widehat F(\tau^*_{\mathrm{det}}) = 0.49$: a \emph{single} tree has a $49\%$
+chance of swapping before the monitor's nominal accumulation time. One tree alone
+therefore gives $P_{\mathrm{miss}} = 1 - (1-0.49)^1 = 0.49$, ten times the $5\%$ the
+target $\beta = 0.95$ allows, and further trees can only make it worse. No ensemble size
+meets the guarantee --- whence $M_{\mathrm{crit}} = 0$, a ceiling of zero trees.
+
+Our correction states that the true ceiling is $\ge M_{\mathrm{crit}}$, which here reads
+``$\ge 0$'' and says nothing: rescuing the certificate would require showing the true
+ceiling to be $\ge 1$, and a one-sided inequality does not deliver that. The correction
+therefore changes the corollary's \emph{status} --- an exact figure becomes a conservative
+limit --- without changing its verdict where the manuscript applies it.
 
 \section{The Correlation Trap}
 
@@ -131,13 +202,13 @@ Under independence this covariance equals $0$: the anti-monotone coupling thus y
 a strictly negative value.
 
 \paragraph{Why this is impossible in the real ARF.} Reusing the factorization from
-Section 1 and the law of total covariance
+Section~\ref{sec:factorization} and the law of total covariance
 \[
   \mathrm{Cov}(X,Y) = \mathbb{E}_S[\mathrm{Cov}(X,Y\mid S)] +
   \mathrm{Cov}\big(\mathbb{E}[X\mid S],\mathbb{E}[Y\mid S]\big),
 \]
 with $X=\mathbf{1}\{\tau_1{>}1\}$, $Y=\mathbf{1}\{\tau_2{>}1\}$: the first term is zero
-(conditional independence given $S$, Section 1). The second is computed directly,
+(conditional independence given $S$, Section~\ref{sec:factorization}). The second is computed directly,
 since $\mathbb{E}[X\mid S]=\mathbb{E}[Y\mid S]=G_S(1)$:
 \[
   \mathrm{Cov}\big(\mathbf{1}\{\tau_1{>}1\},\mathbf{1}\{\tau_2{>}1\}\big) = \mathrm{Var}\big(G_S(1)\big) \;\ge\; 0 \quad \text{always}.
@@ -149,40 +220,8 @@ can only produce a covariance $\ge 0$ between two trees --- never negative. The
 anti-monotone coupling, which requires a covariance of $-1/4$, is therefore
 structurally impossible in the real model: the dependence shared through $S$ can only
 go one way (independence if $\mathrm{Var}(G_S)=0$, positive dependence otherwise),
-never the other. This confirms and locks in the conclusion of Section 2: no negative
+never the other. This confirms and locks in the conclusion of Section~\ref{sec:convexity}: no negative
 dependence scenario could contradict ``independence is too optimistic about speed''.}}
 \end{center}
-
-\section{Relation to the Experimental Side (Q C.1) --- Two Distinct Effects}
-
-Salomé's instrumented campaign (\texttt{redaction\_QC1\_hierarchie.tex}) establishes,
-with no distributional assumption whatsoever, that $\tau_{\mathrm{ARF}}$
-systematically and one-sidedly underestimates the time needed for a genuinely
-significant fraction of the forest to have been renewed --- an optimistic, one-sided
-bias, verified without exception on the $5{,}795$ uncensored comparisons the campaign's
-$2{,}000$ runs supply for $q \in \{25,50,75\}\%$ (the remaining $205$ are censored, hence
-not checked). This should not
-be read as a confirmation of Section 2's result, even though both push in the same
-practical direction: they are two independent, compounding effects, not the same
-fact observed twice. Q~C.1's inequality
-$\tau_{\mathrm{ARF}} \le \tau_{\mathrm{swap}}(q)$ is a purely combinatorial fact,
-true pathwise on every run regardless of any dependence structure between trees --- it
-would hold identically under independence. Section 2's result, by contrast, is about
-model misspecification: it compares two different probability laws for
-$\tau_{\mathrm{ARF}}$ itself (the article's independence assumption versus the true,
-dependent law), and says nothing about $\tau_{\mathrm{swap}}(q)$. Put together: even
-with perfect knowledge of the true dependent law of $\tau_{\mathrm{ARF}}$, it would
-still underestimate real forest-wide recovery (Q~C.1) --- and, separately, the
-article's independence assumption additionally underestimates $\tau_{\mathrm{ARF}}$
-itself (this section). The two limitations of $\tau_{\mathrm{ARF}}$ as an indicator
-stack on top of each other rather than duplicating one another.
-
-\section{Outlook}
-
-What remains is to measure $G_S(s)$ empirically on the campaign's runs (inter-seed
-variance of a single tree's survival at a fixed $s$) in order to quantify --- not just
-establish the sign of --- the gap between the independence formula and reality. Also
-compare R6/R9 (single tree, $M=1$) against R2 (forest, $M=10$), as suggested by
-Minato.
 
 \end{document}
