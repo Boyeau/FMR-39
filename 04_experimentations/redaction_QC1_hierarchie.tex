@@ -191,11 +191,25 @@ forest have been renewed''.
 
 \section{The Conjecture $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{err}}(\rho)$}
 
+Where $\tau_{\mathrm{swap}}(q)$ dates recovery by counting trees,
+$\tau_{\mathrm{err}}(\rho)$ dates it by watching the error itself come back down:
+\begin{equation}
+  \tau_{\mathrm{err}}(\rho) = \inf\{t > \tau^* : \bar e_t - \hat p_0 \le \rho\,\Delta e\}
+  - \tau^* ,
+  \label{eq:tauerr}
+\end{equation}
+the first instant at which the excess error has fallen to a fraction $\rho$ of the jump
+it suffered at the drift. We take $\rho = 0.25$ throughout --- three quarters of the
+drift absorbed. The value is ours to choose, the assignment fixing only
+$\rho \in (0,1)$; what it costs at the weakest amplitudes --- where $\rho\Delta e$ falls
+below the noise of $\bar e_t$ and the test decides nothing --- is set out below.
+
 $e_t \in \{0,1\}$ is only statistically meaningful once averaged over seeds: on a
 single run, the sequence is too noisy for a threshold crossing to signal genuine
 recovery. $\tau_{\mathrm{err}}(\rho)$, which the other sections write
-$\tau_{\mathrm{rec}}$, is therefore computed on the mean curve $\bar e_t$ alone: one
-value per amplitude, never one per run.
+$\tau_{\mathrm{rec}}$, is therefore computed on the mean curve $\bar e_t$ alone --- as
+$\bar e_t$ in~\eqref{eq:tauerr} already indicates: one value per amplitude, never one
+per run.
 
 $\tau_{\mathrm{ARF}}$, by contrast, exists on every run, and comparing the two means
 giving up that resolution. The test is run amplitude by amplitude, between
@@ -223,9 +237,13 @@ any point falling below the median-$\tau_{\mathrm{ARF}}$ curve is a violation.
   $\tau_{\mathrm{ARF}}$ against $\tau_{\mathrm{err}}(\rho)$ under both crossing rules. A
   point below the black curve violates $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{err}}(\rho)$.
   Without a persistence requirement there are four, all at the low end of the grid;
-  requiring the condition to hold for 20 consecutive steps lifts every crossing above
-  $\tau_{\mathrm{ARF}}$ and leaves none. The shaded band marks the two amplitudes where
-  $\rho\Delta e < 2\sigma$ and the test has no power.}
+  requiring the condition to hold for 20 consecutive steps removes both of the two that
+  occur where the test can decide. Hollow markers, inside the shaded band, are the two
+  amplitudes where $\rho\Delta e < 2\sigma$: the persistence rule still returns a value
+  there, and that value still sits above $\tau_{\mathrm{ARF}}$, but a threshold buried in
+  the noise dates the noise rather than the recovery. Those two points are not a verdict
+  either way, which is why the count of remaining violations is taken over 18 amplitudes
+  and not 20.}
   \label{fig:conjecture}
 \end{figure}
 
@@ -279,16 +297,15 @@ violations disappear: \textbf{0 violations across the 18 interpretable amplitude
 persistence condition therefore does real work here. It is not merely a cosmetic filter on
 the two amplitudes where the test was already blind.
 
-\paragraph{Conclusion.} The conjecture is not confirmed --- nor is it refuted at low
-amplitudes, where the experimental setup lacks power. More seeds would be needed:
-since $\bar e_t$ is a mean of $n$ independent Bernoulli draws, the noise of the mean
-curve decreases as $1/\sqrt{n}$, and reaching $\rho\Delta e > 2\sigma$ would require on
-the order of $190$ seeds at $\Delta e = 0.085$ ($194$ by the formula), but nearly
-$1\,900$ at $\Delta e = 0.028$ ($1\,874$) --- and more still in practice, since the precision of a crossing
-instant also depends on the slope of the curve at the threshold, which is shallow
-precisely at these amplitudes. Across the 18 amplitudes where the test has power
-($\rho\Delta e > 2\sigma$), $\tau_{\mathrm{ARF}} \le \tau_{\mathrm{err}}(\rho)$ holds
-without exception: the first tree replacement always precedes the actual recovery of
-the error, consistent with the optimistic bias established in~\eqref{eq:relation}.
+\paragraph{Conclusion.} On the 18 amplitudes where the test has power,
+$\tau_{\mathrm{ARF}} \le \tau_{\mathrm{err}}(\rho)$ holds without exception: the first
+replacement always precedes the actual recovery of the error. That is the optimistic bias
+of~\eqref{eq:relation} again, now against a second yardstick.
+
+The conjecture is therefore not confirmed, and at the two weakest amplitudes it is not
+refuted either --- the test cannot decide there. Settling them would take more seeds, and
+the $1/\sqrt{n}$ law makes that expensive: $194$ at $\Delta e = 0.085$, but $1\,874$ at
+$0.028$, and more in practice, a crossing instant being harder to locate where the curve
+is flattest.
 
 \end{document}

@@ -152,16 +152,6 @@ $S_{\max}(H) = \max_{0 \le j \le H} S_j
  = \max_{0 \le k \le j \le H} [\,\cdot\,]$.
 \end{proof}
 
-\begin{remark}[Connection to Kadane's algorithm]
-The recurrence $S_t = \max(0, S_{t-1}+X_t)$ is exactly Kadane's algorithm for the
-maximum-subarray-sum problem, in its empty-subarray-allowed form: $S_{\max}(H)$ is the
-largest sum achievable by any contiguous block of the $X_t$'s, including the empty
-block (sum $0$). Proposition~\ref{prop:lindley}'s induction is the textbook proof of
-Kadane's correctness. The practical content is that the detector, by running this
-single $O(H)$ recurrence online, is already computing --- without knowing it --- the
-best of the $O(H^2)$ possible sub-windows: the cheap, real-time statistic and the
-brute-force search over every sub-window coincide exactly.
-\end{remark}
 
 \begin{corollary}[The certificate]\label{cor:certificate}
 Fix $\lambda > 0$. Then
@@ -211,11 +201,10 @@ is what licenses Corollary~\ref{cor:certificate}, applied to the campaign in
 Section~\ref{sec:application} below (and reused for the full-window discussion in
 Q~C.3).
 
-\paragraph{Numerical check.} The closed form~\eqref{eq:lindley} was checked against
-the naive recurrence on $200$ synthetic Bernoulli trajectories (seed $12345$, maximal
-deviation $1.07 \times 10^{-10}$) and on the $2\,000$ trajectories of the campaign
-(maximal deviation $1.26 \times 10^{-11}$), i.e.\ machine precision in both cases. The
-analysis script refuses to proceed further if this check fails.
+\paragraph{Numerical check.} The closed form~\eqref{eq:lindley} was checked against the
+naive recurrence on the $2\,000$ trajectories of the campaign: maximal deviation
+$1.26 \times 10^{-11}$, i.e.\ machine precision. The analysis script refuses to proceed
+further if this check fails.
 
 \section{Application to the Campaign}
 \label{sec:application}

@@ -462,20 +462,34 @@ def fig_conjecture_tauerr():
     d = _t("QCD_tau_err_full").sort_values("delta_e")
     fig, ax = plt.subplots(figsize=(8.5, 4.8))
 
-    m, ls, c = STYLES[0]
-    ax.plot(d.delta_e, d.tau_arf_median, marker=m, ls=ls, color=c, lw=1.8, ms=5,
-            label=r"median $\tau_{\mathrm{ARF}}$ (first replacement)")
-    m, ls, c = STYLES[4]
-    ax.plot(d.delta_e, d.tau_err_p1, marker=m, ls=ls, color=c, lw=1.5, ms=5,
-            label=r"$\tau_{\mathrm{err}}(\rho)$, no persistence")
-    m, ls, c = STYLES[3]
-    ax.plot(d.delta_e, d.tau_err_p20, marker=m, ls=ls, color=c, lw=1.5, ms=5,
-            label=r"$\tau_{\mathrm{err}}(\rho)$, 20 consecutive steps")
+    # Les deux amplitudes sans puissance de test (rho*Delta_e < 2 sigma) sont
+    # tracees en marqueurs evides : la date qu'y donne tau_err decrit le bruit,
+    # pas la resorption. Les y confondre avec les 18 autres ferait croire que la
+    # regle de persistance resout aussi ces deux cas -- elle ne fait qu'y produire
+    # un nombre.
+    n_bad = int((~d.interpretable).sum())
+    faible, fort = d.iloc[:n_bad + 1], d.iloc[n_bad:]
+
+    series = [(STYLES[0], d.tau_arf_median, 1.8,
+               r"median $\tau_{\mathrm{ARF}}$ (first replacement)"),
+              (STYLES[4], d.tau_err_p1, 1.5,
+               r"$\tau_{\mathrm{err}}(\rho)$, no persistence"),
+              (STYLES[3], d.tau_err_p20, 1.5,
+               r"$\tau_{\mathrm{err}}(\rho)$, 20 consecutive steps")]
+    for (m, ls, c), y, lw, lab in series:
+        ax.plot(faible.delta_e, y.iloc[:n_bad + 1], ls=ls, color=c, lw=lw,
+                alpha=0.3, zorder=1)
+        ax.plot(fort.delta_e, y.iloc[n_bad:], marker=m, ls=ls, color=c, lw=lw,
+                ms=5, label=lab)
+        ax.plot(d.delta_e[:n_bad], y.iloc[:n_bad], marker=m, ls="none", ms=5,
+                mfc="white", mec=c, mew=1.4, zorder=3)
 
     viol = d[d.avant_tau_arf_p1]
     ax.scatter(viol.delta_e, viol.tau_err_p1, s=190, facecolors="none",
                edgecolors=STYLES[4][2], linewidths=1.8, zorder=5,
-               label=f"violation ({len(viol)} amplitudes, none after persistence)")
+               label=f"apparent violation without persistence ({len(viol)})")
+    ax.plot([], [], marker="o", ls="none", ms=5, mfc="white", mec="#555555",
+            mew=1.4, label="hollow: no test power, value uninformative")
 
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_xticks([0.03, 0.05, 0.1, 0.2, 0.3, 0.5])
