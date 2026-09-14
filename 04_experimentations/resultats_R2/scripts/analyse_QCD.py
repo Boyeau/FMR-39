@@ -680,7 +680,7 @@ def figure_dispersion_swap(df, tag, quantiles=(25, 50, 75)):
 
 def figure_ecarts(df, tag):
     """C.1b : l'ecart tau_swap(q) - tau_ARF en fonction de Delta_e."""
-    fig, ax = plt.subplots(figsize=(9, 5.2))
+    fig, ax = plt.subplots(figsize=(6.4, 4.0))
     colors = ['#04617B', '#2E7D32', '#B97C00', '#C62828']
     for q, c in zip(SWAP_QUANTILES, colors):
         col = f'tau_swap_{int(q * 100)}'
@@ -691,21 +691,24 @@ def figure_ecarts(df, tag):
         # comme un second segment separe, qui se retrouve alors deconnecte du
         # reste de la courbe (defaut visuel corrige le 08/09).
         ax.plot(med.index, med.values, 'o-', color=c, lw=1.8, ms=4,
-                label=rf"$q = {q:.2f}$")
+                label=rf"$q = {int(q * 100)}\%$")
         heavy = cens > 0.5
         if heavy.any():
             ax.plot(med.index[heavy], med[heavy], 'o', color=c, ms=9,
                     markerfacecolor='none', markeredgewidth=1.8, alpha=0.9)
-    ax.set_xlabel(r"$\Delta e$ — error jump amplitude")
-    ax.set_ylabel(r"$\tau_{swap}(q) - \tau_{ARF}$  (steps)")
-    ax.set_title(r"C.1b --- how far ahead of stricter quotas $\tau_{ARF}$ runs")
-    ax.legend(fontsize=9, title="fraction of trees renewed", title_fontsize=8)
+    # Sans titre (14/09) : la figure est reprise dans le rapport final, ou la
+    # legende LaTeX porte le propos ; l'ancien titre gravait l'etiquette interne
+    # « C.1b » et un tiret cadratin dans l'image. La note sur les cercles creux
+    # passe dans la legende LaTeX. Texte agrandi pour rester lisible a la
+    # largeur d'une colonne IEEE.
+    ax.set_xlabel(r"$\Delta e$ (error jump amplitude)", fontsize=12)
+    ax.set_ylabel(r"$\tau_{\mathrm{swap}}(q) - \tau_{\mathrm{ARF}}$ (steps)", fontsize=12)
+    ax.tick_params(labelsize=11)
+    ax.legend(fontsize=11, title="share of trees renewed", title_fontsize=11)
     ax.grid(alpha=0.18, lw=0.6)
-    ax.text(0.98, 0.95, "hollow circle: >50% of runs censored at this amplitude",
-            transform=ax.transAxes, ha='right', va='top', fontsize=7.5, color='#6A848D')
     fig.tight_layout()
     out = FIGURES_DIR / f"Fig_QC_ecarts_{tag}.png"
-    fig.savefig(out, dpi=150)
+    fig.savefig(out, dpi=200)
     plt.close(fig)
     return out
 
