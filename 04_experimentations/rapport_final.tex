@@ -279,6 +279,7 @@ $\lambda = 8$:
 
 \begin{table}[t]
 \centering
+\caption{Fréchet bounds on the estimated marginals, $\lambda = 8$.}
 \begin{tabular}{crrr}
 \toprule
 $\Delta e$ & lower & $\hat P_{\mathrm{miss}}$ & upper \\
@@ -288,7 +289,6 @@ $0.141$ & $0.10$ & $0.12$ & $0.26$ \\
 $0.498$ & $0.01$ & $0.01$ & $0.18$ \\
 \bottomrule
 \end{tabular}
-\caption{Fréchet bounds on the estimated marginals, $\lambda = 8$.}
 \end{table}
 
 \noindent The bound holds on all $60$ cells of the grid
@@ -309,6 +309,9 @@ thresholds.
 
 \begin{table}[t]
 \centering
+\caption{The race, measured on the campaign. Regions 3 and 4 are empty, so
+$\hat P_{\mathrm{miss}}$ estimates $P_{\mathrm{miss}}$ itself rather than a bound on it.}
+\label{tab:race}
 \begin{tabular}{crrrrl}
 \toprule
 $\lambda$ & region 1 & region 2 & $C_H$ & $\hat P_{\mathrm{miss}}$ & Wilson $95\%$ \\
@@ -318,9 +321,6 @@ $25$ & $778$     & $1\,222$ & $0$ & $0.9715$ & $[0.9633;0.9779]$ \\
 $50$ & $1$       & $1\,999$ & $0$ & $1.0000$ & $[0.9981;1.0000]$ \\
 \bottomrule
 \end{tabular}
-\caption{The race, measured on the campaign. Regions 3 and 4 are empty, so
-$\hat P_{\mathrm{miss}}$ estimates $P_{\mathrm{miss}}$ itself rather than a bound on it.}
-\label{tab:race}
 \end{table}
 
 These totals pool cells of very unequal difficulty, and the per-cell breakdown belongs to
@@ -537,6 +537,10 @@ dates the recovery too early: the two errors compound.
 
 \begin{table*}[t]
 \centering
+\caption{Short-window certificate $S_{\max}(w) \ge \lambda$ against detection within $H$,
+as a share of the $100$ seeds of each amplitude; brackets: Wilson $95\%$ interval. At
+$\lambda = 50$ the certificate is $0.00$ at every amplitude.}
+\label{tab:certificate}
 \begin{tabular}{rrllll}
 \toprule
 & & \multicolumn{2}{c}{$\lambda = 8$} & \multicolumn{2}{c}{$\lambda = 25$} \\
@@ -550,10 +554,6 @@ $0.243$ & $229$    & $1.00$ $[0.96;1.00]$ & $1.00$ $[0.96;1.00]$ & $0.78$ $[0.69
 $0.498$ & $112$    & $1.00$ $[0.96;1.00]$ & $1.00$ $[0.96;1.00]$ & $0.02$ $[0.01;0.07]$ & $0.02$ $[0.01;0.07]$ \\
 \bottomrule
 \end{tabular}
-\caption{Short-window certificate $S_{\max}(w) \ge \lambda$ against detection within $H$,
-as a share of the $100$ seeds of each amplitude; brackets: Wilson $95\%$ interval. At
-$\lambda = 50$ the certificate is $0.00$ at every amplitude.}
-\label{tab:certificate}
 \end{table*}
 
 $\tau_{\mathrm{ARF}}$ counts observations; $\lambda$ counts excess errors, since the
