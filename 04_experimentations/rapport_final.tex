@@ -5,8 +5,15 @@
 % (articleA_blindspot_v64_camera_ready.tex). Contrainte de l'énoncé :
 % 10 à 15 pages, 15 étant un maximum strict.
 %
-% État : question A intégrée (condensée depuis redaction_QA_course_concurrente).
-%        B, C, D à reprendre — voir les marqueurs en fin de fichier.
+% État : A, B, C, D et E intégrées.
+%
+% D est fondue depuis redaction_QD1 à QD4, E depuis redaction_QE_choix_du_seuil.
+% Les répétitions entre ces cinq fichiers ont été supprimées au profit de
+% renvois : préambules de campagne, socle sur deux fenêtres, imputation des
+% durées censurées au dernier rang, biais de correction des ex aequo, bras
+% sans drift, et la course lue deux fois sous ses deux orientations. Ce qui
+% recoupait C (identité tau_ARF = tau_swap(1/M), persistance de tau_rec,
+% définition du CUSUM, tâche facilitée en haut de grille) renvoie vers C.
 %
 % Deux colonnes : le matériel large (encadré de notations, tables à plus de
 % quatre colonnes) passe en table*, qui s'étale sur les deux colonnes.
@@ -91,6 +98,19 @@ Placeholder.
   $F$ & CDF of a \emph{single} tree $\tau_i$ --- distinct from $F_A$, which is that of $\tau_{\mathrm{ARF}}$ \\
   $G_S(s)$ & $:= P(\tau_1 > s \mid S)$, the single-tree survival function \emph{given} the stream \\
   $\beta$ & reliability target, the share of drifts the monitor should catch ($0.95$ in the manuscript) \\
+  \midrule
+  \multicolumn{2}{@{}l@{}}{\emph{for the instrumented campaign:}} \\
+  $e_t$, $\bar e_t$ & prequential error at step $t$, binary; and its inter-seed mean, with no temporal smoothing \\
+  $\hat p_0$ & pre-drift error baseline, estimated on the recorded pre-drift steps \\
+  $S_t$ & detector state, Eq.~\eqref{eq:cusum}, with $S_{\tau^*} = 0$ \\
+  $S_{\max}(H)$ & peak of that path over the horizon; the alarm \emph{is} $S_{\max}$ crossing $\lambda$ \\
+  $A(H)$ & accumulated excess error over the horizon \\
+  $N_t$ & number of distinct trees replaced by step $t$ \\
+  $\tau_{\mathrm{swap}}(q)$ & first instant at which a fraction $q$ of the $M$ trees has been replaced, so $\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(1/M)$ \\
+  $\tau_{50\%}$ & $\tau_{\mathrm{swap}}(50\%)$, the instant at which half of the forest has been renewed \\
+  $\tau_{\mathrm{rec}}$ & return of $\bar e_t$ below $\hat p_0 + \rho\,\Delta e$ with $\rho = 0.25$, held $20$ consecutive steps; also written $\tau_{\mathrm{err}}(\rho)$ \\
+  $R(\cdot)$, $G(\cdot)$ & fraction of the adaptation acquired, and of the evidence accumulated, at a given instant \\
+  $\tau_b$ & Kendall's rank correlation with tie correction, Eq.~\eqref{eq:taub} \\
   \bottomrule
 \end{tabular}
 \end{center}
@@ -98,13 +118,16 @@ Placeholder.
 \noindent Both delays are counted from $\tau^*$ and take integer values, a fact the
 Fréchet bounds of Question~A rely on. Every measured figure in this report comes from the
 instrumented campaign of $20$ amplitudes $\times\ 100$ seeds $= 2\,000$ runs,
-$H = 2\,000$, documented in \texttt{resultats\_R2/}.
+$H = 2\,000$, $M = 10$, documented in \texttt{resultats\_R2/}; the two exceptions are the
+drift-free arm of $100$ runs read in Section~\ref{sec:E} and the ten fictitious runs of
+the counter-example in Section~\ref{sec:d2:contre}, both signalled where they are used.
 
 \newpage
 \twocolumn
 
 % =====================================================================
 \section{The Miss Probability: Definition, Identification, Bounds}
+\label{sec:A}
 % =====================================================================
 
 We formalize and bound $P_{\mathrm{miss}} = P(\tau_{\mathrm{ARF}} <
@@ -328,6 +351,7 @@ Question~D.
 
 % =====================================================================
 \section{The Independence Assumption Between Trees}
+\label{sec:B}
 % =====================================================================
 
 The $M$ trees share the same stream, yet the manuscript treats the $\tau_i$ as
@@ -681,11 +705,1085 @@ measurement replaces rather than supports.}}
 %   $0.09$ and $0.34$ of probability mass at $\lambda = 8$, depending on the
 %   amplitude. Closing that gap is not a matter of more data: it requires the
 %   \emph{structure} of the dependence, which is the object of this question.
-% TODO : Question D --- reprendre QD1 à QD4 (quatre fichiers à fondre)
-% TODO : conclusion commune, et la déclaration d'usage des LLM
 %
-% Budget : 15 pages maximum, tout compris. La question A occupe environ
-% 4 pages sous cette forme ; à surveiller quand B, C et D arriveront.
+% Correspondance à écrire dans « Context and Scope » :
+%   Question A -> sec:A          Question B -> sec:B
+%   Question C -> sec:repair-date
+%   Question D -> sec:D1 (instrumentation), sec:D2 (coefficient),
+%                 sec:D3 (résultat, protocole, censure)
+%   hors questions -> sec:E (choix du seuil, témoin sans drift)
+% =====================================================================
+% =====================================================================
+% TODO : Question C --- reprendre QC1, QC2, QC3 (trois fichiers à fondre).
+% Elle s'insère ici, entre B et D. Deux dépendances déjà posées ailleurs :
+%   - l'identité tau_ARF = tau_swap(1/M), énoncée au début de la section D
+%     avec son compte de vérification, à renvoyer vers C une fois C écrite ;
+%   - tau_rec = tau_err(rho), dont la notation est déclarée dans la table de
+%     notations et rappelée en D.
+% =====================================================================
+
+% =====================================================================
+\section{Instrumenting the Repair, the Error and the Detector}
+\label{sec:D1}
+% =====================================================================
+
+The subject asks for the fraction of replaced trees, the global error and the internal
+state of the detector to be traced jointly. This section produces those three series and
+the four temporal markers read off them; what they are worth as measurements of the
+adaptation is settled in Sections~\ref{sec:D2} and~\ref{sec:D3}. Every figure quoted is
+reproduced by \texttt{resultats\_R2/scripts/chiffres\_QD.py} and \texttt{derives\_QD.py}.
+
+\subsection{What Is Recorded and What Is Recomputed}
+
+The simulation writes raw material only: the error trajectory $e_t \in \{0,1\}$, the tree
+replacement events, and the $3\,000$ pre-drift steps. No threshold and no $\lambda$
+appears anywhere in the simulation loop.
+
+That is deliberate. The external detector reads the error trajectory and never acts on
+the forest, so $\lambda$ has no influence on the dynamics. Once the \texttt{break} is
+removed, the three scenarios of R2 produce runs identical to the bit. One campaign
+replaces three, and $S_t$, $\tau_{\mathrm{det}}$, $A(H)$ and $S_{\max}(H)$ are swept
+offline for every threshold and any $\delta_P$. Freezing a threshold inside the loop
+would have cost one campaign per threshold, and at $\lambda = 50$ it would have produced
+a table whose $\tau_{\mathrm{det}}$ column is censored in $99.95\%$ of runs. It is also
+what makes the continuous threshold sweep of Section~\ref{sec:E} cost nothing.
+
+Two conventions are used throughout and stated once here. The detector is created at
+$\tau^*$ with $S_{\tau^*} = 0$, and every duration is counted from $\tau^*$. The two
+amplitudes below $\Delta e = 0.10$ lie outside the decision domain fixed in
+Section~\ref{sec:D4rule} and are shaded on every figure that sweeps $\Delta e$.
+
+The hierarchy~\eqref{eq:hierarchy} of Section~\ref{sec:hierarchy} is used throughout,
+and with it the identity $\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(1/M)$: that is what
+makes the first row of Table~\ref{tab:agregation} tautological rather than measured.
+
+\subsection{The Three Series on a Common Time Axis}
+
+\begin{figure*}[t]
+  \centering
+\caption{Fraction of replaced trees $N_t/M$ (inter-seed median and interquartile range),
+  global error $\bar e_t$, and internal detector state $S_t$ on a common time axis, at
+  three amplitudes spanning the grid, with the four temporal markers $\tau_{\mathrm{det}}$
+  (at $\lambda = 8$), $\tau_{\mathrm{ARF}}$, $\tau_{50\%}$ and $\tau_{\mathrm{rec}}$. The
+  time axis is logarithmic: the four instants span two orders of magnitude across the
+  grid, and on a linear axis the markers of the high-amplitude column collapse into the
+  first few pixels. The $\tau_{\mathrm{rec}}$ marker is dashed where the test lacks the
+  power to resolve it.}
+\label{fig:joint}
+  \includegraphics[width=0.92\textwidth]{resultats_R2/resultats/figures/Fig_QD_trajectoires_full.png}
+
+\end{figure*}
+
+\paragraph{No temporal smoothing} $e_t$ is binary. The only averaging applied is the
+inter-seed mean, taken step by step, with no sliding filter anywhere. A moving average of
+length $L$ shifts the curve by half its support and destroys the synchronisation with
+$\tau^*$, which is what this figure exists to display. At the top of the grid the median
+$\tau_{\mathrm{ARF}}$ is $28$ steps, so a $50$-step filter would displace the curve by
+nearly the whole quantity being measured.
+
+\paragraph{The four markers} $\tau_{\mathrm{det}}$ is plotted at $\lambda = 8$, the only
+threshold whose censoring stays in the minority ($4.70\%$, against $61.10\%$ at
+$\lambda = 25$ and $99.95\%$ at $\lambda = 50$). At the other two thresholds a median
+delay would rest on a minority of runs, so none is published. $\tau_{\mathrm{rec}}$ carries
+the persistence requirement whose necessity Section~\ref{sec:hierarchy} establishes: four
+amplitudes cross the threshold without the crossing being sustained, and the marker is
+dashed where the test has no power.
+
+\paragraph{Replacement dynamics} At $t = 100$ the median $N_t/M$ ranges from $0.00$ to
+$0.70$ across amplitudes, with an interquartile range of $0.00$ to $0.30$; at $t = 400$,
+from $0.10$ to $0.90$. By the end of the horizon the median runs from $0.60$ to $1.00$,
+and the proportion of runs whose forest has been entirely renewed goes from $2\%$ to
+$94\%$ depending on amplitude.
+
+\subsection{The Baseline and Its Estimation Window}
+\label{sec:d1:socle}
+
+The baseline $\hat p_0$ enters $S_t$ directly, and therefore governs $\tau_{\mathrm{det}}$,
+$A(H)$, $S_{\max}(H)$ and every censoring rate reported in this work. It is reported on
+both windows the protocol requires: $1\,000$ pre-drift steps, reproducing R2 as published,
+and $3\,000$ steps for the analysis. Since $3\,000$ pre-drift steps are recorded per run,
+this is a purely offline recomputation. As a control, the baseline recomputed at $3\,000$
+steps reproduces the campaign value with a maximum deviation of exactly $0$.
+
+\begin{table}[t]
+  \centering
+\caption{Baseline and its consequences on both estimation windows. The maximum per-run
+  difference between the two baselines is $0.009333$.}
+\label{tab:socle}
+  \small
+  \begin{tabular}{lcccc}
+    \toprule
+    Window & $\hat p_0$ (median) & \multicolumn{3}{c}{mean censoring of $\tau_{\mathrm{det}}$} \\
+    \cmidrule(lr){3-5}
+     & & $\lambda = 8$ & $\lambda = 25$ & $\lambda = 50$ \\
+    \midrule
+    $1\,000$ steps & $0.022000$ & $0.0405$ & $0.6045$ & $0.9990$ \\
+    $3\,000$ steps & $0.023000$ & $0.0470$ & $0.6110$ & $0.9995$ \\
+    \bottomrule
+  \end{tabular}
+
+\end{table}
+
+The window shifts the censoring rates by less than one point and changes no verdict
+anywhere in this report. The direction of the shift is systematic: a baseline estimated
+over $3\,000$ steps is slightly higher, so the detector accumulates slightly less evidence
+and alarms slightly less often. Unless stated otherwise, every figure below uses the
+$3\,000$-step baseline.
+
+\paragraph{Against the theoretical baseline} The pre-drift target
+$y = \mathbf{1}\{x_0 + x_1 > 0\}$ is a deterministic function of the inputs. There is no
+label noise and the Bayes error is exactly $0$, so the measured baseline of $0.023$ is
+entirely approximation error, produced by axis-parallel splits approximating an oblique
+boundary. The detector monitors departures from a reference level that belongs to the
+classifier rather than to the problem.
+
+\subsection{What Is Acquired at $\tau_{\mathrm{ARF}}$}
+
+Two quantities are measured at the instant $\tau_{\mathrm{ARF}}$: the fraction of
+adaptation already acquired, $R(\tau_{\mathrm{ARF}})$, and the fraction of evidence
+already accumulated by the detector, $G(\tau_{\mathrm{ARF}})$. $G$ is computed run by run,
+$R$ per amplitude on the mean curve, and $\tau_{\mathrm{ARF}}$ is the inter-seed median.
+
+\begin{figure}[t]
+  \centering
+\caption{$R(\tau_{\mathrm{ARF}})$ and $G(\tau_{\mathrm{ARF}})$ against $\Delta e$.
+  Neither is monotone, and $R$ is negative at five amplitudes.}
+\label{fig:rg}
+  \includegraphics[width=\columnwidth]{resultats_R2/resultats/figures/Fig_QD_R_et_G_full.png}
+
+\end{figure}
+
+\paragraph{Answer} $G$ ranges from $0.4889$ to $0.7594$ over the 18 amplitudes of the
+decision domain: between half and three quarters of the evidence is already available to
+the detector when the first tree is replaced. On the full grid it falls to $0.1023$, and
+that restriction is published with the figure.
+
+$R$ supports no such single sentence. It runs from $-0.1882$ to $+0.8853$ on the grid,
+from $-0.1882$ to $+0.5883$ on the decision domain, and it is not monotone in $\Delta e$.
+At $\Delta e = 0.085$ it reaches $0.885$: nearly all of the adaptation is acquired when
+the first tree is replaced, the opposite of what one would expect. At $\Delta e = 0.141$
+it is $0.588$. The reading ``early in the adaptation, late in the race'' is not supported
+by the table and is not used here. What the measurement supports is narrower: at
+$\tau_{\mathrm{ARF}}$, between $49\%$ and $76\%$ of the evidence is accumulated, while the
+fraction of adaptation acquired varies from negative to $89\%$ with no monotone dependence
+on amplitude.
+
+\paragraph{A negative fraction of adaptation} $R$ is negative at five amplitudes
+($\Delta e = 0.243$, $0.436$, $0.494$, $0.496$, $0.498$), reaching $-0.1882$. The window
+used to estimate the post-drift plateau is bounded by $\tau_{\mathrm{ARF}}/2$ precisely to
+keep it from overlapping the adaptation it measures, and the bound is active at those
+amplitudes (the window drops to $43$, $17$, $14$, $14$, $14$ steps respectively). The
+symptom persists anyway. A negative $R$ means the mean error at $\tau_{\mathrm{ARF}}$ sits
+\emph{above} the plateau estimated just after the drift: the error is still rising when
+the first tree is replaced. Calling the estimation artefact repaired would be false.
+
+\paragraph{The plateau never reaches its theoretical value} The control of the measured
+plateau against $\hat p_0 + \Delta e$ fails on all $20$ amplitudes, with a deviation
+between $-0.0271$ and $-0.0080$, always negative. Two mechanisms account for it, and both
+point at the baseline.
+
+First, $\hat p_0$ is itself partly a product of the replacement mechanism. On the
+drift-free arm of the campaign --- $100$ runs with no change point at all, reported in
+full in Section~\ref{sec:E} --- the forest renews most of itself over the horizon anyway,
+for a mean error of $0.0226$. Replacement churn under pure noise is the normal regime. A
+direct comparison against a forest that never replaces anything gave $0.0125$, but that
+figure is not produced by this campaign: it comes from an exploratory measurement of 12
+executions (\texttt{resultats\_R2/JOURNAL.md} \S~2\,b) whose output was not persisted, and
+it is quoted as an order of magnitude. Establishing the permanent cost of the replacement
+mechanism properly is an open item of that journal.
+
+Second, at large amplitudes the post-drift task is easier than the original one, so the
+error does not settle at $\hat p_0 + \Delta e$ at all --- the same mechanism that drives
+$A(H)$ negative in Section~\ref{sec:budget}. The stylised model of the subject fails at the
+top of the grid, and that is a measurement rather than a conjecture.
+
+\begin{figure}[t]
+  \centering
+\caption{Top: the measured post-drift plateau $\bar e$ against the stylised plateau
+  $\hat p_0 + \Delta e$, and their difference, on all 20 amplitudes; the difference is
+  negative everywhere, between $-0.0271$ and $-0.0080$. Bottom: $R(\tau_{\mathrm{ARF}})$
+  with the line at zero, negative at five amplitudes and not monotone. Table
+  \texttt{QCD\_R\_et\_G\_full}.}
+\label{fig:palier}
+  \includegraphics[width=\columnwidth]{resultats_R2/resultats/figures/Fig_QD_palier_full.png}
+
+\end{figure}
+
+\subsection{The Race, Amplitude by Amplitude}
+\label{sec:d1:course}
+
+Table~\ref{tab:race} gives $P_{\mathrm{miss}}$ pooled over the whole grid. The
+instrumentation makes visible what that pooling hides, and the reading below is the same
+race under its other orientation: the detector wins exactly when the forest does not.
+
+At $\lambda = 8$, $\tau_{\mathrm{det}} < \tau_{\mathrm{ARF}}$ in $95.44\%$ of the $1\,906$
+uncensored runs, or $90.95\%$ of all $2\,000$ runs when censored ones are imputed as
+losses. Among those $2\,000$ runs, $34$ have $\tau_{\mathrm{ARF}} = 0$: a tree is replaced
+at the change point itself, and the detector loses by construction, since
+$\tau_{\mathrm{det}}$ cannot precede the drift. They occur at every amplitude, three at
+$\Delta e = 0.028$ down to one at the top of the grid, and Figure~\ref{fig:boxplot} plots
+them explicitly. At $\lambda = 25$ the proportion falls to $6.56\%$, and at $\lambda = 50$
+it is $0\%$ on the single uncensored run.
+
+Those grid averages need one qualification, because the rate is far from stationary in
+$\Delta e$. At $\lambda = 8$ the detector wins $0$ of the $10$ uncensored runs at
+$\Delta e = 0.028$ (where $90\%$ of runs never alarm at all), $64.6\%$ at
+$\Delta e = 0.085$ ($62$ of $96$ uncensored runs, Wilson $95\%$ interval $54.6\%$ to
+$73.4\%$), and between $88\%$ and $99\%$ everywhere above. The $95.44\%$ figure is
+dominated by the 18 easy amplitudes out of 20. The blind spot is therefore a property of
+the pair $(\lambda, \Delta e)$ rather than of $\lambda$ alone: even at the most sensitive
+threshold tested, it is fully present at the bottom of the grid.
+
+Table~\ref{tab:course} gives the race amplitude by amplitude at $\lambda = 8$, and
+Figure~\ref{fig:course} the same for the three thresholds together with the censoring that
+each cell carries. Both are the material Section~\ref{sec:A} reads as $P_{\mathrm{miss}}$,
+resolved in $(\lambda, \Delta e)$ instead of pooled; Section~\ref{sec:E} continues the
+same sweep through the thresholds between $8$ and $25$, where the transition happens.
+
+\begin{table*}[t]
+  \centering
+\caption{The race at $\lambda = 8$, amplitude by amplitude. Third column: runs in which
+  the detector alarms strictly before the first tree replacement. Fourth column: that count
+  over the uncensored runs of the cell, with a Wilson $95\%$ interval; it is a statistic on
+  survivors and is not reported where more than half of the cell is censored. Fifth column:
+  the same count over all 100 runs, censored runs counted as detector losses. The last row
+  is the grid total, $1\,819/1\,906 = 95.44\%$ (Wilson $94.4\%$ to $96.3\%$) and
+  $1\,819/2\,000 = 90.95\%$ (Wilson $89.6\%$ to $92.1\%$). Those two intervals measure
+  sampling only: both totals pool cells of very unequal difficulty, and it is the spread
+  down the column, not the interval, that carries the qualification. Table
+  \texttt{QCD\_indicateurs\_full}, computed by \texttt{chiffres\_QD.py}.}
+\label{tab:course}
+  \small
+  \begin{tabular}{lcccc}
+    \toprule
+    $\Delta e$ & uncensored / 100 & $\tau_{\mathrm{det}} < \tau_{\mathrm{ARF}}$ & share of uncensored, \% [Wilson 95\%] & share of all 100, \% \\
+    \midrule
+    $0.028$ & $10$  & $0$  & not reported (censoring $90\%$) & $0.0$ \\
+    $0.085$ & $96$  & $62$ & $64.6$ [$54.6$; $73.4$] & $62.0$ \\
+    $0.141$ & $100$ & $88$ & $88.0$ [$80.2$; $93.0$] & $88.0$ \\
+    $0.194$ & $100$ & $94$ & $94.0$ [$87.5$; $97.2$] & $94.0$ \\
+    $0.243$ & $100$ & $97$ & $97.0$ [$91.5$; $99.0$] & $97.0$ \\
+    $0.287$ & $100$ & $97$ & $97.0$ [$91.5$; $99.0$] & $97.0$ \\
+    $0.327$ & $100$ & $97$ & $97.0$ [$91.5$; $99.0$] & $97.0$ \\
+    $0.361$ & $100$ & $98$ & $98.0$ [$93.0$; $99.4$] & $98.0$ \\
+    $0.391$ & $100$ & $98$ & $98.0$ [$93.0$; $99.4$] & $98.0$ \\
+    $0.416$ & $100$ & $98$ & $98.0$ [$93.0$; $99.4$] & $98.0$ \\
+    $0.436$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.452$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.465$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.475$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.482$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.488$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.492$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.494$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.496$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    $0.498$ & $100$ & $99$ & $99.0$ [$94.6$; $99.8$] & $99.0$ \\
+    \midrule
+    all 20  & $1\,906$ & $1\,819$ & $95.44$ & $90.95$ \\
+    \bottomrule
+  \end{tabular}
+
+\end{table*}
+
+\begin{figure*}[t]
+  \centering
+\caption{Top: share of runs in which $\tau_{\mathrm{det}} < \tau_{\mathrm{ARF}}$, by
+  amplitude, for $\lambda \in \{8, 25, 50\}$. Filled markers with error bars: uncensored
+  runs only, Wilson $95\%$ interval, drawn only where the censoring of the cell is at most
+  $50\%$. Hollow markers: all 100 runs, censored runs counted as detector losses, drawn
+  everywhere. Bottom: censoring of $\tau_{\mathrm{det}}$ in the same cells, with the
+  $50\%$ line. What to see: at $\lambda = 8$ the detector wins almost everywhere except at
+  the bottom of the grid; at $\lambda = 25$ its win rate falls from $31\%$ at
+  $\Delta e = 0.141$ to zero by $\Delta e = 0.36$ while its censoring climbs back to
+  $99\%$ at the top of the grid; at $\lambda = 50$ it never wins. The fractions plotted are
+  those of Table~\ref{tab:course}, checked for equality inside the script.}
+\label{fig:course}
+  \includegraphics[width=0.9\textwidth]{resultats_R2/resultats/figures/Fig_QD_course_lambda_full.png}
+
+\end{figure*}
+
+% =====================================================================
+\section{Choosing the Association Coefficient}
+\label{sec:D2}
+% =====================================================================
+
+The subject asks for the correlation of $\tau_{\mathrm{ARF}}$ with the real adaptation.
+Which coefficient answers that question is not a detail here: the quantities to be
+correlated are durations measured on a finite horizon, and two of the three usual
+coefficients are disqualified by that alone. The counter-example of
+Section~\ref{sec:d2:contre} comes from \texttt{scripts/contre\_exemple\_kendall.py},
+which computes both coefficients twice, once from their definition and once through
+\texttt{scipy}, so that each controls the other.
+
+\subsection{Three Features of the Data}
+\label{sec:d2:features}
+
+\paragraph{Non-monotonicity} The median $\tau_{\mathrm{ARF}}$ is $118$ steps at
+$\Delta e = 0.028$, rises to $346$ at $\Delta e = 0.085$, then falls steadily to $28$ at
+the top of the grid: a range of $28$ to $346$, a factor of $12.4$, and not monotone in
+$\Delta e$. The rise is not an artefact of the median. The means move the same way
+($162.7$ then $385.9$), and the bootstrap confidence intervals of the two medians are
+disjoint, $[92.5 ; 158.5]$ against $[281 ; 455]$ (Table~\ref{tab:ic-medianes}). The
+\emph{location} of the peak is less certain: the interval at $\Delta e = 0.141$,
+$[231.5 ; 307]$, overlaps the one at $\Delta e = 0.085$ over $[281 ; 307]$, so the two
+cells are not separated by the rule used here and the claim is that a peak exists at low
+amplitude, not that it sits at one particular cell. That negative statement is weak, and
+the control quantifies how weak: at a ratio of medians of $1.32$, which is exactly
+$346/263$, the rule separates two samples of $100$ in only $23.4\%$ of $500$ repetitions
+on a log-normal law. Failing to separate these two cells is therefore close to
+uninformative, whereas the separation of $\Delta e = 0.028$ from $\Delta e = 0.085$ is
+not: the rule falsely separates two samples of the same law in $1.0\%$ of repetitions.
+The relationship is therefore worse than merely curved, which would already understate
+Pearson's $r$. No single linear coefficient summarises it, and its sign depends on which
+part of the grid is included. Figure~\ref{fig:boxplot} shows the full distribution at
+every amplitude.
+
+\begin{table*}[t]
+  \centering
+\caption{Median of $\tau_{\mathrm{ARF}}$ with its percentile bootstrap confidence
+  interval (CI), $10\,000$ resamples of the 100 seeds of the amplitude, generator seed
+  $0$. The row at $\Delta e = 0.141$ is there so that the overlap discussed above can be
+  checked. Table \texttt{QCD\_ic\_medianes\_tau\_arf}. Before being applied to the data the
+  estimator passed five controls on cases with a known answer, stored in
+  \texttt{QCD\_ic\_medianes\_temoins}: on 500 samples of size 100 from a log-normal law of
+  known median, the interval covered the true median in $95.2\%$ of cases; on 500 pairs of
+  samples from the same law, the interval of the difference of medians contained $0$ in
+  $96.4\%$ of cases; on a constant sample the interval collapsed to the point; and the two
+  controls that bear on the rule actually used here, namely declaring two medians distinct
+  when their intervals are disjoint, gave a false-separation rate of $1.0\%$ under the null
+  and a separation rate of $23.4\%$ at a ratio of medians of $1.32$.}
+\label{tab:ic-medianes}
+  \begin{tabular}{lcccc}
+    \toprule
+    $\Delta e$ & median $\tau_{\mathrm{ARF}}$ (steps) & $95\%$ CI & mean & seeds \\
+    \midrule
+    $0.028$ & $118$ & $[92.5 ; 158.5]$ & $162.7$ & $100$ \\
+    $0.085$ & $346$ & $[281 ; 455]$    & $385.9$ & $100$ \\
+    $0.141$ & $263$ & $[231.5 ; 307]$  & $331.9$ & $100$ \\
+    $0.498$ & $28$  & $[27 ; 29]$      & $29.4$  & $100$ \\
+    \bottomrule
+  \end{tabular}
+
+\end{table*}
+
+\begin{figure*}[t]
+  \centering
+\caption{$\tau_{\mathrm{ARF}}$ on the 100 seeds of each amplitude; the four medians of
+  Table~\ref{tab:ic-medianes} are annotated with their interval. The axis is symmetric
+  logarithmic, linear below $1$: a plain logarithmic axis would silently drop the $34$ runs
+  in which a tree is replaced at the change point itself ($\tau_{\mathrm{ARF}} = 0$), and
+  the box would rest on $97$ to $99$ seeds while the title claims $100$. Their count per
+  amplitude is written in red on the zero line; they occur at all $20$ amplitudes, three at
+  the lowest and one at the highest. What to see: the median rises from the first amplitude
+  to the second before it falls, the spread shrinks by more than an order of magnitude
+  across the grid, and the two shaded amplitudes lie outside the decision domain.}
+\label{fig:boxplot}
+  \includegraphics[width=0.92\textwidth]{resultats_R2/resultats/figures/Fig_QD_tau_arf_boxplot_full.png}
+
+\end{figure*}
+
+\paragraph{Extreme values} At low amplitude the durations are large and widely dispersed.
+Pearson's coefficient is a ratio of moments and is not robust, so a handful of runs in the
+tail move it substantially. Both rank coefficients are unaffected.
+
+\paragraph{Administrative censoring at $H$} A duration never reached within the horizon
+has no numerical value. $\tau_{\mathrm{swap}}(75\%)$ is censored in $9.10\%$ of runs
+overall and in up to $78\%$ at a single amplitude; $\tau_{\mathrm{det}}$ at $\lambda = 50$
+is censored in $99.95\%$.
+
+\paragraph{Which survives stratification} Section~\ref{sec:D3} holds $\Delta e$ constant
+within a stratum, and the three features do not survive that equally. The first does not
+survive at all: the non-monotonicity is non-monotonicity \emph{in $\Delta e$}, and within
+a stratum $\Delta e$ is fixed by construction. The other two survive, and they are
+objections of different kinds. Extreme values make Pearson's coefficient inefficient: it
+can still be computed, it is merely unstable and moves with a few runs. Censoring makes it
+undefined, because a censored run has no numerical value to enter the sum of products, so
+the coefficient cannot be formed without first inventing one. The second objection carries
+the argument, since the first is a matter of degree and the second a matter of definition.
+It is also the objection that bites on our data, where $\tau_{\mathrm{swap}}(75\%)$ is
+censored in nearly four runs out of five at $\Delta e = 0.085$.
+
+\subsection{Why Censored Runs May Be Ranked Last}
+\label{sec:d2:rang}
+
+Both rank coefficients handle censoring the same way and for the same reason. The horizon
+$H = 2\,000$ is identical for every run, so a duration not reached within it genuinely
+exceeds every observed duration, and censored runs may be placed at the last rank, tied
+among themselves.
+
+The argument depends entirely on the horizon being common, and it is stated here because
+every coefficient in this report relies on it. If $H$ varied from run to run, a censored
+value would only be known to exceed \emph{its own} horizon: a run censored at $H = 500$
+and an observed run of $1\,200$ steps could not be ordered at all, and no imputation to a
+shared last rank would be licit. Under variable horizons the correct tool is a
+censoring-aware estimator such as Harrell's $C$ index. The convention used here rests on a
+property of this experimental design and does not transfer. Section~\ref{sec:d3:censure}
+checks what it changes in practice: nothing that carries a verdict.
+
+That common horizon is also where the choice between Spearman and Kendall becomes
+decisive.
+
+\subsection{Definition of $\tau_b$, and Two Tie Structures}
+
+For $n$ pairs, let $C$ be the number of concordant pairs, $D$ the discordant ones, and
+$n_0 = n(n-1)/2$. Let $t_x$ count the pairs tied on $x$ only and $t_y$ those tied on $y$
+only, pairs tied on both sides being counted in each. Then
+\begin{equation}
+  \tau_b = \frac{C - D}{\sqrt{(n_0 - t_x)(n_0 - t_y)}}.
+  \label{eq:taub}
+\end{equation}
+The denominator distinguishes $\tau_b$ from the ordinary $\tau_a$: each tie block is
+removed from the count on the side where it occurs, so the coefficient is normalised by
+the pairs that could in principle have been ordered on both sides. Spearman's $\rho$ has
+no such correction. It is Pearson's coefficient computed on mid-ranks, and a tie block
+simply receives a common mid-rank that then enters a sum of squares as an ordinary value.
+
+The comparators used below do not present the same tie structure, and the consequence
+differs.
+
+\paragraph{Ties on both sides: $\tau_{\mathrm{ARF}}$ against $\tau_{\mathrm{swap}}(q)$.}
+Both are durations and both can be censored at $H$. Censored runs form a tie block on the
+$y$ side. $\tau_{\mathrm{ARF}}$ is never censored ($0.0000$), but it is discrete and takes
+only $321$ distinct values over $2\,000$ runs, so it carries tie blocks of its own.
+Equation~\eqref{eq:taub} corrects on both sides and the compensation is complete: the
+coefficient is normalised by exactly the set of orderable pairs.
+
+\paragraph{Ties on one side: $\tau_{\mathrm{ARF}}$ against $A(H)$ and $S_{\max}(H)$.}
+These two are defined on every run and never censored: $2\,000$ values out of $2\,000$,
+with $1\,389$ and $1\,544$ distinct values respectively. There is no tie block on their
+side at all, so the correction applies to the $x$ side only. The denominator still counts
+the orderable pairs, but the two sides are no longer symmetric: ties in
+$\tau_{\mathrm{ARF}}$ remove pairs from the numerator without any counterpart, and the
+coefficient is displaced \emph{towards zero} relative to a tie-free measurement of the
+same association.
+
+That direction is what makes the central result of Section~\ref{sec:D3} readable. The
+coefficients reported there for $A(H)$ and $S_{\max}(H)$ are conservative: a value
+indistinguishable from zero cannot be an artefact of ties inflating it, and a value that
+is discernible is if anything understated.
+
+\subsection{The Counter-Example, and an Error in the Prescribed Exercise}
+\label{sec:d2:contre}
+
+Ten fictitious runs on a common horizon $H = 2\,000$: four observed, six censored. The
+exercise as prescribed asks for the four observed values to be perfectly ordered. Carried
+out literally, with the censored runs tied on both sides, it yields
+$\rho = \tau_b = 1.000000$ exactly. The gap is zero and the counter-example demonstrates
+nothing.
+
+The reason is sharper than ``the example is badly chosen''. Ties on both sides require
+$\tau_{\mathrm{ARF}}$ itself to be censored, and on this campaign it never is:
+\texttt{censored\_arf} $= 0.0000$ on all $2\,000$ runs. The configuration under which the
+prescribed exercise produces no gap cannot occur in the data it is meant to illustrate.
+
+\begin{table*}[t]
+  \centering
+\caption{Ten runs, four observed and six censored at $H$. Each coefficient is computed
+  from its definition and by \texttt{scipy}; the two agree to $2.2 \times 10^{-16}$ or
+  better in every cell, which is the control on the calculation.}
+\label{tab:contre}
+  \begin{tabular}{lccc}
+    \toprule
+    Configuration & $\rho$ (Spearman) & $\tau_b$ (Kendall) & gap $\rho - \tau_b$ \\
+    \midrule
+    Prescribed, read literally (ties both sides) & $1.000000$ & $1.000000$ & $0.000000$ \\
+    Observed values ordered, $\tau_{\mathrm{ARF}}$ uncensored & $0.887625$ & $0.816497$ & $0.071129$ \\
+    Observed values anti-ordered & $0.751068$ & $0.489898$ & $0.261170$ \\
+    \bottomrule
+  \end{tabular}
+
+\end{table*}
+
+\begin{figure*}[t]
+  \centering
+\caption{The three configurations of Table~\ref{tab:contre}, as mid-ranks. Filled
+  markers: observed runs; hollow markers: runs censored at $H$, which share one mid-rank
+  on the comparator side. (a) The prescribed exercise read literally also ties the six
+  censored runs on the $\tau_{\mathrm{ARF}}$ side, and the two coefficients coincide.
+  (b) With $\tau_{\mathrm{ARF}}$ left uncensored, the same four ordered observations
+  already separate Spearman from Kendall by $0.071$. (c) Anti-ordering the four
+  observations widens the gap to $0.261$. Table
+  \texttt{QCD\_contre\_exemple\_kendall}.}
+\label{fig:contre}
+  \includegraphics[width=0.92\textwidth]{resultats_R2/resultats/figures/Fig_QD_contre_exemple_kendall.png}
+
+\end{figure*}
+
+Two things separate the three rows, and they should not be conflated. What removes the gap
+entirely is the tie structure: as soon as $\tau_{\mathrm{ARF}}$ is left uncensored, which
+is the situation that actually holds, the two coefficients part company by $0.071$ even
+with the observed runs perfectly ordered. What then amplifies the gap is the ordering of
+the observed runs: with four anti-ordered observations, Spearman reports $0.751$ where
+$\tau_b$ reports $0.490$, a gap of $0.261$, nearly four times the ordered case.
+
+The mechanism is the same in both rows. Spearman overstates the association because the
+six censored runs share a mid-rank that enters its sums of squares as an ordinary value,
+manufacturing agreement out of a tie block, while $\tau_b$ removes those pairs from both
+counts. The prescribed exercise hides this by silently assuming ties on both sides, which
+cancels the effect exactly.
+
+\paragraph{Conclusion} Pearson is excluded by definition rather than by degree, since
+censored runs carry no numerical value. Spearman is computable but overstates the
+association in the presence of tie blocks, and the tie blocks here are created by the
+censoring itself. Kendall's $\tau_b$ is used throughout what follows, with censored runs
+imputed to the last rank, which is legitimate because the horizon is common to all runs
+and only for that reason.
+
+% =====================================================================
+\section{What the Repair Date Tells the Detector}
+\label{sec:D3}
+% =====================================================================
+
+Every coefficient here is Kendall's $\tau_b$ with censored runs imputed to the last rank,
+justified in Section~\ref{sec:D2}. Every confidence interval on a $\tau_b$ is a bootstrap
+interval over the seeds of the stratum, $2\,000$ resamples, quantiles $2.5\%$ and
+$97.5\%$; every interval on a fraction is a Wilson $95\%$ interval. Values are produced by
+\texttt{scripts/chiffres\_QD.py} and \texttt{derives\_QD.py}.
+
+\subsection{Why Stratify}
+
+$\Delta e$ drives both sides of every correlation of interest: it shortens
+$\tau_{\mathrm{ARF}}$ and it raises the evidence available to the detector. A coefficient
+computed on the pooled $2\,000$ runs therefore measures the common dependence on
+$\Delta e$ rather than any association between the two quantities at a fixed operating
+point. Stratification removes that common cause. Each stratum holds $100$ seeds, and the
+amplitude is constant inside it by construction.
+
+\subsection{The Decision Rule, and Its Status}
+\label{sec:D4rule}
+
+\paragraph{A reservation, stated rather than glossed} The protocol asks for a decision
+criterion written down before any correlation is inspected. That claim cannot honestly be
+made here. The pre-registered document of this work fixes the criteria of a
+\emph{benchmark}: the tests that qualify candidate replacements for $\tau_{\mathrm{ARF}}$
+against an analytic reference. It contains neither the indicator evaluated here, nor its
+comparators, nor the decision domain $\Delta e \ge 0.10$, nor the threshold on $\tau_b$,
+nor the rule on confidence-interval bounds. The columns
+\texttt{dans\_domaine\_decision}, \texttt{seuil\_detectabilite} and \texttt{discernable}
+are produced by the same analysis pass as the coefficients they qualify. Anteriority is
+therefore not claimed for this criterion. It is fixed here, applied uniformly, and no cell
+is reclassified afterwards.
+
+\paragraph{Two incompatible rules} Two rules for calling an association discernible
+coexist in this work.
+
+\begin{description}
+  \item[Threshold rule.] $|\tau_b| > 0.13295637$, the value in the
+    \texttt{seuil\_detectabilite} column, constant across the table. It is quoted exactly
+    rather than rounded, since a rounded threshold would not reproduce the column.
+  \item[Interval rule.] The bootstrap confidence interval excludes zero. A $\tau_b$ whose
+    interval contains zero does not count.
+\end{description}
+
+They disagree on exactly three cells out of the $108$ in the decision domain
+(Table~\ref{tab:regles}).
+
+\begin{table*}[t]
+  \centering
+\caption{The three cells on which the two rules disagree. None of the three is quoted
+  individually as a result anywhere in this report.}
+\label{tab:regles}
+  \begin{tabular}{lccccc}
+    \toprule
+    $\Delta e$ & comparator & $\tau_b$ & CI & threshold rule & interval rule \\
+    \midrule
+    $0.287$ & $\tau_{\mathrm{swap}}(75\%)$ & $+0.1363$ & $[-0.0068 ; +0.2704]$ & discernible & not \\
+    $0.287$ & $S_{\max}(H)$                & $+0.1308$ & $[+0.0027 ; +0.2519]$ & not & discernible \\
+    $0.391$ & $\tau_{\mathrm{swap}}(75\%)$ & $+0.1240$ & $[+0.0010 ; +0.2505]$ & not & discernible \\
+    \bottomrule
+  \end{tabular}
+
+\end{table*}
+
+\paragraph{The interval rule governs} Three reasons, of unequal weight. A fixed threshold
+on $|\tau_b|$ ignores the precision of the estimate, treating a coefficient of $0.13$
+measured on $100$ seeds with a wide interval exactly like one measured tightly, whereas
+the interval rule uses what the bootstrap actually provides. The threshold is also a
+function of $n$ alone, so it says nothing about the tie structure of the particular pair
+being tested, and Section~\ref{sec:D2} established that this structure differs
+systematically between the $\tau_{\mathrm{swap}}(q)$ comparators and the never-censored
+$A(H)$ and $S_{\max}(H)$. Finally, the pre-registered benchmark already uses the interval
+rule, so adopting it keeps one rule across the project instead of two.
+
+\subsection{The Aggregation Collapse}
+
+\begin{table}[t]
+  \centering
+\caption{Pooled against stratified coefficients; the stratified column is the median
+  over the 18 amplitudes of the decision domain. The first row is tautological, see
+  Section~\ref{sec:d3:tauto}.}
+\label{tab:agregation}
+  \small
+  \begin{tabular}{lccc}
+    \toprule
+    Comparator & pooled $\tau_b$ & median stratified & ratio \\
+    \midrule
+    $\tau_{\mathrm{swap}}(10\%)$ & $+1.000000$ & $+1.000000$ & $1.00$ \\
+    $\tau_{\mathrm{swap}}(25\%)$ & $+0.644626$ & $+0.493224$ & $1.31$ \\
+    $\tau_{\mathrm{swap}}(50\%)$ & $+0.556494$ & $+0.336523$ & $1.65$ \\
+    $\tau_{\mathrm{swap}}(75\%)$ & $+0.461827$ & $+0.097934$ & $4.72$ \\
+    $A(H)$                       & $+0.396512$ & $+0.052559$ & $7.54$ \\
+    $S_{\max}(H)$                & $+0.314673$ & $+0.212865$ & $1.48$ \\
+    \bottomrule
+  \end{tabular}
+
+\end{table}
+
+For $A(H)$ the pooled coefficient is $+0.3965$ against a median stratified coefficient of
+$+0.0526$, a factor of $7.5$. This is not a strong association weakened by stratification:
+the stratified coefficient is indistinguishable from zero under this protocol at every one
+of the 18 amplitudes. The pooled coefficient manufactures a link rather than confirming a
+weak one. Mechanically it is Simpson's paradox on $\Delta e$: within each stratum there is
+nothing, and across strata both quantities move with the amplitude, so pooling recovers
+the amplitude and reports it as an association.
+
+The effect is strongest exactly where the within-stratum association is weakest: ratio
+$7.54$ for $A(H)$ and $4.72$ for $\tau_{\mathrm{swap}}(75\%)$, but only $1.48$ for
+$S_{\max}(H)$, which does carry a genuine within-stratum signal. That is the diagnostic
+one should expect, and it is why no pooled coefficient is quoted as a result in this work.
+
+\subsection{A Tautological Row, Marked as Such}
+\label{sec:d3:tauto}
+
+At $M = 10$ a quota of $10\%$ requires exactly one tree, so
+$\tau_{\mathrm{swap}}(10\%) = \tau_{\mathrm{ARF}}$ by~\eqref{eq:hierarchy}. Its $\tau_b$ against $\tau_{\mathrm{ARF}}$ is $1.000000$ at all
+$20$ amplitudes with confidence interval $[1.000 ; 1.000]$, by identity rather than by
+performance. The row is kept in Table~\ref{tab:agregation} and hatched in
+Figure~\ref{fig:heatmap} rather than deleted, so the reader can check that the
+instrumentation reproduces an identity it should reproduce. It carries no evidence about
+anything else.
+
+A related caution applies to the other quotas. At $M = 10$ neither $q = 25\%$ nor
+$q = 75\%$ is exactly attainable: $25\%$ requires $3$ trees, that is $30\%$, and $75\%$
+requires $8$, that is $80\%$. The labels are kept for continuity with
+Section~\ref{sec:hierarchy}, which uses the same convention, but they name the attainable
+quota above the nominal one.
+
+\subsection{Coefficients by Amplitude}
+
+\begin{figure*}[t]
+  \centering
+\caption{$\tau_b(\tau_{\mathrm{ARF}}, \cdot)$ for every comparator at every amplitude.
+  All $120$ coefficients are published, with no post hoc selection. The hatched row is
+  tautological.}
+\label{fig:heatmap}
+  \includegraphics[width=0.92\textwidth]{resultats_R2/resultats/figures/Fig_QD_heatmap_taub_full.png}
+
+\end{figure*}
+
+\begin{figure*}[t]
+  \centering
+\caption{Forest plot of $\tau_b(\tau_{\mathrm{ARF}}, \cdot)$ with its bootstrap
+  $95\%$ confidence interval, for $A(H)$ (left) and $S_{\max}(H)$ (right), one row per
+  amplitude; filled squares mark intervals that exclude zero, hollow circles those that
+  straddle it, and the two shaded rows lie outside the decision domain. 15 of 18
+  intervals exclude zero for $S_{\max}(H)$, none for $A(H)$, under the interval rule of
+  Section~\ref{sec:D4rule}. The 15 are the 15 consecutive amplitudes from
+  $\Delta e = 0.287$ upward. Table \texttt{QCD\_correlations\_stratifiees\_full}.}
+\label{fig:forest}
+  \includegraphics[width=0.92\textwidth]{resultats_R2/resultats/figures/Fig_QD_forest_taub_full.png}
+
+\end{figure*}
+
+\begin{table*}[t]
+  \centering
+\caption{$\tau_b(\tau_{\mathrm{ARF}}, \cdot)$ with bootstrap confidence intervals over
+  the seeds, on the 18 amplitudes of the decision domain.}
+\label{tab:strat}
+  \small
+  \begin{tabular}{lcccccc}
+    \toprule
+    & \multicolumn{3}{c}{$A(H)$} & \multicolumn{3}{c}{$S_{\max}(H)$} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}
+    $\Delta e$ & $\tau_b$ & CI low & CI high & $\tau_b$ & CI low & CI high \\
+    \midrule
+    $0.141$ & $+0.0111$ & $-0.1249$ & $+0.1485$ & $+0.0174$ & $-0.1288$ & $+0.1487$ \\
+    $0.194$ & $-0.1009$ & $-0.2228$ & $+0.0127$ & $-0.0470$ & $-0.1759$ & $+0.0846$ \\
+    $0.243$ & $-0.0504$ & $-0.1802$ & $+0.0887$ & $+0.0952$ & $-0.0432$ & $+0.2294$ \\
+    $0.287$ & $+0.0815$ & $-0.0357$ & $+0.1978$ & $+0.1308$ & $+0.0027$ & $+0.2519$ \\
+    $0.327$ & $+0.0762$ & $-0.0460$ & $+0.1954$ & $+0.2954$ & $+0.1832$ & $+0.4063$ \\
+    $0.361$ & $+0.0651$ & $-0.0924$ & $+0.2146$ & $+0.2413$ & $+0.1009$ & $+0.3748$ \\
+    $0.391$ & $+0.0037$ & $-0.1366$ & $+0.1398$ & $+0.1623$ & $+0.0154$ & $+0.3002$ \\
+    $0.416$ & $+0.1212$ & $-0.0245$ & $+0.2595$ & $+0.1904$ & $+0.0621$ & $+0.3141$ \\
+    $0.436$ & $+0.0402$ & $-0.1037$ & $+0.1796$ & $+0.1682$ & $+0.0295$ & $+0.3088$ \\
+    $0.452$ & $+0.0230$ & $-0.1277$ & $+0.1570$ & $+0.2177$ & $+0.0722$ & $+0.3511$ \\
+    $0.465$ & $-0.0296$ & $-0.1820$ & $+0.1279$ & $+0.2347$ & $+0.1095$ & $+0.3611$ \\
+    $0.475$ & $+0.0171$ & $-0.1260$ & $+0.1642$ & $+0.2584$ & $+0.1282$ & $+0.3817$ \\
+    $0.482$ & $+0.0179$ & $-0.1151$ & $+0.1509$ & $+0.2496$ & $+0.1141$ & $+0.3861$ \\
+    $0.488$ & $+0.0650$ & $-0.0710$ & $+0.1963$ & $+0.2764$ & $+0.1478$ & $+0.4055$ \\
+    $0.492$ & $+0.0945$ & $-0.0432$ & $+0.2226$ & $+0.2193$ & $+0.0736$ & $+0.3608$ \\
+    $0.494$ & $+0.0964$ & $-0.0301$ & $+0.2188$ & $+0.2135$ & $+0.0577$ & $+0.3478$ \\
+    $0.496$ & $+0.0966$ & $-0.0273$ & $+0.2164$ & $+0.2122$ & $+0.0659$ & $+0.3518$ \\
+    $0.498$ & $+0.0890$ & $-0.0293$ & $+0.2038$ & $+0.1985$ & $+0.0457$ & $+0.3359$ \\
+    \bottomrule
+  \end{tabular}
+
+\end{table*}
+
+\subsection{The Answer}
+
+The two quantities in Table~\ref{tab:strat} play different roles, and conflating them
+changes the answer.
+
+$A(H)$ is the accumulated excess error over the horizon. Its association with
+$\tau_{\mathrm{ARF}}$ is indistinguishable from zero under this protocol at all
+18 amplitudes: median $+0.0526$, every confidence interval straddling zero.
+
+$S_{\max}(H)$ is the peak of the detector path~\eqref{eq:cusum}, in the closed form of
+Proposition~\ref{prop:lindley}. Its association is discernible at 15 of the 18 amplitudes, with a median of $+0.2129$, and the
+confidence interval lies entirely above zero at every amplitude from $\Delta e = 0.287$
+upwards. That count is the one the interval rule of Section~\ref{sec:D4rule} gives; the
+\texttt{discernable} column implements the threshold rule and would give $14$, the
+difference being the single cell $\Delta e = 0.287$, whose interval $[+0.0027 ; +0.2519]$
+excludes zero while its $\tau_b$ of $0.1308$ falls just under the threshold.
+
+The distinction matters because it is $S_{\max}(H)$ that decides the alarm, not $A(H)$.
+The alarm is by definition the crossing of $\lambda$ by $S_{\max}$. A claim that
+$\tau_{\mathrm{ARF}}$ carries no information about the evidence offered to the detector is
+attached to the wrong object if it rests on $A(H)$ alone. The answer, stated sharply:
+
+\begin{center}
+\fbox{\parbox{0.92\columnwidth}{$\tau_{\mathrm{ARF}}$ carries \textbf{no information}
+about the total accumulated excess error $A(H)$, indistinguishable from zero at all 18
+amplitudes. It carries a \textbf{weak but real} association with $S_{\max}(H)$, the
+quantity that determines whether the alarm fires: median $\tau_b = +0.2129$, discernible
+at 15 of 18 amplitudes, that is every amplitude from $\Delta e = 0.287$ upwards without
+exception. Below $\Delta e = 0.287$ the association is not distinguishable from zero
+either. Both figures are displaced towards zero by the tie correction
+(Section~\ref{sec:D2}), so the first is not an artefact of ties inflating a null and the
+second is if anything understated.}}
+\end{center}
+
+\subsection{Censoring: by Amplitude, and Whether It Drives Anything}
+\label{sec:d3:censure}
+
+Aggregate censoring rates conceal what matters, so they are reported by amplitude.
+
+\begin{table*}[t]
+  \centering
+\caption{Censoring overall, at its worst amplitude on the full grid, and at its worst
+  amplitude inside the decision domain. The columns differ because the two amplitudes below
+  $\Delta e = 0.10$ carry most of the censoring and lie outside the domain on which the
+  criterion is declared. Baseline estimated over $3\,000$ pre-drift steps
+  (Section~\ref{sec:d1:socle}). At $\lambda = 50$ the single run that alarms is at
+  $\Delta e = 0.194$.}
+\label{tab:censure}
+  \begin{tabular}{lccc}
+    \toprule
+    Quantity & overall & worst on grid (at $\Delta e$) & worst in domain (at $\Delta e$) \\
+    \midrule
+    $\tau_{\mathrm{ARF}}$        & $0.0000$ & $0.0000$ & $0.0000$ \\
+    $A(H)$, $S_{\max}(H)$        & $0.0000$ & $0.0000$ & $0.0000$ \\
+    $\tau_{\mathrm{swap}}(25\%)$ & $0.0005$ & $0.0100$ ($0.141$) & $0.0100$ ($0.141$) \\
+    $\tau_{\mathrm{swap}}(50\%)$ & $0.0110$ & $0.1200$ ($0.085$) & $0.0600$ ($0.141$) \\
+    $\tau_{\mathrm{swap}}(75\%)$ & $0.0910$ & $0.7800$ ($0.085$) & $0.5400$ ($0.141$) \\
+    $\tau_{\mathrm{det}}$, $\lambda = 8$  & $0.0470$ & $0.9000$ ($0.028$) & $0.0000$ (all 18) \\
+    $\tau_{\mathrm{det}}$, $\lambda = 25$ & $0.6110$ & $1.0000$ ($0.028$) & $0.9900$ ($0.492$, $0.494$, $0.496$) \\
+    $\tau_{\mathrm{det}}$, $\lambda = 50$ & $0.9995$ & $1.0000$ (every $\Delta e$ but $0.194$) & $1.0000$ (every $\Delta e$ but $0.194$) \\
+    \bottomrule
+  \end{tabular}
+
+\end{table*}
+
+\begin{figure}[t]
+  \centering
+\caption{Censoring at $H = 2\,000$ of every censorable duration, by amplitude, one
+  series per duration, with the $50\%$ line above which no median is reported and the
+  $5\%$ line of the benchmark criterion. What to see:
+  $\tau_{\mathrm{swap}}(75\%)$ peaks at $78\%$ at $\Delta e = 0.085$ and is still
+  above $50\%$ at $\Delta e = 0.141$, the lowest amplitude of the decision domain, but only
+  $35\%$ at the very bottom of the grid, and it falls under $5\%$ from $\Delta e = 0.243$;
+  $\tau_{\mathrm{det}}$ at $\lambda = 25$ is U-shaped, below $10\%$ only between
+  $\Delta e = 0.19$ and $0.33$; at $\lambda = 50$ it never leaves $99\%$. Tables
+  \texttt{QCD\_correlations\_stratifiees\_full} and \texttt{QCD\_socle\_deux\_fenetres}.}
+\label{fig:censure}
+  \includegraphics[width=\columnwidth]{resultats_R2/resultats/figures/Fig_QD_censure_full.png}
+
+\end{figure}
+
+\paragraph{$\tau_{\mathrm{swap}}(75\%)$ fails the group's own criterion.} The criterion
+adopted for the benchmark requires censoring of at most $5\%$ over the declared domain.
+Inside the decision domain, $\tau_{\mathrm{swap}}(75\%)$ reaches $54\%$ at
+$\Delta e = 0.141$, exceeding the criterion by a factor of $10.8$. Its worst value on the
+full grid is $78\%$, at $\Delta e = 0.085$, but that amplitude lies outside the decision
+domain and the figure is quoted as a grid measurement rather than as a breach of an
+in-domain criterion. Its coefficients are published above because suppressing them would
+hide the comparator that most stresses the method, but they are published with this
+failure stated: at $\Delta e = 0.141$, the lowest amplitude of the decision domain, the
+$\tau_b$ of $\tau_{\mathrm{swap}}(75\%)$ rests on a minority of observed runs and is not
+quoted as evidence.
+
+\paragraph{No median delay beyond $50\%$ censoring} At $\lambda = 25$ and $\lambda = 50$
+no median detection delay is reported anywhere in this report, and at $\lambda = 8$ none
+is reported at $\Delta e = 0.028$ where censoring reaches $90\%$. A median computed on the
+surviving runs excludes the slowest ones by construction and is not a median of the
+quantity of interest.
+
+\paragraph{Does censoring drive the results? No} Each coefficient was recomputed twice,
+once with censored runs imputed to the last rank and once on complete cases only, then
+compared cell by cell (Table~\ref{tab:cascomplets}, Figure~\ref{fig:imputation}). For the
+three never-censored comparators the two computations agree exactly, to $0.000000$, which
+is what they must do and serves as a control on the implementation. For the two materially
+censored comparators the largest disagreement anywhere in the table is $0.0403$, on
+$\tau_{\mathrm{swap}}(75\%)$, an order of magnitude below the coefficients that carry the
+conclusions above and well inside their confidence intervals. The imputation convention of
+Section~\ref{sec:d2:rang} could be replaced by complete-case analysis without changing a
+verdict.
+
+\begin{table}[t]
+  \centering
+\caption{Sensitivity of $\tau_b$ to the treatment of censored runs. An earlier internal
+  note claimed the two computations agree to three decimal places; that is too strong. It
+  holds for $\tau_{\mathrm{swap}}(25\%)$ and for the never-censored comparators, while the
+  last two rows differ at the second decimal place, and it is these two numbers that are
+  quoted.}
+\label{tab:cascomplets}
+  \begin{tabular}{lc}
+    \toprule
+    Comparator & max $|$imputed $-$ complete cases$|$ \\
+    \midrule
+    $\tau_{\mathrm{swap}}(10\%)$, $A(H)$, $S_{\max}(H)$ & $0.000000$ \\
+    $\tau_{\mathrm{swap}}(25\%)$ & $0.000228$ \\
+    $\tau_{\mathrm{swap}}(50\%)$ & $0.030591$ \\
+    $\tau_{\mathrm{swap}}(75\%)$ & $0.040259$ \\
+    \bottomrule
+  \end{tabular}
+
+\end{table}
+
+\begin{figure}[t]
+  \centering
+\caption{The 120 cells of Table~\ref{tab:cascomplets} one by one: $\tau_b$ on complete
+  cases against $\tau_b$ with censored runs imputed to the last rank, one marker per
+  comparator, with the identity line. The hollow circle at $(1, 1)$ is
+  $\tau_{\mathrm{swap}}(10\%)$, an identity at $M = 10$ and not a measurement. Table
+  \texttt{QCD\_cas\_complets\_full}.}
+\label{fig:imputation}
+  \includegraphics[width=\columnwidth]{resultats_R2/resultats/figures/Fig_QD_imputation_full.png}
+
+\end{figure}
+
+\paragraph{Why the campaign fixes no $\lambda$} Table~\ref{tab:aveugle} gives the alarm
+behaviour of the three thresholds. At $\lambda = 50$ a single run out of $2\,000$ ever
+alarms, so with $99.95\%$ censoring no correlation involving $\tau_{\mathrm{det}}$ is
+computable there at all. Had a threshold been frozen inside the simulation loop, as an
+earlier prototype did, the resulting table would carry a $\tau_{\mathrm{det}}$ column empty
+in all but one row. The transition from ``the detector is never late'' to ``the detector
+never fires'' happens entirely within a narrow band of the tuning parameter, which is what
+Section~\ref{sec:E} resolves.
+
+\begin{table}[t]
+  \centering
+\caption{Alarm behaviour by threshold. Who wins the race in those runs is
+  Table~\ref{tab:course} and, pooled over the grid, Table~\ref{tab:race}.}
+\label{tab:aveugle}
+  \begin{tabular}{lcc}
+    \toprule
+    $\lambda$ & runs that alarm & silent \\
+    \midrule
+    $8$  & $1\,906 / 2\,000$ & $4.70\%$ \\
+    $25$ & $778 / 2\,000$    & $61.10\%$ \\
+    $50$ & $1 / 2\,000$      & $99.95\%$ \\
+    \bottomrule
+  \end{tabular}
+
+\end{table}
+
+\subsection{Reservations, and What Is Not Addressed}
+
+\paragraph{Multiplicity} The decision domain contains $108$ cells, of which $68$ are
+significant at the $5\%$ level with no correction for multiplicity. The signal for
+$S_{\max}(H)$ above $\Delta e = 0.287$ is far too systematic to be a multiplicity artefact,
+running to $15$ consecutive amplitudes in the same direction
+(Figure~\ref{fig:forest}), but individual cells whose $|\tau_b|$ is near the detectability
+threshold are not quoted on their own.
+
+\paragraph{The prescribed return time is not correlated run by run} The official
+statement of the question asks for the correlation of $\tau_{\mathrm{ARF}}$ with the
+residual error and with the effective time of return to normal. The second is not computed
+as a per-run correlation anywhere, and the reason belongs here rather than in silence.
+$\tau_{\mathrm{rec}}$ is defined only on the seed-averaged error curve, one value per
+amplitude: on a single run the binary sequence is far too noisy for a threshold crossing to
+signal genuine recovery. The correlations above are computed run by run, so the two objects
+are not commensurable. It appears in Figure~\ref{fig:joint} as the $\tau_{\mathrm{rec}}$
+marker, the only use its definition supports, dashed at the amplitudes where the test has
+no power to resolve it.
+
+``Return of the error to an acceptable level'' also fails as an adaptation criterion, for
+the reason Section~\ref{sec:budget} establishes. At $\Delta e = 0.498$ the threshold
+$\hat p_0 + \rho\,\Delta e$ is crossed at step $46$, with or without the persistence
+requirement, because the post-drift problem is easier than the original one and the error
+falls below the pre-drift baseline. A criterion that a simplified problem satisfies
+immediately does not measure adaptation.
+
+\paragraph{Scope} Everything above is measured at $M = 10$ on one campaign, so no result
+of this question holds as a function of forest size; the instrumented runs at other values
+of $M$ were produced for a different test and carry no evidence trace. No result involves
+$\tau_{\mathrm{det}}$ at $\lambda = 25$ or $\lambda = 50$ as a correlated variable, for the
+censoring reason given above. Harrell's $C$ index was not used, because the common-horizon
+argument of Section~\ref{sec:d2:rang} makes rank imputation licit here and the
+complete-case comparison shows the choice is immaterial; under a variable horizon that
+reasoning would fail and the $C$ index would be required.
+
+% =====================================================================
+\section{Threshold Choice and the No-Drift Control}
+\label{sec:E}
+% =====================================================================
+
+This section collects two results that belong to no single question of the subject and
+that would distort the one they were attached to. First, detecting a drift and winning the
+race against the forest are different things, and they separate as soon as the threshold
+rises --- which is what the narrow transition band of Section~\ref{sec:d3:censure} looks
+like once it is resolved. Second, the forest replaces trees at a steady rate when nothing
+changes at all, which disqualifies the date of the first replacement as a signal on its
+own. Everything below is recomputed offline from the recorded error trajectories by
+\texttt{resultats\_R2/scripts/chiffres\_QE.py}; no campaign is rerun.
+
+\paragraph{Control} $S_t$ does not depend on $\lambda$, so a single offline pass over
+each trajectory yields the first crossing for every threshold. The sweep must reproduce
+the campaign exactly at the three thresholds of the subject, and it does: the alarm counts
+of Table~\ref{tab:aveugle} are recovered to the run. Nothing below is readable without
+this check.
+
+\subsection{Detecting Is Not Winning}
+
+The campaign of $2\,000$ runs is read at six thresholds. The drift-free arm --- $100$ runs
+with no change point at all, same horizon --- gives what the same threshold costs when
+nothing happens.
+
+\begin{table*}[t]
+\centering
+\caption{Six thresholds on the same campaign. ``Wins the race'' is
+$\tau_{\mathrm{det}} < \tau_{\mathrm{ARF}}$ over all $2\,000$ runs, censored runs counted
+as losses; the next column restricts to the runs that alarm. Brackets: Wilson $95\%$
+interval, $n = 100$ drift-free runs. The rows at $\lambda = 8$, $25$ and $50$ reproduce
+Tables~\ref{tab:course} and~\ref{tab:aveugle}.}
+\label{tab:seuils}
+\begin{tabular}{crrrl}
+\toprule
+$\lambda$ & alarm fires & wins the race & of uncensored & false alarms, no drift \\
+\midrule
+$8$  & $95.3\%$ & $\mathbf{91.0\%}$ & $95.4\%$ & $5/100 = 5.0\%$ $[2.2;11.2]$ \\
+$12$ & $94.3\%$ & $78.8\%$ & $83.5\%$ & $2/100 = 2.0\%$ $[0.6;7.0]$ \\
+$15$ & $92.9\%$ & $\mathbf{36.3\%}$ & $39.1\%$ & $0/100 = 0.0\%$ $[0.0;3.7]$ \\
+$20$ & $66.2\%$ & $8.1\%$ & $12.2\%$ & $0/100 = 0.0\%$ $[0.0;3.7]$ \\
+$25$ & $38.9\%$ & $2.5\%$ & $6.6\%$ & $0/100 = 0.0\%$ $[0.0;3.7]$ \\
+$50$ & $0.1\%$ & $0.0\%$ & $0.0\%$ & $0/100 = 0.0\%$ $[0.0;3.7]$ \\
+\bottomrule
+\end{tabular}
+
+\end{table*}
+
+\paragraph{The two columns come apart} At $\lambda = 15$ the alarm still fires in
+$92.9\%$ of runs, barely below the $95.3\%$ of $\lambda = 8$, but it arrives first in only
+$36.3\%$ of them. Almost two thirds of its alarms are raised after the forest has already
+replaced a tree --- the \emph{Zombie alarms} of the manuscript. Reading the detection
+column alone would suggest that a moderate threshold escapes the blind spot. It does not.
+
+\paragraph{The paradoxical signature survives at $\lambda = 15$} Amplitude by amplitude,
+the share of runs won by the detector falls as the drift grows, which is the signature the
+manuscript reports at $\lambda = 25$.
+
+\begin{table}[t]
+\centering
+\caption{Share of runs won by the detector, six amplitudes spanning the grid, over all
+$100$ runs of the cell. The $\lambda = 8$ column is the last column of
+Table~\ref{tab:course}, restricted to these six rows.}
+\label{tab:signature}
+\begin{tabular}{crrr}
+\toprule
+$\Delta e$ & $\lambda = 8$ & $\lambda = 15$ & $\lambda = 20$ \\
+\midrule
+$0.028$ & $0\%$  & $0\%$  & $0\%$ \\
+$0.085$ & $62\%$ & $38\%$ & $20\%$ \\
+$0.141$ & $88\%$ & $81\%$ & $49\%$ \\
+$0.243$ & $97\%$ & $71\%$ & $21\%$ \\
+$0.361$ & $98\%$ & $44\%$ & $3\%$ \\
+$0.498$ & $99\%$ & $18\%$ & $1\%$ \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+At $\lambda = 8$ the rate climbs with the amplitude, from $62\%$ to $99\%$. At
+$\lambda = 15$ it peaks at $81\%$ then falls to $18\%$, and at $\lambda = 20$ it collapses
+to $1\%$. The transition $\lambda^* \approx 15$ to $25$ announced in the manuscript is
+therefore confirmed on the race, not contradicted.
+
+\paragraph{What the false-alarm column adds} The manuscript grants that a hyper-reactive
+threshold reaches a safe zone but states that it ``sacrifices false-alarm robustness''. On
+this bench that cost is measured rather than assumed: $\lambda = 8$ raises an alarm in
+$5$ of $100$ runs where nothing changes, which is the calibration level usually adopted for
+drift detectors. So on the Bernoulli bench the only threshold that wins the race does so at
+an ordinary false-alarm cost, and the admissible set is not empty here.
+
+\paragraph{Three reservations} The false-alarm rate is measured over $2\,000$ steps on
+$100$ runs; over a longer deployment such alarms accumulate, and the upper end of the
+Wilson interval at $\lambda = 8$ is $11.2\%$. The bench is homoscedastic, so this says
+nothing about the \emph{Fundamental Tension} the manuscript establishes on
+ARMA--GARCH streams, where bounding false alarms under clustered volatility is what empties
+the admissible set. And at the weakest amplitude no threshold wins a single run, which
+Section~\ref{sec:A} establishes without any dependence assumption.
+
+\subsection{The No-Drift Control}
+\label{sec:e:nodrift}
+
+The same drift-free arm answers a question that needs no threshold at all: what does
+$\tau_{\mathrm{ARF}}$ read when there is nothing to repair? Sections~\ref{sec:hierarchy}
+and~\ref{sec:D1} both read this arm in passing; it is reported here in full.
+
+\begin{table}[t]
+\centering
+\caption{The drift-free arm against the campaign; quartiles of the first replacement,
+$43$ and $172$ steps, and trees counted over the horizon $H$. The median at
+$\Delta e = 0.028$ carries the bootstrap interval $[92.5 ; 158.5]$ of
+Table~\ref{tab:ic-medianes}.}
+\label{tab:nodrift}
+\small
+\begin{tabular}{lr}
+\toprule
+On $100$ runs with no change point & \\
+\midrule
+runs where at least one tree is replaced & $100/100$ \\
+first replacement, median & $105$ steps \\
+distinct trees renewed, median & $9/10$ \\
+runs whose forest is entirely renewed & $24/100$ \\
+\midrule
+median $\tau_{\mathrm{ARF}}$ at $\Delta e = 0.028$ (real drift) & $118$ steps \\
+median $\tau_{\mathrm{ARF}}$ over the whole grid & $38$ steps \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+\paragraph{Reading} Replacement churn under pure noise is the normal regime of the ARF,
+not an anomaly: nine trees out of ten are renewed over two thousand steps with no drift
+whatsoever. At the weakest amplitude of the grid the stopwatch reads $118$ steps against
+$105$ with no drift at all, so at that amplitude it does not distinguish a real change from
+its absence. This is the control any candidate replacement for $\tau_{\mathrm{ARF}}$ must
+pass before its correlations are worth computing, and it is test A1 of the benchmark.
+
+\subsection{What This Section Establishes}
+
+Detection and victory separate: a threshold can alarm on almost every drift and still
+arrive last on two thirds of them, so a detection rate quoted alone does not describe the
+blind spot. On this bench one threshold does win the race, $\lambda = 8$, at a false-alarm
+cost of $5\%$ per two thousand drift-free steps, which restricts the manuscript's
+``no CUSUM threshold escapes it'' to the settings it actually tested here. And the date of
+the first replacement fires as readily without drift as with the weakest one, which is a
+property of the indicator rather than of the detector --- the same verdict
+Section~\ref{sec:D3} reaches from the association side.
+
+% =====================================================================
+% TODO : conclusion commune, et la déclaration d'usage des LLM (exigée sans
+%        condition par les consignes de filière).
+% TODO : liste explicite de ce qui n'a pas été fait (exigée par le sujet) —
+%        la matière est en fin de sec:D3 et au § 8 du JOURNAL.
+%
+% Budget : 15 pages maximum, tout compris. Avec A, B, C, D et E le compte
+% dépasse : le dépassement se traite à l'assemblage, en condensant les
+% tables les plus longues (tab:course tient dans fig:course, qui est déjà
+% là) — pas en retirant un résultat.
 % =====================================================================
 
 \end{document}
