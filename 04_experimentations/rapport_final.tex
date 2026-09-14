@@ -122,6 +122,19 @@ $H = 2\,000$, $M = 10$, documented in \texttt{resultats\_R2/}; the two exception
 drift-free arm of $100$ runs read in Section~\ref{sec:E} and the ten fictitious runs of
 the counter-example in Section~\ref{sec:d2:contre}, both signalled where they are used.
 
+\paragraph*{Intervals in brackets} A share of runs, $k$ out of $n$, is an estimate of a
+probability $p$ from a finite sample, and is reported with its Wilson $95\%$ interval,
+$[\ell;u]$: the set of values of $p$ under which observing $k$ successes out of $n$ would
+not be rejected at the $5\%$ level. Concretely, $p$ is retained whenever $k$ lies within
+$1.96$ standard deviations of $np$, the standard deviation $\sqrt{np(1-p)}$ being taken
+under $p$ itself and not under the estimate $k/n$; solving that inequality in $p$ gives
+the two bounds. Two consequences matter for reading the tables. The interval never
+collapses at the edges --- $0$ out of $100$ gives $[0.00;0.04]$, not $[0;0]$, since a
+rare event can go unobserved in $100$ trials --- and two shares whose intervals overlap
+substantially cannot be told apart, whereas disjoint intervals mark a genuine difference.
+With $n = 100$ the half-width is about $\pm 0.10$ near $p = 0.5$ and narrows towards
+$0$ and $1$.
+
 \newpage
 \twocolumn
 
@@ -569,7 +582,7 @@ $\lambda = 50$ the certificate is $0.00$ at every amplitude.}
 \toprule
 & & \multicolumn{2}{c}{$\lambda = 8$} & \multicolumn{2}{c}{$\lambda = 25$} \\
 \cmidrule(lr){3-4}\cmidrule(lr){5-6}
-$\Delta e$ & $w$ & certificate & detected & certificate & detected \\
+$\Delta e$ & $w$ & $S_{\max}(w) \ge \lambda$ & alarm by $H$ & $S_{\max}(w) \ge \lambda$ & alarm by $H$ \\
 \midrule
 $0.028$ & $1\,969$ & $0.10$ $[0.06;0.17]$ & $0.10$ $[0.06;0.17]$ & $0.00$ $[0.00;0.04]$ & $0.00$ $[0.00;0.04]$ \\
 $0.085$ & $650$    & $0.95$ $[0.89;0.98]$ & $0.96$ $[0.90;0.98]$ & $0.09$ $[0.05;0.16]$ & $0.15$ $[0.09;0.23]$ \\
@@ -606,9 +619,8 @@ $S_j = \max\big(0,\ \max_{k \le j-1} \sum_{t=k+1}^{j-1} X_t + X_j\big)
 and the $0$ is the empty sum obtained at $k = j$. Expanding the sum gives the second form.
 \end{proof}
 
-The recurrence is Kadane's maximum-subarray algorithm: running in $O(H)$, the detector
-computes the best of the $O(H^2)$ sub-windows. On the $2\,000$ campaign trajectories the
-closed form matches the recurrence to $1.26 \times 10^{-11}$.
+On the $2\,000$ campaign trajectories the closed form matches the recurrence to
+$1.26 \times 10^{-11}$; the analysis script stops if this check fails.
 
 \begin{corollary}[Certificate]\label{cor:certificate}
 $S_{\max}(H) \ge \lambda$ if and only if some sub-window $]k,j] \subseteq\, ]0,H]$
@@ -620,17 +632,22 @@ and no distributional assumption.
 maximum, and therefore only sufficient.
 
 \paragraph{The full window proves little} Its toll $H\delta_P = 20$ turns the thresholds
-into raw areas of $28$, $45$ and $70$, which $A(0,H)$ reaches in $473$, $66$ and $0$ of the
-$2\,000$ runs. The full window thus certifies detection for $23.7\%$ of runs at
-$\lambda = 8$ (Wilson $95\%$ interval $[21.8;25.6]$), $3.3\%$ at $\lambda = 25$
-($[2.6;4.2]$) and none at $\lambda = 50$. Failing a sufficient condition proves nothing:
-the full window is simply the wrong place to look.
+into raw areas of $28$, $45$ and $70$. What a run has to offer against these is the
+evidence budget of Section~\ref{sec:budget}: about $18$ units whatever the amplitude,
+as the manuscript's rectangle and its fit predict (Sections~III-C and III-D there). That
+figure is an expectation, what a typical run supplies, not a ceiling on any single run;
+all three requirements exceed it, so only runs well above the average can meet them, and
+the higher the bar the fewer they are. $A(0,H)$ reaches $28$ in $473$ of the $2\,000$
+runs, $45$ in $66$, and $70$ in none. The full window thus certifies detection for
+$23.7\%$ of runs at $\lambda = 8$ (Wilson $95\%$ interval $[21.8;25.6]$), $3.3\%$ at
+$\lambda = 25$ ($[2.6;4.2]$) and none at $\lambda = 50$. Failing a sufficient condition
+proves nothing: the full window is simply the wrong place to look.
 
 \paragraph{The short window} Anchoring instead on $w = \mathrm{round}(3 \times 18.5/\Delta e)$
 steps after the drift and checking $S_{\max}(w) \ge \lambda$ gives
-Table~\ref{tab:certificate}. Certificate and detection are the same computation on nested
-windows, $]0,w]$ and $]0,H]$, so the first can never exceed the second: what informs is
-their gap. At $\lambda = 8$ it vanishes (mean $0.0005$ over the $20$ amplitudes): the alarm
+Table~\ref{tab:certificate}. The window being fixed in advance and shorter than $H$, the
+certificate is sufficient for detection within $H$ but not necessary --- an alarm may fire
+after $w$ --- so it can never exceed observed detection: what informs is their gap. At $\lambda = 8$ it vanishes (mean $0.0005$ over the $20$ amplitudes): the alarm
 fires inside the transient. At $\lambda = 25$ it reaches $0.26$ at $\Delta e = 0.141$:
 those alarms fire after the transient and cannot be credited to the drift window. At
 $\lambda = 50$ the certificate is $0$ at every amplitude.

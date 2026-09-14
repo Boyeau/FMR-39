@@ -209,18 +209,41 @@ further if this check fails.
 \section{Application to the Campaign}
 \label{sec:application}
 
-Both directions of Corollary~\ref{cor:certificate} are now confronted with data: the
-one-directional full-window certificate first, then the short-window one, which the
-corollary makes necessary and sufficient for $S_{\max}(w) \ge \lambda$ and hence
-sufficient for detection within $H$.
+Corollary~\ref{cor:certificate} is now confronted with data, in its sufficient
+direction only: first on the full window, then on a short window $w < H$ fixed in
+advance. In both cases the certificate $S_{\max}(w) \ge \lambda$ implies detection
+within $H$; the converse fails, since the alarm may fire after $w$. The gap between the
+two is therefore not a defect of the certificate but a measurement of how many alarms
+fall outside the window it examines.
 
 \paragraph{Full window.} With $H = 2\,000$ and $\delta_P = 0.01$, the full-window
 requirement $A(0,H) \ge \lambda + H\delta_P$ demands a toll of $H\delta_P = 20$
 regardless of $\lambda$, i.e.\ raw areas of $28$, $45$ and $70$ for
-$\lambda \in \{8,25,50\}$. Against the evidence budget of about $18$ established in
-Q~C.3, these are met only exceptionally: over the $2\,000$ runs, $A(0,H)$ reaches $28$
+$\lambda \in \{8,25,50\}$.
+
+What a run has to offer against these is the \emph{evidence budget} of Q~C.3. The
+manuscript stylizes the post-drift transient as a rectangle --- an excess error of
+$\Delta e$ over the $\tau_{\mathrm{ARF}}$ steps until the first replacement, then
+nothing (Section~III-D) --- and fits
+$\mathbb{E}[\tau_{\mathrm{ARF}}] \approx 18.5\,\Delta e^{-0.98}$ on its own campaign
+(Section~III-C). Multiplying the two gives the expected area
+$\mathbb{E}[A] \approx 18.5\,\Delta e^{\,0.02}$, between $17.2$ and $18.2$ across the
+whole grid: a violent drift is erased as fast as it appears, so the detector receives
+about $18$ units of evidence whatever the amplitude. This is an \emph{expectation}, the
+value a typical run supplies, not a ceiling on what an individual run can accumulate;
+the model behind it is examined, and only partly upheld, in Q~C.3.
+
+All three required areas exceed that typical supply, so the certificate can only be met
+by runs that accumulated markedly more evidence than the average, and the higher the
+requirement the fewer of them there are: over the $2\,000$ runs, $A(0,H)$ reaches $28$
 in $473$ cases, $45$ in $66$, and $70$ in none. The full-window certificate therefore
-proves detection for $23.7\%$ of runs at $\lambda = 8$ (Wilson $95\%$ interval
+proves detection for $23.7\%$ of runs at $\lambda = 8$ (Wilson $95\%$
+interval\footnote{Throughout, a share $k/n$ is given with its Wilson $95\%$ interval:
+the set of probabilities $p$ under which observing $k$ successes out of $n$ would not be
+rejected at the $5\%$ level, i.e.\ those $p$ for which $k$ lies within $1.96$ standard
+deviations $\sqrt{np(1-p)}$ of $np$. Unlike the usual $\hat p \pm 1.96\sqrt{\hat p(1-\hat p)/n}$,
+it does not collapse at the edges: $0$ out of $100$ gives $[0.00;0.04]$. Overlapping
+intervals mean two shares cannot be told apart; disjoint ones mark a real difference.}
 $[21.8;25.6]$), $3.3\%$ at $\lambda = 25$ ($[2.6;4.2]$) and none at $\lambda = 50$
 ($[0.0;0.2]$), and at the weakest amplitude ($\Delta e = 0.028$) for no run at all.
 Being only sufficient, this failure does not mean the alarm never fires; it only means
@@ -242,7 +265,7 @@ are the quantified ones, as computed by \texttt{analyse\_QCD.py}.}.
 \begin{tabular}{rrlllll}
 \toprule
 & & \multicolumn{2}{c}{$\lambda=8$} & \multicolumn{2}{c}{$\lambda=25$} & $\lambda=50$ \\
-$\Delta e$ & $w$ & certificate & detected & certificate & detected & certificate \\
+$\Delta e$ & $w$ & $S_{\max}(w) \ge \lambda$ & alarm by $H$ & $S_{\max}(w) \ge \lambda$ & alarm by $H$ & $S_{\max}(w) \ge \lambda$ \\
 \midrule
 0.028 & 1\,969 & 0.10 [0.06;0.17] & 0.10 [0.06;0.17] & 0.00 [0.00;0.04] & 0.00 [0.00;0.04] & 0.00 [0.00;0.04] \\
 0.085 &   650 & 0.95 [0.89;0.98] & 0.96 [0.90;0.98] & 0.09 [0.05;0.16] & 0.15 [0.09;0.23] & 0.00 [0.00;0.04] \\
@@ -255,7 +278,7 @@ $\Delta e$ & $w$ & certificate & detected & certificate & detected & certificate
 \end{tabular}
 
 \smallskip
-{\small Brackets: Wilson $95\%$ interval, $n = 100$ seeds per amplitude.}
+{\small Each entry is a share of the $100$ seeds of the amplitude; brackets: Wilson $95\%$ interval. ``$S_{\max}(w) \ge \lambda$'': the short-window certificate holds, i.e.\ some sub-window of $]0,w]$ passes the bar; ``alarm by $H$'': the detector actually fired within the horizon.}
 \end{center}
 
 \paragraph{Reading the table.} Columns report, per amplitude, the fraction of the
