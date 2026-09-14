@@ -7,8 +7,8 @@ Le controle de tracabilite exige par `.claude/rules/redaction.md` :
 
 Ce script le rend REPRODUCTIBLE. Il lit les redactions LaTeX passees en
 argument, extrait chaque litteral numerique, et cherche chacun :
-    1. dans la sortie des scripts de tracabilite (`chiffres_QC.py`,
-       `chiffres_QD.py`), rejoues ici meme ;
+    1. dans la sortie des scripts de tracabilite (`chiffres_QA.py`,
+       `chiffres_QC.py`, `chiffres_QD.py`, `chiffres_QE.py`), rejoues ici ;
     2. dans les colonnes numeriques des Parquet de `resultats/data/`,
        sous sept formats d'arrondi et en pourcentage.
 Un nombre introuvable est imprime avec sa ligne : c'est une faute a
@@ -84,10 +84,17 @@ MOTIFS_A_RETIRER = (
 
 
 def sortie_des_scripts() -> str:
-    """Rejoue les deux scripts de tracabilite et concatene leur sortie."""
+    """Rejoue les scripts de tracabilite et concatene leur sortie.
+
+    QA et QE ont ete ajoutes le 14 septembre : ils n'existaient pas quand ce
+    script a ete ecrit, et sans eux les chiffres de la question A (P_miss,
+    bornes de Frechet) et du balayage du seuil etaient declares introuvables
+    alors qu'ils sortent bien d'un script rejouable.
+    """
     ici = Path(__file__).resolve().parent
     out = []
-    for script in ("chiffres_QC.py", "chiffres_QD.py"):
+    for script in ("chiffres_QA.py", "chiffres_QC.py",
+                   "chiffres_QD.py", "chiffres_QE.py"):
         r = subprocess.run([sys.executable, str(ici / script)],
                            capture_output=True, text=True, cwd=ici)
         if r.returncode != 0:
@@ -130,7 +137,7 @@ def nombres_du_tex(chemin: Path):
 
 def main() -> None:
     cibles = sys.argv[1:] or DEFAUT
-    print("Rejeu de chiffres_QC.py et chiffres_QD.py...")
+    print("Rejeu de chiffres_QA.py, QC, QD et QE...")
     corpus = sortie_des_scripts()
     print(f"  {len(corpus.splitlines())} lignes de sortie")
     vals = valeurs_des_tables()
