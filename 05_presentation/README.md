@@ -210,3 +210,50 @@ pour qu'on lui fasse confiance et assez sensible pour voir la dérive.
   du milieu de la dernière slide devient « Repair dated too early ».
 - Slide 8 : la note grise est descendue en bas de page. Slide 4 : « alarm » placé
   à gauche du triangle (il chevauchait la marche suivante).
+
+---
+
+## `point_encadrant.tex`
+
+Support du point d'avancement avec Raphaël Minato, **14 septembre**. Douze slides,
+**en français** : c'est une réunion de travail, pas un livrable — le pitch et le rapport
+restent en anglais.
+
+Trois slides posent une question à l'encadrant plutôt qu'un résultat, et c'est l'objet de
+la réunion :
+
+| Slide | Ce qu'on lui demande |
+|---|---|
+| 9 | notre lecture du seuil — « détecter n'est pas gagner, et sur ce banc l'ensemble admissible n'est pas vide » — s'assume-t-elle comme une correction de l'article, ou se signale-t-elle comme une limite de notre banc ? |
+| 10 | faut-il mesurer les dégâts sur la fenêtre de la transition plutôt que sur l'horizon entier, et avec quelle règle de fenêtre ? |
+| 12 | le périmètre, et la forme du rendu (quinze pages tout compris ? annexes ? la date) |
+
+Les quatre schémas TikZ vivent dans `point_encadrant_schemas.tex`, **fichier séparé à
+dessein** : `verif_chiffres_tex.py` ramasserait sinon les coordonnées TikZ comme des
+mesures introuvables. Aucun chiffre de mesure ne doit entrer dans ce fichier — les quatre
+schémas sont stylisés, sans données, et chaque légende le dit à l'écran.
+
+### Deux points de fidélité
+
+- **`A(w)` n'a pas de chiffre sur les slides.** Le sondage donne une association faible
+  mais réelle entre `τ_ARF` et l'aire sur la fenêtre courte, là où `A(H)` en donne une
+  nulle — mais aucun script ne le produit encore. La slide 10 pose donc la question à
+  partir de ce qui est déjà traçable : `A(H)` devient négative dès `Δe = 0,482`.
+- **Les chiffres de seuil sont ceux du témoin à 2 000 exécutions**, pas ceux du rapport,
+  qui porte encore le témoin à 100. L'écart est signalé sur la slide 8.
+
+### Compiler
+
+```bash
+lualatex point_encadrant.tex   # deux passes, positions TikZ
+```
+
+Les nombres sont écrits `\num{0.0905}` et non `0{,}0905` : la source porte le point
+décimal, que `verif_chiffres_tex.py` sait lire, et `siunitx` affiche la virgule. Un
+décimal écrit à la française serait invisible au contrôle de traçabilité.
+
+```bash
+cd ../04_experimentations/resultats_R2/scripts
+PYTHONHASHSEED=0 python verif_chiffres_tex.py ../../../05_presentation/point_encadrant.tex
+```
+Au 14 septembre : **68 littéraux contrôlés, 0 introuvable**.
