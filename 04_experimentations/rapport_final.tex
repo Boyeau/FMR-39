@@ -599,10 +599,13 @@ detector
   S_t = \max\big(0,\ S_{t-1} + e_t - \hat p_0 - \delta_P\big), \qquad S_{\tau^*} = 0,
   \label{eq:cusum}
 \end{equation}
-rises by nearly one unit per error and barely falls on a success. Comparing the two
-assumes a constant error rate, which the repair precisely destroys; and the reset to zero
-discards evidence, so the alarm date depends on the order of the errors, not only on their
-total. The right object is the peak statistic $S_{\max}(H) = \max_{t \le H} S_t$. Write
+rises by nearly one unit per error and barely falls on a success. The manuscript bridges
+the two by a rate: Proposition~9 sets $\tau^*_{\mathrm{det}} := \lambda/(\Delta e - \delta_P)$
+and races $\tau_{\mathrm{ARF}}$ against that constant instead of the observed
+$\tau_{\mathrm{det}}$. The rate is a fiction: it decays as the forest repairs, the reset to
+zero discards evidence so that the alarm date depends on the order of the errors and not
+only on their total, and the threshold may never be crossed. The right object is the peak
+statistic $S_{\max}(H) = \max_{t \le H} S_t$. Write
 $X_t = e_t - \hat p_0 - \delta_P$ and $A(k,j) = \sum_{t=k+1}^{j} (e_t - \hat p_0)$.
 
 \begin{proposition}[Lindley's closed form]\label{prop:lindley}

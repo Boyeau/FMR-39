@@ -45,16 +45,22 @@ the tolerance, $S_t$ counts the errors accumulated beyond the baseline. Since
 $\lambda$ only ever appears in the comparison $S_t \ge \lambda$, it must be read in
 the same unit --- $\lambda = 50$ does not mean ``wait 50 steps'', but ``wait until
 roughly 50 excess errors have accumulated''. The two quantities are therefore counts
-of different natures: writing $\tau_{\mathrm{ARF}} < \lambda$ makes no dimensional
-sense.
+of different natures, and the manuscript never writes $\tau_{\mathrm{ARF}} < \lambda$
+as such. What it does write is Proposition~9 (Section~III-E): it sets
+$\tau^*_{\mathrm{det}} := \lambda/(\Delta e - \delta_P)$, calls it the ``nominal CUSUM
+accumulation time'', and defines the blind spot as
+$P_{\mathrm{miss}} = P(\tau_{\mathrm{ARF}} < \tau^*_{\mathrm{det}})$ --- with this
+constant in place of the observed $\tau_{\mathrm{det}}$ that its own Figure~2 races
+against $\tau_{\mathrm{ARF}}$. The proof concedes the move in passing: the starvation
+condition is ``evaluated at the mean accumulation rate''.
 
-\paragraph{What a direct comparison hides.} Comparing the two amounts to treating
-$\lambda$ as a duration: ``it takes $\lambda$ errors, hence so many steps''. This
-shortcut assumes evidence accumulates at a fixed rate --- without an error-per-step
-rate, there is no way to convert one unit into the other --- and the assumption is
-baked into the very act of comparing, whether or not the conversion is written out.
-But no such rate exists: the detector receives errors one at a time and does not
-output a number, but a date --- the one at which the trajectory of $S_t$ crosses
+\paragraph{What the conversion hides.} $\tau^*_{\mathrm{det}}$ is $\lambda$ turned into
+a duration by a rate: ``it takes $\lambda$ errors, we gain $\Delta e - \delta_P$ per step,
+hence so many steps''. Without an error-per-step rate there is no way to convert one unit
+into the other, so the assumption of a fixed rate is baked into the very act of racing
+$\tau_{\mathrm{ARF}}$ against $\tau^*_{\mathrm{det}}$, whether or not the conversion is
+written out. But no such rate exists: the detector receives errors one at a time and does
+not output a number, but a date --- the one at which the trajectory of $S_t$ crosses
 $\lambda$. Three features of that trajectory disappear once it is replaced by a
 constant-slope ramp.
 
@@ -76,16 +82,18 @@ threshold may never be crossed\footnote{Beyond the horizon the crossing eventual
 happens, but its mean delay grows exponentially with $\lambda$ (manuscript,
 Remark~4): the alarm then no longer bears on the drift.}.
 
-\paragraph{Conclusion.} An error count and an observation count cannot be compared by
+\paragraph{Conclusion.} $\tau^*_{\mathrm{det}}$ is not a date but a mean rate dressed
+as one, so $\tau_{\mathrm{det}}$ cannot be replaced by a constant computed from
+$\lambda$ and $\Delta e$; an error count and an observation count cannot be compared by
 positing a rate. Homogeneity is restored the other way around: by bringing both
 quantities into the unit of evidence, where the comparison is threshold against
 accumulated evidence, on each run and without averaging. That is the object of the
 peak statistic $S_{\max}(H)$ and the deterministic certificate that follows from it,
 developed in Section~2 below.
 
-% NOTE(coordination): the conversion tau*_det = lambda/(Delta_e - delta_P) and
-% substituting the stopping time with this constant belong to Question A
-% (Proposition 9, theoretical side): deliberately not treated here.
+% NOTE(coordination): what Proposition 9 then does with tau*_det -- the independence
+% formula for P_miss and Corollary 10 (M_crit) -- belongs to Questions A and B
+% (theoretical side): only the substitution of a constant for tau_det is treated here.
 
 \section{A Deterministic Certificate: The Peak Statistic}
 
