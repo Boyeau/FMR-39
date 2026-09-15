@@ -94,7 +94,7 @@ def sortie_des_scripts() -> str:
     ici = Path(__file__).resolve().parent
     out = []
     for script in ("chiffres_QA.py", "chiffres_QC.py",
-                   "chiffres_QD.py", "chiffres_QE.py"):
+                   "chiffres_QD.py", "chiffres_QE.py", "matrice_correlations.py"):
         r = subprocess.run([sys.executable, str(ici / script)],
                            capture_output=True, text=True, cwd=ici)
         if r.returncode != 0:
@@ -127,7 +127,15 @@ def valeurs_des_tables() -> set:
 def nombres_du_tex(chemin: Path):
     """Litteraux numeriques du texte, avec leur ligne, hors macros LaTeX."""
     trouves = {}
+    dans_biblio = False
     for i, ligne in enumerate(chemin.read_text(encoding="utf-8").splitlines(), 1):
+        # La bibliographie porte des annees, volumes et pages : ce ne sont pas des mesures.
+        if "\\begin{thebibliography}" in ligne:
+            dans_biblio = True
+        if dans_biblio:
+            if "\\end{thebibliography}" in ligne:
+                dans_biblio = False
+            continue
         nettoyee = re.sub(MOTIFS_A_RETIRER, " ", ligne).replace("\\,", "")
         for n in re.findall(r"(?<![A-Za-z_\\])\d+\.\d+|(?<![A-Za-z_\\.\d])\d{2,}(?![\d.])",
                             nettoyee):

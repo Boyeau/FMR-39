@@ -1,24 +1,18 @@
 % =====================================================================
 % Rapport final — sujet 39, The Blind Spot Paradox
 %
-% Gabarit IEEEtran conference, deux colonnes : celui du manuscrit critiqué
-% (articleA_blindspot_v64_camera_ready.tex). Contrainte de l'énoncé :
-% 10 à 15 pages, 15 étant un maximum strict.
+% Gabarit IEEEtran conference, deux colonnes : celui du manuscrit critiqué.
+% Refonte du 15/09/2026 autour d'une thèse : le point aveugle n'est pas une
+% course entre deux horloges mais un budget de preuve contre un seuil.
 %
-% État : A, B, C, D et E intégrées.
+% Corps : contexte, I-III théorie (course, dépendance, alarme fonction de la
+% trajectoire d'erreur), IV campagne et méthode, V ce que mesure la date de
+% réparation, VI la preuve contre le seuil, VII discussion. Annexes : preuves,
+% notations, instrumentation, choix du coefficient, coefficients complets,
+% reproductibilité, usage des LLM. Les blocs repris des versions précédentes
+% le sont mot pour mot ; rédactions sources intactes dans 04_experimentations/.
 %
-% D est fondue depuis redaction_QD1 à QD4, E depuis redaction_QE_choix_du_seuil.
-% Les répétitions entre ces cinq fichiers ont été supprimées au profit de
-% renvois : préambules de campagne, socle sur deux fenêtres, imputation des
-% durées censurées au dernier rang, biais de correction des ex aequo, bras
-% sans drift, et la course lue deux fois sous ses deux orientations. Ce qui
-% recoupait C (identité tau_ARF = tau_swap(1/M), persistance de tau_rec,
-% définition du CUSUM, tâche facilitée en haut de grille) renvoie vers C.
-%
-% Deux colonnes : le matériel large (encadré de notations, tables à plus de
-% quatre colonnes) passe en table*, qui s'étale sur les deux colonnes.
-%
-% Compiler depuis 04_experimentations/.
+% Compiler depuis 04_experimentations/ (pdflatex, trois passes).
 % =====================================================================
 
 \documentclass[10pt,conference]{IEEEtran}
@@ -64,90 +58,122 @@ Salomé Fonvielle, Ulysse Petit-Tichanné}
   \vspace{2em}
   {Filière Recherche --- Subject 39\par}
   \vspace{1em}
-  % TODO : date de remise
+  {16 September 2026\par}
 \end{center}
 \vspace*{\fill}
 \newpage
 
 % ---------------------------------------------------------------------
-% Mise en contexte et notations — pleine page, avant le corps
+% Contexte, thèse, correspondance avec le sujet, notations essentielles
 % ---------------------------------------------------------------------
 \section*{Context and Scope}
 
-% TODO : mise en contexte (une page avec les notations). Doit poser le
-% phénomène, les deux améliorations demandées par les relecteurs, et
-% annoncer le partage théorique (A, B) / expérimental (C, D).
-Placeholder.
+\paragraph*{The setting} A classifier deployed on a data stream can see the relation
+between inputs and label change while the inputs themselves keep the same law: $P(Y \mid X)$
+moves, $P(X)$ does not~\cite{moreno2012}. Such a concept drift is detected by watching the
+classifier's error~\cite{gama2014,lu2018}. The Adaptive Random Forest (ARF)~\cite{gomes2017}
+also repairs itself: each of its $M$ Hoeffding trees~\cite{domingos2000}, trained by online
+bagging~\cite{oza2001}, watches its own error with an ADWIN detector~\cite{bifet2007} and is
+replaced when it degrades. An external cumulative detector, a Page--Hinkley
+test~\cite{page1954,hinkley1971} with threshold $\lambda$, watches the error of the whole
+forest and is meant to tell the operator that the model has changed.
 
-\section*{Notation Used Throughout}
+\paragraph*{The manuscript} The manuscript under study~\cite{blindspot2026} reports a
+\emph{blind spot paradox} on River~\cite{montiel2021}: the stronger the drift, the faster
+the forest repairs itself and the less evidence it leaves to the external detector, which
+then stays silent or alarms after the repair. It dates the repair at
+$\tau_{\mathrm{ARF}}$, the first tree replacement, and compares this random time with a
+nominal accumulation time $\tau^*_{\mathrm{det}} = \lambda/(\Delta e - \delta_P)$.
 
-\begin{center}
-\begin{tabular}{@{}ll@{}}
-  \toprule
-  $\tau^*$ & the drift instant, known by construction \\
-  $\tau_{\mathrm{ARF}}$ & delay until the first tree is replaced, $\min_i \tau_i$ over the $M$ trees \\
-  $\tau_{\mathrm{det}}$ & delay until the first external alarm, possibly $+\infty$ \\
-  $F_A$, $F_D$ & cumulative distribution functions of $\tau_{\mathrm{ARF}}$ and $\tau_{\mathrm{det}}$ \\
-  $H$ & post-drift observation horizon, $H = 2\,000$ \\
-  $\lambda$, $\delta_P$ & the external detector's threshold and tolerance \\
-  $\Delta e$ & drift amplitude, the error jump a non-adapting model would suffer \\
-  $\mathrm{Miss}$ & the ``blind spot'' event, defined in Section~\ref{sec:miss} \\
-  \midrule
-  \multicolumn{2}{@{}l@{}}{\emph{for the inter-tree analysis:}} \\
-  $M = 10$ & number of trees in the forest \\
-  $\tau_i$ & adaptation delay of tree $i$, so $\tau_{\mathrm{ARF}} = \min_i \tau_i$ \\
-  $S$ & the stream trajectory $(x_t, y_t)$ alone, without the trees' internal draws \\
-  $U_i$ & the randomness specific to tree $i$, identified in Section~\ref{sec:factorization} \\
-  $F$ & CDF of a \emph{single} tree $\tau_i$ --- distinct from $F_A$, which is that of $\tau_{\mathrm{ARF}}$ \\
-  $G_S(s)$ & $:= P(\tau_1 > s \mid S)$, the single-tree survival function \emph{given} the stream \\
-  $\beta$ & reliability target, the share of drifts the monitor should catch ($0.95$ in the manuscript) \\
-  \midrule
-  \multicolumn{2}{@{}l@{}}{\emph{for the instrumented campaign:}} \\
-  $e_t$, $\bar e_t$ & prequential error at step $t$, binary; and its inter-seed mean, with no temporal smoothing \\
-  $\hat p_0$ & pre-drift error baseline, estimated on the recorded pre-drift steps \\
-  $S_t$ & detector state, Eq.~\eqref{eq:cusum}, with $S_{\tau^*} = 0$ \\
-  $S_{\max}(H)$ & peak of that path over the horizon; the alarm \emph{is} $S_{\max}$ crossing $\lambda$ \\
-  $A(H)$ & accumulated excess error over the horizon \\
-  $N_t$ & number of distinct trees replaced by step $t$ \\
-  $\tau_{\mathrm{swap}}(q)$ & first instant at which a fraction $q$ of the $M$ trees has been replaced, so $\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(1/M)$ \\
-  $\tau_{50\%}$ & $\tau_{\mathrm{swap}}(50\%)$, the instant at which half of the forest has been renewed \\
-  $\tau_{\mathrm{rec}}$ & return of $\bar e_t$ below $\hat p_0 + \rho\,\Delta e$ with $\rho = 0.25$, held $20$ consecutive steps; also written $\tau_{\mathrm{err}}(\rho)$ \\
-  $R(\cdot)$, $G(\cdot)$ & fraction of the adaptation acquired, and of the evidence accumulated, at a given instant \\
-  $\tau_b$ & Kendall's rank correlation with tie correction, Eq.~\eqref{eq:taub} \\
-  \bottomrule
+\paragraph*{The two corrections this work addresses} Two of the corrections requested by
+the reviewers define the subject. First, the manuscript compares a random variable with a
+constant, and assumes independence between trees without proof (Questions A and B).
+Second, it dates the adaptation of the forest at the first replaced tree without showing
+that this instant has anything to do with the disappearance of the signal (Questions C and
+D).
+
+\paragraph*{What we find} Both corrections lead to the same reading: \textbf{the blind
+spot is not a race between two clocks, but a budget of evidence set against a threshold.}
+On every run, the detector arrives first if and only if its statistic reaches $\lambda$
+before the first replacement (Proposition~\ref{prop:race}). Four messages structure the
+report.
+\begin{itemize}
+  \item \textbf{M1 --- The race is well posed, and the manuscript is optimistic.} The miss
+    event is defined without ad hoc rules, its probability is identified on the campaign,
+    and the independence assumption provably overstates the speed of the repair
+    (Sections~\ref{sec:A} and~\ref{sec:B}).
+  \item \textbf{M2 --- The first replacement measures the repair poorly.} It is a lower
+    bound by construction, it fires as fast without drift as on the weakest drift, and half
+    or more of the evidence is already accumulated when it occurs
+    (Section~\ref{sec:repair-date}).
+  \item \textbf{M3 --- The alarm depends on evidence, not on time.} The alarm is a
+    deterministic function of the error path, and the evidence available before the repair,
+    between $13.1$ and $19.8$ in median above $\Delta e = 0.10$, sets the transition
+    threshold and explains the paradoxical signature (Sections~\ref{sec:certificate}
+    and~\ref{sec:E}).
+  \item \textbf{M4 --- Detecting is not winning.} A threshold below that level wins the race;
+    a threshold that detects almost every drift may still arrive after the repair
+    (Section~\ref{sec:E}).
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{Where each question of the subject is answered.}
+\label{tab:questions}
+\small
+\begin{tabular}{@{}lp{0.46\textwidth}p{0.36\textwidth}@{}}
+\toprule
+Question & What the manuscript does & Where it is answered \\
+\midrule
+A & replaces the random alarm time by a constant and sets aside runs without alarm
+  & Section~\ref{sec:A}; the race as evidence, Section~\ref{sec:certificate} \\
+B & assumes independence between trees & Section~\ref{sec:B}; proofs, Appendix~\ref{app:proofs} \\
+C & takes the first replacement as the adaptation date
+  & units and certificate, Section~\ref{sec:certificate}; lower bound, Section~\ref{sec:repair-date};
+    evidence budget, Section~\ref{sec:E} \\
+D & never tests the link between $\tau_{\mathrm{ARF}}$ and other indicators
+  & method, Section~\ref{sec:campaign}; stratified association and correlation matrix,
+    Section~\ref{sec:repair-date}; details, Appendices~\ref{sec:D1}--\ref{sec:D3} \\
+beyond & --- & threshold sweep and drift-free control, Sections~\ref{sec:repair-date}
+  and~\ref{sec:E} \\
+\bottomrule
 \end{tabular}
-\end{center}
+\end{table}
 
-\noindent Both delays are counted from $\tau^*$ and take integer values, a fact the
-Fréchet bounds of Section~\ref{sec:A} rely on. Every measured figure in this report comes from the
-instrumented campaign of $20$ amplitudes $\times\ 100$ seeds $= 2\,000$ runs,
-$H = 2\,000$, $M = 10$, documented in \texttt{resultats\_R2/}; the two exceptions are the
-drift-free arm of $2\,000$ runs read in Section~\ref{sec:E} and the ten fictitious runs of
-the counter-example in Section~\ref{sec:d2:contre}, both signalled where they are used.
-
-\paragraph*{Intervals in brackets} A share of runs, $k$ out of $n$, is an estimate of a
-probability $p$ from a finite sample, and is reported with its Wilson $95\%$ interval,
-$[\ell;u]$: the set of values of $p$ under which observing $k$ successes out of $n$ would
-not be rejected at the $5\%$ level. Concretely, $p$ is retained whenever $k$ lies within
-$1.96$ standard deviations of $np$, the standard deviation $\sqrt{np(1-p)}$ being taken
-under $p$ itself and not under the estimate $k/n$; solving that inequality in $p$ gives
-the two bounds. Two consequences matter for reading the tables. The interval never
-collapses at the edges --- $0$ out of $100$ gives $[0.00;0.04]$, not $[0;0]$, since a
-rare event can go unobserved in $100$ trials --- and two shares whose intervals overlap
-substantially cannot be told apart, whereas disjoint intervals mark a genuine difference.
-With $n = 100$ the half-width is about $\pm 0.10$ near $p = 0.5$ and narrows towards
-$0$ and $1$.
+\begin{table}[h]
+\centering
+\caption{Essential notation. The full table is in Appendix~\ref{app:notation}.}
+\label{tab:notation-courte}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+$\tau^*$, $H$, $M$ & drift instant; post-drift horizon $H = 2\,000$; number of trees $M = 10$ \\
+$\tau_{\mathrm{ARF}}$, $\tau_{\mathrm{swap}}(q)$ & first replacement; first instant at which a share $q$ of the trees is replaced \\
+$\tau_{\mathrm{det}}$, $\lambda$, $\delta_P$ & first external alarm, possibly $+\infty$; threshold; tolerance \\
+$\mathrm{Miss}$, $P_{\mathrm{miss}}$ & the blind-spot event $\{\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}\}$ and its probability \\
+$\Delta e$, $e_t$, $\hat p_0$ & drift amplitude; binary error at step $t$; estimated pre-drift baseline \\
+$S_t$, $S_{\max}(H)$ & detector statistic~\eqref{eq:cusum}; its peak over the horizon \\
+$A(k,j)$, $A(H)$, $A(w)$ & excess error over $]k,j]$; over the horizon; over $]0,w]$, $w = \mathrm{round}(3 \times 18.5/\Delta e)$ \\
+$S_{\mathrm{pre}}$, $G$ & peak of $S_t$ before $\tau_{\mathrm{ARF}}$; share of $S_{\max}(H)$ reached at $\tau_{\mathrm{ARF}}$ \\
+$\tau_b$ & Kendall's rank correlation with tie correction \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \newpage
 \twocolumn
 
 % =====================================================================
-\section{The Miss Probability: Definition, Identification, Bounds}
+\section{The Race Between Two Clocks}
 \label{sec:A}
 % =====================================================================
 
-We formalize and bound $P_{\mathrm{miss}} = P(\tau_{\mathrm{ARF}} <
-\tau_{\mathrm{det}})$ without any assumption on the dependence between the two clocks.
+The manuscript defines the blind spot as $\tau_{\mathrm{ARF}} < \tau_{\mathrm{det}}$, then
+replaces the random alarm time by the constant $\tau^*_{\mathrm{det}}$ and sets aside the
+runs in which the detector never alarms. The race is a competing-risks problem observed
+under censoring at $H$~\cite{fine1999,aalen1978}. This section defines the miss event on
+the complete race, shows that its probability is identified on our campaign, and bounds it
+from the marginal laws alone (Question A).
 
 \subsection{Defining the Miss Event}
 \label{sec:miss}
@@ -232,7 +258,7 @@ lower bound, entirely as Miss the upper one:
 \[
   L \;\le\; P_{\mathrm{miss}} \;\le\; L + P(C_H).
 \]
-This is a Manski-type bound: nothing is assumed about the unobserved
+This is a Manski-type bound~\cite{manski2003}: nothing is assumed about the unobserved
 runs, their possible influence is bounded by how many there are, and the width of the interval is exactly
 $P(C_H)$ --- the extent of our ignorance.
 
@@ -260,36 +286,21 @@ We now drop the finite horizon and ask what the two marginal laws concede on the
 with no assumption on the coupling. This is a different kind of ignorance from the one
 just treated: there, data were missing; here, a structure is.
 
-\paragraph{Lower bound} For a fixed $s \in \mathbb{N}$, the event
-$\{\tau_{\mathrm{ARF}}\le s < \tau_{\mathrm{det}}\}$ implies
-$\tau_{\mathrm{ARF}}<\tau_{\mathrm{det}}$, so it is a \emph{subset} of $\mathrm{Miss}$.
-Write $A = \{\tau_{\mathrm{ARF}} \le s\}$ and $B = \{\tau_{\mathrm{det}} > s\}$, so
-$P(A) = F_A(s)$ and $P(B) = 1 - F_D(s)$. Fréchet's inequality follows from
-$P(A \cup B) \le 1$:
+\begin{proposition}[Fréchet bounds~\cite{frechet1951}]\label{prop:frechet}
+For integer-valued $\tau_{\mathrm{ARF}}$ and $\tau_{\mathrm{det}}$ with marginal CDFs $F_A$ and
+$F_D$, and for any coupling of the two,
 \[
-  P(A \cap B) \;=\; P(A) + P(B) - P(A \cup B) \;\ge\; P(A) + P(B) - 1 ,
+  \max\Big(0,\ \sup_{s\in\mathbb{N}} \big[F_A(s)-F_D(s)\big]\Big)
+  \;\le\; P_{\mathrm{miss}} \;\le\;
+  \min\Big(1,\ \inf_{s\in\mathbb{N}} \big[F_A(s) + 1 - F_D(s+1)\big]\Big).
 \]
-and since a probability is non-negative,
-$P(A \cap B) \ge \max\big(0, P(A)+P(B)-1\big)$. Substituting,
-$P(A) + P(B) - 1 = F_A(s) - F_D(s)$. The inclusion holding for every $s$, we keep the
-largest value:
-\[
-  P_{\mathrm{miss}} \;\ge\; \max\Big(0,\ \sup_{s\in\mathbb{N}} \big[F_A(s)-F_D(s)\big]\Big).
-\]
+\end{proposition}
 
-\paragraph{Upper bound} Here we proceed by \emph{superset}. We claim
-\[
-  \mathrm{Miss} \;\subseteq\; \{\tau_{\mathrm{ARF}}\le s\} \cup \{\tau_{\mathrm{det}}> s+1\},
-\]
-and prove it by taking a run in $\mathrm{Miss}$ and splitting on where
-$\tau_{\mathrm{ARF}}$ falls. If $\tau_{\mathrm{ARF}} \le s$ the run lies in the first set
-and nothing more is needed. If $\tau_{\mathrm{ARF}} \ge s+1$, then
-$\tau_{\mathrm{det}} > \tau_{\mathrm{ARF}} \ge s+1$ puts it in the second. In words:
-either the forest was early, or the alarm --- which comes after it --- was late. Boole's
-subadditivity, then optimizing over $s$ and truncating at $1$, gives
-\[
-  P_{\mathrm{miss}} \;\le\; \min\Big(1,\ \inf_{s\in\mathbb{N}} \big[F_A(s) + 1 - F_D(s+1)\big]\Big).
-\]
+\noindent The lower bound applies Fréchet's inequality to
+$\{\tau_{\mathrm{ARF}} \le s < \tau_{\mathrm{det}}\} \subseteq \mathrm{Miss}$; the upper bound
+follows from $\mathrm{Miss} \subseteq \{\tau_{\mathrm{ARF}} \le s\} \cup
+\{\tau_{\mathrm{det}} > s+1\}$ and Boole's inequality. Both proofs, and a toy case on which
+both bounds are attained, are in Appendix~\ref{app:proofs}.
 
 \begin{center}
 \fbox{\parbox{0.92\columnwidth}{\textbf{Result.} The two bounds above hold for
@@ -297,17 +308,6 @@ subadditivity, then optimizing over $s$ and truncating at $1$, gives
 $\tau_{\mathrm{det}}$: they use the marginal laws alone, and assume nothing about how
 the two clocks are coupled. That is what makes them \emph{universal}.}}
 \end{center}
-
-\paragraph{Verification on a toy case} Take both clocks uniform on $\{1,2\}$, so
-$F_A = F_D$ with $F_A(1) = \tfrac12$. Then $\mathrm{Miss}$ requires
-$\tau_{\mathrm{ARF}} = 1$ and $\tau_{\mathrm{det}} = 2$, and its probability depends
-entirely on the coupling: $0$ when the two clocks always agree, $0.25$ under
-independence, $0.5$ when one is $1$ exactly as the other is $2$. Identical marginals,
-three answers. The formulas give a lower bound of $0$ and an upper bound of $0.5$
-(attained at $s = 0$ and $s = 1$), both reached: the interval is exactly the set of
-achievable values, and nothing sharper can be had from marginals alone. Assuming
-independence, as the manuscript does, is therefore not a harmless convenience --- it
-selects one point out of $[0,\,0.5]$.
 
 \paragraph{On the campaign's marginals} Within a cell, $\hat F_A(s)$ is the share of the
 $100$ seeds with $\tau_{\mathrm{ARF}} \le s$ and $\hat F_D(s)$ the share with
@@ -340,39 +340,17 @@ the $95\%$ level after a bootstrap resampling the $100$ seeds. There, the blind 
 forced by the marginals alone, with no assumption on the coupling: it is not an artefact
 of an independence hypothesis.
 
-\subsection{The Race, Measured}
-
-The event is now defined and its probability identified, so the campaign can be read
-directly. Table~\ref{tab:race} gives the partition and $P_{\mathrm{miss}}$ at the three
-thresholds.
-
-\begin{table}[t]
-\centering
-\caption{The race, measured on the campaign. Regions 3 and 4 are empty, so
-$\hat P_{\mathrm{miss}}$ estimates $P_{\mathrm{miss}}$ itself rather than a bound on it.}
-\label{tab:race}
-\begin{tabular}{crrrrl}
-\toprule
-$\lambda$ & region 1 & region 2 & $C_H$ & $\hat P_{\mathrm{miss}}$ & Wilson $95\%$ \\
-\midrule
-$8$  & $1\,906$ & $94$    & $0$ & $0.0905$ & $[0.0787;0.1039]$ \\
-$25$ & $778$     & $1\,222$ & $0$ & $0.9715$ & $[0.9633;0.9779]$ \\
-$50$ & $1$       & $1\,999$ & $0$ & $1.0000$ & $[0.9981;1.0000]$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-These totals pool cells of very unequal difficulty; the per-cell breakdown is given in
-Section~\ref{sec:d1:course}.
-
 % =====================================================================
-\section{The Independence Assumption Between Trees}
+\section{Dependence Between Trees}
 \label{sec:B}
 % =====================================================================
 
-The $M$ trees share the same stream, yet the manuscript treats the $\tau_i$ as
-independent when computing $\tau_{\mathrm{ARF}} = \min_i \tau_i$. In which direction does
-that bias its formula?
+To obtain the law of $\tau_{\mathrm{ARF}} = \min_i \tau_i$, the manuscript treats the $M$
+trees as independent, although they learn from the same stream. It states that the
+resulting formula overestimates $P_{\mathrm{miss}}$, because the trees are positively
+correlated, but gives no proof. This section places the independence at the level where it
+holds, proves the direction of the bias, and states what it changes for the critical
+ensemble size (Question B).
 
 \subsection{Conditional Factorization}
 \label{sec:factorization}
@@ -452,60 +430,165 @@ $P_{\mathrm{miss}}$ is smaller at every $M$: whatever ensemble size the certific
 admits, the real forest satisfies the guarantee too. The corollary is not invalidated but
 \textbf{reclassified as a conservative ceiling}.
 
-\paragraph{Two reservations} The comparison holds at a \emph{fixed}
-$\tau^*_{\mathrm{det}}$, which Proposition~9 makes a constant. Read as a claim about the
-real blind-spot risk it assumes more, since the real $\tau_{\mathrm{det}}$ is computed on
-the ensemble's error stream and so depends on how correlated the trees are. Both effects
-in fact lower $P_{\mathrm{miss}}$ --- a slower repair alarms earlier, and weaker variance
-reduction leaves a burstier stream that breaches $\lambda$ on noise alone --- so the sign
-holds, but part of the decrease is bought with alarms that win the race without detecting
-anything.
-
-And the corollary is not rescued. At $\Delta e = 0.33$ the manuscript measures
-$\widehat F(\tau^*_{\mathrm{det}}) = 0.49$: one tree alone already gives
-$P_{\mathrm{miss}} = 0.49$, ten times the $5\%$ that $\beta = 0.95$ allows, whence
-$M_{\mathrm{crit}} = 0$. Our correction states the true ceiling is $\ge 0$, which says
-nothing --- rescuing the certificate would require $\ge 1$. The status changes, the verdict
-does not.
-
-\subsection{The Correlation Trap}
-
-Could the dependence run the other way and reverse the conclusion? On the toy case of
-two trees uniform on $\{1,2\}$, an anti-monotone coupling ($\tau_1 = 1 \iff \tau_2 = 2$)
-gives $P(\tau_{\mathrm{ARF}} \le 1) = 1$ against $0.75$ under independence --- a
-\emph{faster} adaptation. Its covariance is
-$0 - \tfrac12\cdot\tfrac12 = -\tfrac14$, strictly negative.
-
-No ARF can realize it. By the law of total covariance, with
-$X=\mathbf{1}\{\tau_1{>}1\}$ and $Y=\mathbf{1}\{\tau_2{>}1\}$, the conditional term
-vanishes by Section~\ref{sec:factorization} and both conditional expectations equal
-$G_S(1)$, so
-\[
-  \mathrm{Cov}(X,Y) = \mathrm{Var}\big(G_S(1)\big) \;\ge\; 0 .
-\]
-
-\begin{center}
-\fbox{\parbox{0.92\columnwidth}{\textbf{The trap defused.} The only channel of dependence
-between two trees is the stream they share, and sharing a stream can only make them fail
-together --- never in opposition. The covariance is therefore never negative, and the
-anti-monotone coupling is structurally out of reach. This is not a missing link in
-Section~\ref{sec:convexity}, whose proof never invokes the sign of the dependence: it is a
-second consequence of the same conditional factorization, and it closes the one objection
-a reader would raise against it.}}
-\end{center}
+\paragraph{No coupling reverses the sign} An anti-monotone coupling between two trees would
+make the repair faster than under independence. It cannot occur in an ARF: by the
+conditional factorization, $\mathrm{Cov}(\mathbf{1}\{\tau_1>1\}, \mathbf{1}\{\tau_2>1\}) =
+\mathrm{Var}(G_S(1)) \ge 0$, since the only channel of dependence between two trees is the
+stream they share, which can only make them fail together~\cite{esary1967}. The toy
+coupling, the derivation, and two reservations on how the correction reads as a statement
+about the real alarm are in Appendix~\ref{app:proofs}.
 
 % =====================================================================
-\section{What the Repair Date Measures, and the Evidence It Leaves}
+\section{The Alarm as a Function of the Error Path}
+\label{sec:certificate}
+% =====================================================================
+
+Question C asks for the units of $\tau_{\mathrm{ARF}}$ and $\lambda$. The answer turns the
+comparison of two times into a comparison between evidence and threshold: first for
+detection within the horizon, through a certificate, then for the race itself.
+
+$\tau_{\mathrm{ARF}}$ counts observations; $\lambda$ counts excess errors, since the
+detector
+\begin{equation}
+  S_t = \max\big(0,\ S_{t-1} + e_t - \hat p_0 - \delta_P\big), \qquad S_{\tau^*} = 0,
+  \label{eq:cusum}
+\end{equation}
+rises by nearly one unit per error and barely falls on a success. The manuscript bridges
+the two by a rate: Proposition~9 sets $\tau^*_{\mathrm{det}} := \lambda/(\Delta e - \delta_P)$
+and races $\tau_{\mathrm{ARF}}$ against that constant instead of the observed
+$\tau_{\mathrm{det}}$. The rate is a fiction: it decays as the forest repairs, the reset to
+zero discards evidence so that the alarm date depends on the order of the errors and not
+only on their total, and the threshold may never be crossed. The right object is the peak
+statistic $S_{\max}(H) = \max_{t \le H} S_t$. Write
+$X_t = e_t - \hat p_0 - \delta_P$ and $A(k,j) = \sum_{t=k+1}^{j} (e_t - \hat p_0)$.
+
+\begin{proposition}[Lindley's closed form]\label{prop:lindley}
+For every $j \le H$, $S_j = \max_{0 \le k \le j} \sum_{t=k+1}^{j} X_t$, hence
+\[
+  S_{\max}(H) = \max_{0 \le k \le j \le H} \big[A(k,j) - (j-k)\,\delta_P\big].
+\]
+\end{proposition}
+
+On the $2\,000$ campaign trajectories the closed form matches the recurrence to
+$1.26 \times 10^{-11}$; the analysis script stops if this check fails.
+
+\begin{corollary}[Certificate]\label{cor:certificate}
+$S_{\max}(H) \ge \lambda$ if and only if some sub-window $]k,j] \subseteq\, ]0,H]$
+satisfies $A(k,j) \ge \lambda + (j-k)\,\delta_P$. This holds on every run, with no averaging
+and no distributional assumption.
+\end{corollary}
+
+\noindent The full window alone, $A(0,H) \ge \lambda + H\delta_P$, is one term of the
+maximum, and therefore only sufficient.
+
+\subsection{The Race Is Decided Before the Repair}
+\label{sec:race-identity}
+
+Let $S_{\mathrm{pre}} := \max_{0 \le t < \tau_{\mathrm{ARF}}} S_t$ be the highest level the
+detector reaches strictly before the first replacement, with $S_{\mathrm{pre}} = 0$ when
+$\tau_{\mathrm{ARF}} = 0$.
+
+\begin{proposition}[Race identity]\label{prop:race}
+On every run and for every threshold $\lambda > 0$,
+\[
+  \tau_{\mathrm{det}} < \tau_{\mathrm{ARF}} \iff S_{\mathrm{pre}} \ge \lambda .
+\]
+Hence $\{S_{\mathrm{pre}} < \lambda\}$ is $\mathrm{Miss}$ together with the ties
+$\{\tau_{\mathrm{det}} = \tau_{\mathrm{ARF}}\}$, and by Proposition~\ref{prop:lindley}
+\[
+  S_{\mathrm{pre}} = \max_{0 \le k \le j < \tau_{\mathrm{ARF}}}
+  \big[A(k,j) - (j-k)\,\delta_P\big].
+\]
+\end{proposition}
+
+\begin{proof}
+$\tau_{\mathrm{det}} = \inf\{t : S_t \ge \lambda\}$. If $\tau_{\mathrm{det}} <
+\tau_{\mathrm{ARF}}$, the instant $t = \tau_{\mathrm{det}}$ enters the maximum defining
+$S_{\mathrm{pre}}$ and $S_t \ge \lambda$ there. Conversely, if $S_t \ge \lambda$ for some
+$t < \tau_{\mathrm{ARF}}$, the first such instant is $\tau_{\mathrm{det}}$, which is
+therefore smaller than $\tau_{\mathrm{ARF}}$. The complement of
+$\{\tau_{\mathrm{det}} < \tau_{\mathrm{ARF}}\}$ is $\mathrm{Miss}$ plus the ties, by the
+convention of Section~\ref{sec:miss}. The last expression is
+Proposition~\ref{prop:lindley} applied up to $\tau_{\mathrm{ARF}} - 1$.
+\end{proof}
+
+\noindent Ties are rare: $0$, $6$ and $0$ runs at $\lambda = 8$, $25$ and $50$
+(Section~\ref{sec:miss}).
+
+\paragraph{What this replaces} The manuscript races $\tau_{\mathrm{ARF}}$ against
+$\tau^*_{\mathrm{det}}$, a mean accumulation time. Proposition~\ref{prop:race} needs no
+rate, no averaging and no assumption on the trees: on each run, the race compares the
+excess error the forest lets through before its first replacement with the threshold.
+Section~\ref{sec:spre} measures that evidence, and it sets the threshold at which the race
+changes hands.
+
+% =====================================================================
+\section{Campaign and Measurement}
+\label{sec:campaign}
+% =====================================================================
+
+\paragraph{The campaign} The R2 bench of the manuscript is rerun with its stream, its
+forest ($M = 10$, internal ADWIN evaluated at every step) and its detector
+($\delta_P = 0.01$): an abrupt shift of the decision boundary at $\tau^*$, on $20$
+amplitudes from $\Delta e = 0.028$ to $0.498$ with $100$ seeds each, that is $2\,000$ runs
+observed over $H = 2\,000$ steps after the drift, plus a drift-free arm of $2\,000$ runs.
+The simulation records only the binary error $e_t$ and the tree replacement events. No
+threshold enters the loop, so $S_t$, $\tau_{\mathrm{det}}$ and every indicator below are
+recomputed offline for any $\lambda$ (Appendix~\ref{sec:D1}). The baseline $\hat p_0$ is
+estimated over the last $3\,000$ pre-drift steps; over $1\,000$ steps, as in R2, no verdict
+of this report changes.
+
+\paragraph{Indicators} Two families are measured on every run. \emph{Repair dates}, in
+steps: $\tau_{\mathrm{ARF}}$ and $\tau_{\mathrm{swap}}(q)$. \emph{Evidence}, in excess
+errors: $A(H)$ and $S_{\max}(H)$ as prescribed; the short-window area $A(w)$, cut at
+$w = \mathrm{round}(3 \times 18.5/\Delta e)$, three typical transients; $S_{\mathrm{pre}}$
+of Proposition~\ref{prop:race}; and $G(\tau_{\mathrm{ARF}}) =
+S_{\tau_{\mathrm{ARF}}}/S_{\max}(H)$, the share of the evidence already accumulated at the
+first replacement. The return time $\tau_{\mathrm{rec}}$ exists only on the seed-averaged
+error and is compared amplitude by amplitude. As an external reference, the analytic
+probes of the group's benchmark give the accuracy of the forest on the region whose label
+changed; its area over the first $500$ steps and the first instant $t_{50}$ at which it
+reaches one half date the real relearning. They require the drift to be known and are
+never computable online.
+
+\begin{figure*}[t]
+  \centering
+\caption{Fraction of replaced trees $N_t/M$ (inter-seed median and interquartile range),
+  global error $\bar e_t$, and internal detector state $S_t$ on a common time axis, at
+  three amplitudes spanning the grid, with the four temporal markers $\tau_{\mathrm{det}}$
+  (at $\lambda = 8$), $\tau_{\mathrm{ARF}}$, $\tau_{50\%}$ and $\tau_{\mathrm{rec}}$. The
+  time axis is logarithmic: the four instants span two orders of magnitude across the
+  grid, and on a linear axis the markers of the high-amplitude column collapse into the
+  first few pixels. The $\tau_{\mathrm{rec}}$ marker is dashed where the test lacks the
+  power to resolve it.}
+\label{fig:joint}
+  \includegraphics[width=0.92\textwidth]{resultats_R2/resultats/figures/Fig_QD_trajectoires_full.png}
+
+\end{figure*}
+
+\paragraph{Association} A correlation pooled over the $2\,000$ runs measures the common
+dependence of both quantities on $\Delta e$. Every coefficient is therefore computed within
+an amplitude, on its $100$ seeds, then summarised over the $18$ amplitudes of the decision
+domain $\Delta e \ge 0.10$, which excludes the replacements driven by noise at the bottom
+of the grid. The coefficient is Kendall's $\tau_b$~\cite{kendall1945}, which reads on pairs
+and corrects for ties; censored durations are ranked last, which is licit because the
+horizon is common to all runs. Pearson's coefficient is undefined on censored values, and
+Spearman's handles their tie blocks only implicitly (Appendix~\ref{sec:D2}). Confidence
+intervals are percentile bootstrap intervals~\cite{efron1979} over the seeds, $2\,000$
+resamples, and an association is called discernible when its interval excludes zero. That
+rule was fixed during the analysis rather than before it; Appendix~\ref{sec:D3} states this
+and lists the three cells on which it differs from the fixed threshold
+$|\tau_b| > 0.13295637$. Shares of runs carry Wilson $95\%$ intervals~\cite{wilson1927}.
+
+% =====================================================================
+\section{What the Repair Date Measures}
 \label{sec:repair-date}
 % =====================================================================
 
-The manuscript dates the forest's repair at $\tau_{\mathrm{ARF}}$, the first tree
-replacement, and reasons about the race through the evidence the detector accumulates in
-the meantime. This section examines both objects: what $\tau_{\mathrm{ARF}}$ dates
-(Section~\ref{sec:hierarchy}), how the alarm depends on the error path
-(Section~\ref{sec:certificate}), and how much evidence the repair leaves behind
-(Section~\ref{sec:budget}). The baseline $\hat p_0$ is estimated over the last $3\,000$
-pre-drift steps.
+The manuscript dates the adaptation of the forest at $\tau_{\mathrm{ARF}}$. The subject asks
+whether this instant measures what it claims and, if not, what should replace it
+(Questions C and D). Three results show that it dates the repair too early and too
+noisily; the last two measure what it still carries.
 
 \subsection{The First Replacement Is a Lower Bound}
 \label{sec:hierarchy}
@@ -575,8 +658,215 @@ Section~\ref{sec:convexity} compares two laws of $\tau_{\mathrm{ARF}}$ and says 
 of $\tau_{\mathrm{swap}}(q)$. Grant that correction in full, and $\tau_{\mathrm{ARF}}$ still
 dates the recovery too early: the two errors compound.
 
-\subsection{The Alarm Is a Deterministic Function of the Error Path}
-\label{sec:certificate}
+\subsection{The First Replacement Fires Without Drift}
+\label{sec:e:nodrift}
+
+A drift-free arm of $2\,000$ runs, with no change point at all and the same horizon,
+answers a question that needs no threshold: what does
+$\tau_{\mathrm{ARF}}$ read when there is nothing to repair? Appendix~\ref{sec:D1} reads this arm in passing; it is reported here in full.
+
+\begin{table}[t]
+\centering
+\caption{The drift-free arm against the campaign; quartiles of the first replacement,
+$39$ and $192$ steps, and trees counted over the horizon $H$. The median at
+$\Delta e = 0.028$ carries the bootstrap interval $[92.5 ; 158.5]$ of
+Table~\ref{tab:ic-medianes}.}
+\label{tab:nodrift}
+\small
+\begin{tabular}{lr}
+\toprule
+On $2\,000$ runs with no change point & \\
+\midrule
+runs where at least one tree is replaced & $2\,000/2\,000$ \\
+first replacement, median & $95$ steps \\
+distinct trees renewed, median & $9/10$ \\
+runs whose forest is entirely renewed & $575/2\,000 = 28.7\%$ \\
+\midrule
+median $\tau_{\mathrm{ARF}}$ at $\Delta e = 0.028$ (real drift) & $118$ steps \\
+median $\tau_{\mathrm{ARF}}$ over the whole grid & $38$ steps \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+\paragraph{Reading} Replacement churn under pure noise is the normal regime of the ARF,
+not an anomaly: nine trees out of ten are renewed over two thousand steps with no drift
+whatsoever. At the weakest amplitude of the grid the first replacement comes after $118$ steps against
+$95$ with no drift at all, so at that amplitude it does not distinguish a real change from
+its absence. This is the control any candidate replacement for $\tau_{\mathrm{ARF}}$ must
+pass before its correlations are worth computing, and it is test A1 of the benchmark.
+
+\subsection{Most of the Evidence Is Already There}
+\label{sec:gshare}
+
+At the first replacement the detector has already accumulated between $49\%$ and $76\%$ of
+the evidence it will ever reach: $G(\tau_{\mathrm{ARF}})$ ranges from $0.4889$ to $0.7594$
+over the $18$ amplitudes of the decision domain (Figure~\ref{fig:rg}). The first replacement
+is therefore not the end of the transient but a point inside it. The fraction of
+adaptation acquired at the same instant, measured on the seed-averaged error, supports no
+comparable statement: it ranges from negative values to $0.885$, is not monotone in
+$\Delta e$, and rests on a post-drift plateau that never reaches its theoretical level, so
+it is reported in Appendix~\ref{sec:D1} only.
+
+\subsection{What $\tau_{\mathrm{ARF}}$ Tracks, Amplitude by Amplitude}
+\label{sec:tracks}
+
+The subject prescribes two comparisons: $\tau_{\mathrm{ARF}}$ against the later replacement
+dates $\tau_{\mathrm{swap}}(q)$, and against the evidence $A(H)$ and $S_{\max}(H)$.
+Appendix~\ref{sec:D3} publishes all $120$ coefficients; the pooled and stratified medians
+summarise them.
+
+\paragraph{The aggregation collapse}
+
+\begin{table}[t]
+  \centering
+\caption{Pooled against stratified coefficients; the stratified column is the median
+  over the 18 amplitudes of the decision domain. The first row is tautological, see
+  Appendix~\ref{sec:d3:tauto}.}
+\label{tab:agregation}
+  \small
+  \begin{tabular}{lccc}
+    \toprule
+    Comparator & pooled $\tau_b$ & median stratified & ratio \\
+    \midrule
+    $\tau_{\mathrm{swap}}(10\%)$ & $+1.000000$ & $+1.000000$ & $1.00$ \\
+    $\tau_{\mathrm{swap}}(25\%)$ & $+0.644626$ & $+0.493224$ & $1.31$ \\
+    $\tau_{\mathrm{swap}}(50\%)$ & $+0.556494$ & $+0.336523$ & $1.65$ \\
+    $\tau_{\mathrm{swap}}(75\%)$ & $+0.461827$ & $+0.097934$ & $4.72$ \\
+    $A(H)$                       & $+0.396512$ & $+0.052559$ & $7.54$ \\
+    $S_{\max}(H)$                & $+0.314673$ & $+0.212865$ & $1.48$ \\
+    \bottomrule
+  \end{tabular}
+
+\end{table}
+
+For $A(H)$ the pooled coefficient is $+0.3965$ against a median stratified coefficient of
+$+0.0526$, a factor of $7.5$. This is not a strong association weakened by stratification:
+the stratified coefficient is indistinguishable from zero under this protocol at every one
+of the 18 amplitudes. The pooled coefficient manufactures a link rather than confirming a
+weak one. Mechanically it is Simpson's paradox~\cite{simpson1951} on $\Delta e$: within each stratum no
+association is discernible, and across strata both quantities move with the amplitude, so
+pooling recovers the amplitude and reports it as an association. The within-stratum null
+is itself partly a property of $A(H)$ rather than of $\tau_{\mathrm{ARF}}$: about half of
+the run-to-run variance of $A(H)$ is baseline noise (Section~\ref{sec:d3:answer}).
+
+The effect is strongest exactly where the within-stratum association is weakest: ratio
+$7.54$ for $A(H)$ and $4.72$ for $\tau_{\mathrm{swap}}(75\%)$, but only $1.48$ for
+$S_{\max}(H)$, which does carry a genuine within-stratum signal. That is the diagnostic
+one should expect, and it is why no pooled coefficient is quoted as a result in this work.
+
+\begin{figure*}[t]
+  \centering
+\caption{Forest plot of $\tau_b(\tau_{\mathrm{ARF}}, \cdot)$ with its bootstrap
+  $95\%$ confidence interval, for $A(H)$ (left) and $S_{\max}(H)$ (right), one row per
+  amplitude; filled squares mark intervals that exclude zero, hollow circles those that
+  straddle it, and the two shaded rows lie outside the decision domain. 15 of 18
+  intervals exclude zero for $S_{\max}(H)$, none for $A(H)$, under the interval rule of
+  Appendix~\ref{sec:D4rule}. The 15 are the 15 consecutive amplitudes from
+  $\Delta e = 0.287$ upward. Table \texttt{QCD\_correlations\_stratifiees\_full}.}
+\label{fig:forest}
+  \includegraphics[width=0.92\textwidth]{resultats_R2/resultats/figures/Fig_QD_forest_taub_full.png}
+
+\end{figure*}
+
+\subsection{The Answer}
+\label{sec:d3:answer}
+
+The two quantities in Table~\ref{tab:strat} play different roles, and conflating them
+changes the answer.
+
+$A(H)$ is the accumulated excess error over the horizon. Its association with
+$\tau_{\mathrm{ARF}}$ is indistinguishable from zero under this protocol at all
+18 amplitudes: median $+0.0526$, every confidence interval straddling zero.
+
+$S_{\max}(H)$ is the peak of the detector path~\eqref{eq:cusum}, in the closed form of
+Proposition~\ref{prop:lindley}. Its association is discernible at 15 of the 18 amplitudes, with a median of $+0.2129$, and the
+confidence interval lies entirely above zero at every amplitude from $\Delta e = 0.287$
+upwards. That count is the one the interval rule of Appendix~\ref{sec:D4rule} gives; the
+\texttt{discernable} column implements the threshold rule and would give $14$, the
+difference being the single cell $\Delta e = 0.287$, whose interval $[+0.0027 ; +0.2519]$
+excludes zero while its $\tau_b$ of $0.1308$ falls just under the threshold.
+
+The distinction matters because it is $S_{\max}(H)$ that decides the alarm, not $A(H)$.
+The alarm is by definition the crossing of $\lambda$ by $S_{\max}$. A claim that
+$\tau_{\mathrm{ARF}}$ carries no information about the evidence offered to the detector is
+attached to the wrong object if it rests on $A(H)$ alone.
+
+\paragraph{Why $A(H)$ shows nothing} $A(H)$ sums $e_t - \hat p_0$ over $2\,000$ steps, so an
+error on the estimated baseline is multiplied by $2\,000$. Within a stratum,
+$\tau_b(\hat p_0, A(H))$ has a median of $-0.4741$ over the 18 amplitudes: the runs whose
+baseline was estimated high show the least excess error, whatever the forest did. The
+baseline accounts for a median share of $0.51$ of the run-to-run variance of $A(H)$, and up
+to $0.88$. Over the short window $w = \mathrm{round}(3 \times 18.5/\Delta e)$ of
+Section~\ref{sec:certificate}, the same coefficient falls to $-0.0639$, and an association
+with $\tau_{\mathrm{ARF}}$ appears: median $+0.2313$, with a bootstrap interval excluding
+zero at 13 of the 18 amplitudes. This is exploratory --- the window was added after the
+table above was read --- and it is reproduced by \texttt{chiffres\_QD.py --sous D3w}. The
+null on $A(H)$ therefore says more about $A(H)$ than about $\tau_{\mathrm{ARF}}$.
+
+\noindent The answer, stated sharply:
+
+\begin{center}
+\fbox{\parbox{0.92\columnwidth}{$\tau_{\mathrm{ARF}}$ shows \textbf{no discernible
+association} with the full-horizon excess error $A(H)$ at any of the 18 amplitudes, but
+about half of the variance of $A(H)$ is baseline noise multiplied by $H$. Over the
+transient window alone, $A(w)$, the association is \textbf{weak but real}: median
+$\tau_b = +0.2313$, discernible at 13 of 18 amplitudes (exploratory). It is of the same
+order with $S_{\max}(H)$, the quantity that determines whether the alarm fires: median
+$\tau_b = +0.2129$, discernible at 15 of 18 amplitudes, every amplitude from
+$\Delta e = 0.287$ upwards without exception, and at none below. Ties on
+$\tau_{\mathrm{ARF}}$ are too rare to move any of these verdicts
+(Appendix~\ref{sec:D2}).}}
+\end{center}
+
+\paragraph{Censoring drives none of this} Recomputing every coefficient on complete cases
+instead of ranking censored runs last changes no coefficient by more than $0.0403$, on
+$\tau_{\mathrm{swap}}(75\%)$, the one comparator whose censoring exceeds half of a cell
+inside the domain (Appendix~\ref{sec:d3:censure}).
+
+\subsection{All Indicators Together}
+\label{sec:o3}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{resultats_R2/resultats/figures/Fig_QD_matrice_correlations_full.png}
+\caption{Kendall $\tau_b$ between fourteen indicators. Left: pooled over the $2\,000$ runs.
+Right: median over the $18$ amplitudes of the decision domain. Rows and columns are
+ordered by a hierarchical clustering on $1 - |\tau_b|$ of the right panel. Reference area
+and $t_{50}$ come from the analytic probes. Censored durations ranked last. Script
+\texttt{matrice\_correlations.py}.}
+\label{fig:matrice}
+\end{figure*}
+
+Figure~\ref{fig:matrice} crosses fourteen indicators: the prescribed ones, the
+short-window area, $S_{\mathrm{pre}}$, the alarm dates at $\lambda = 8$ and $25$, and the
+analytic reference. The list was fixed after the prescribed analysis, so the reading is
+exploratory.
+
+\paragraph{Pooling manufactures agreement} Pooled over the $2\,000$ runs, almost every
+pair is associated, because $\Delta e$ moves every indicator. Within amplitudes most of it
+disappears: $A(H)$ against $\tau_{\mathrm{ARF}}$ goes from $0.40$ to $0.05$, and
+$\tau_{\mathrm{swap}}(75\%)$ against the alarm date at $\lambda = 8$ from $0.52$ to $0.08$.
+
+\paragraph{Two groups remain} Within amplitudes the indicators form two groups joined by
+weak bridges. The first measures evidence and damage: $S_{\max}(H)$ and $A(w)$ agree at
+$0.71$, and both anticipate the alarm at $\lambda = 25$ ($-0.40$ and $-0.55$). The second
+measures the repair: the analytic area and its date $t_{50}$ agree at $-0.66$, and the
+replacement dates follow them. No coefficient between the two groups exceeds $0.33$ in
+absolute value.
+
+\paragraph{Three readings} First, $A(w)$ is a better measure of damage than $A(H)$: it
+groups with $S_{\max}(H)$, while $A(H)$ is tied to the estimated baseline ($-0.47$) and
+$A(w)$ is not ($-0.06$). Second, among replacement dates, $\tau_{\mathrm{swap}}(25\%)$
+tracks the analytic reference best, $0.45$ with $t_{50}$, ahead of $\tau_{\mathrm{ARF}}$ and
+$\tau_{\mathrm{swap}}(50\%)$ at $0.34$ and of $\tau_{\mathrm{swap}}(75\%)$ at $0.15$, which
+its censoring degrades. Third, the evidence that decides the race, $S_{\mathrm{pre}}$,
+depends on the date of the first replacement ($0.50$) far more than on the damage ($0.23$
+with $A(w)$): a later replacement leaves the detector more time.
+
+\paragraph{Reservation} The analytic reference and the error-based indicators are not
+independent. The excess error is approximately $\Delta e$ times the share of the changed
+region still misclassified, so part of their agreement is algebraic.
 
 \begin{table*}[t]
 \centering
@@ -599,46 +889,174 @@ $0.498$ & $112$    & $1.00$ $[0.96;1.00]$ & $1.00$ $[0.96;1.00]$ & $0.02$ $[0.01
 \end{tabular}
 \end{table*}
 
-$\tau_{\mathrm{ARF}}$ counts observations; $\lambda$ counts excess errors, since the
-detector
-\begin{equation}
-  S_t = \max\big(0,\ S_{t-1} + e_t - \hat p_0 - \delta_P\big), \qquad S_{\tau^*} = 0,
-  \label{eq:cusum}
-\end{equation}
-rises by nearly one unit per error and barely falls on a success. The manuscript bridges
-the two by a rate: Proposition~9 sets $\tau^*_{\mathrm{det}} := \lambda/(\Delta e - \delta_P)$
-and races $\tau_{\mathrm{ARF}}$ against that constant instead of the observed
-$\tau_{\mathrm{det}}$. The rate is a fiction: it decays as the forest repairs, the reset to
-zero discards evidence so that the alarm date depends on the order of the errors and not
-only on their total, and the threshold may never be crossed. The right object is the peak
-statistic $S_{\max}(H) = \max_{t \le H} S_t$. Write
-$X_t = e_t - \hat p_0 - \delta_P$ and $A(k,j) = \sum_{t=k+1}^{j} (e_t - \hat p_0)$.
+% =====================================================================
+\section{Evidence Against the Threshold}
+\label{sec:E}
+% =====================================================================
 
-\begin{proposition}[Lindley's closed form]\label{prop:lindley}
-For every $j \le H$, $S_j = \max_{0 \le k \le j} \sum_{t=k+1}^{j} X_t$, hence
-\[
-  S_{\max}(H) = \max_{0 \le k \le j \le H} \big[A(k,j) - (j-k)\,\delta_P\big].
-\]
-\end{proposition}
+Section~\ref{sec:A} identified $P_{\mathrm{miss}}$ and Section~\ref{sec:certificate}
+reduced the race to evidence against threshold. This section measures both on the
+campaign: the race, the evidence that decides it, the evidence left for detection, and the
+cost of a threshold when nothing happens.
 
-\begin{proof}
-By induction on $j$. At $j = 0$ both sides are $0$. If the identity holds at $j-1$, then
-$S_j = \max\big(0,\ \max_{k \le j-1} \sum_{t=k+1}^{j-1} X_t + X_j\big)
-     = \max\big(0,\ \max_{k \le j-1} \sum_{t=k+1}^{j} X_t\big)$,
-and the $0$ is the empty sum obtained at $k = j$. Expanding the sum gives the second form.
-\end{proof}
+\subsection{The Race, Measured}
 
-On the $2\,000$ campaign trajectories the closed form matches the recurrence to
-$1.26 \times 10^{-11}$; the analysis script stops if this check fails.
+\begin{table}[t]
+\centering
+\caption{The race, measured on the campaign. Regions 3 and 4 are empty, so
+$\hat P_{\mathrm{miss}}$ estimates $P_{\mathrm{miss}}$ itself rather than a bound on it.}
+\label{tab:race}
+\begin{tabular}{crrrrl}
+\toprule
+$\lambda$ & region 1 & region 2 & $C_H$ & $\hat P_{\mathrm{miss}}$ & Wilson $95\%$ \\
+\midrule
+$8$  & $1\,906$ & $94$    & $0$ & $0.0905$ & $[0.0787;0.1039]$ \\
+$25$ & $778$     & $1\,222$ & $0$ & $0.9715$ & $[0.9633;0.9779]$ \\
+$50$ & $1$       & $1\,999$ & $0$ & $1.0000$ & $[0.9981;1.0000]$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\begin{corollary}[Certificate]\label{cor:certificate}
-$S_{\max}(H) \ge \lambda$ if and only if some sub-window $]k,j] \subseteq\, ]0,H]$
-satisfies $A(k,j) \ge \lambda + (j-k)\,\delta_P$. This holds on every run, with no averaging
-and no distributional assumption.
-\end{corollary}
 
-\noindent The full window alone, $A(0,H) \ge \lambda + H\delta_P$, is one term of the
-maximum, and therefore only sufficient.
+\noindent These totals pool cells of very unequal difficulty (Figure~\ref{fig:course};
+Table~\ref{tab:course} in Appendix~\ref{sec:d1:course}). At $\lambda = 8$ the detector
+arrives first in $88\%$ to $99\%$ of runs from $\Delta e = 0.141$ upwards, but in $62\%$ at
+$\Delta e = 0.085$ and in none at $\Delta e = 0.028$, where $90\%$ of runs never alarm. At
+$\lambda = 25$ its share falls from $31\%$ at $\Delta e = 0.141$ to zero by
+$\Delta e = 0.36$, and at $\lambda = 50$ it never arrives first. The blind spot is a property
+of the pair $(\lambda, \Delta e)$, not of $\lambda$ alone.
+
+\begin{figure*}[t]
+  \centering
+\caption{Top: share of runs in which $\tau_{\mathrm{det}} < \tau_{\mathrm{ARF}}$, by
+  amplitude, for $\lambda \in \{8, 25, 50\}$. Filled markers with error bars: uncensored
+  runs only, Wilson $95\%$ interval, drawn only where the censoring of the cell is at most
+  $50\%$. Hollow markers: all 100 runs, censored runs counted as detector losses, drawn
+  everywhere. Bottom: censoring of $\tau_{\mathrm{det}}$ in the same cells, with the
+  $50\%$ line. What to see: at $\lambda = 8$ the detector wins almost everywhere except at
+  the bottom of the grid; at $\lambda = 25$ its win rate falls from $31\%$ at
+  $\Delta e = 0.141$ to zero by $\Delta e = 0.36$ while its censoring climbs back to
+  $99\%$ at the top of the grid; at $\lambda = 50$ it never wins. The fractions plotted are
+  those of Table~\ref{tab:course}, checked for equality inside the script.}
+\label{fig:course}
+  \includegraphics[width=0.9\textwidth]{resultats_R2/resultats/figures/Fig_QD_course_lambda_full.png}
+
+\end{figure*}
+
+
+\begin{table*}[t]
+\centering
+\caption{Six thresholds on the same campaign. ``Wins the race'' is
+$\tau_{\mathrm{det}} < \tau_{\mathrm{ARF}}$ over all $2\,000$ runs, censored runs counted
+as losses; the next column restricts to the runs that alarm. Brackets: Wilson $95\%$
+interval, $n = 2\,000$ drift-free runs. The rows at $\lambda = 8$, $25$ and $50$ reproduce
+Tables~\ref{tab:course} and~\ref{tab:aveugle}.}
+\label{tab:seuils}
+\begin{tabular}{crrrl}
+\toprule
+$\lambda$ & alarm fires & wins the race & of uncensored & false alarms, no drift \\
+\midrule
+$8$  & $95.3\%$ & $\mathbf{91.0\%}$ & $95.4\%$ & $83/2\,000 = 4.15\%$ $[3.36;5.12]$ \\
+$12$ & $94.3\%$ & $78.8\%$ & $83.5\%$ & $11/2\,000 = 0.55\%$ $[0.31;0.98]$ \\
+$15$ & $92.9\%$ & $\mathbf{36.3\%}$ & $39.1\%$ & $3/2\,000 = 0.15\%$ $[0.05;0.44]$ \\
+$20$ & $66.2\%$ & $8.1\%$ & $12.2\%$ & $0/2\,000 = 0.00\%$ $[0.00;0.19]$ \\
+$25$ & $38.9\%$ & $2.5\%$ & $6.6\%$ & $0/2\,000 = 0.00\%$ $[0.00;0.19]$ \\
+$50$ & $0.1\%$ & $0.0\%$ & $0.0\%$ & $0/2\,000 = 0.00\%$ $[0.00;0.19]$ \\
+\bottomrule
+\end{tabular}
+
+\end{table*}
+
+\subsection{The Evidence Before the Repair Sets the Transition}
+\label{sec:spre}
+
+\begin{table}[t]
+\centering
+\caption{Median evidence accumulated before the first replacement, and share of the $100$
+runs in which the detector arrives first, at three thresholds. By
+Proposition~\ref{prop:race}, the last three columns are the shares of runs with
+$S_{\mathrm{pre}} \ge \lambda$.}
+\label{tab:spre}
+\begin{tabular}{crrrr}
+\toprule
+$\Delta e$ & median $S_{\mathrm{pre}}$ & $\lambda = 8$ & $\lambda = 15$ & $\lambda = 20$ \\
+\midrule
+$0.028$ & $1.7$  & $0\%$  & $0\%$  & $0\%$ \\
+$0.085$ & $11.2$ & $62\%$ & $38\%$ & $20\%$ \\
+$0.141$ & $19.8$ & $88\%$ & $81\%$ & $49\%$ \\
+$0.243$ & $16.6$ & $97\%$ & $71\%$ & $21\%$ \\
+$0.361$ & $14.5$ & $98\%$ & $44\%$ & $3\%$ \\
+$0.498$ & $13.1$ & $99\%$ & $18\%$ & $1\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Proposition~\ref{prop:race} holds run by run on the campaign: at $\lambda = 8$, $25$ and
+$50$, the runs in which $S_{\mathrm{pre}} \ge \lambda$ are exactly those in which the
+detector arrives first, in agreement on $2\,000$ runs out of $2\,000$
+(\texttt{matrice\_correlations.py}). Table~\ref{tab:spre} reads the race through that
+quantity.
+
+\paragraph{The transition threshold} Above $\Delta e = 0.10$ the median $S_{\mathrm{pre}}$
+lies between $13.1$ and $19.8$. A threshold below that level is reached before the repair
+in most runs; a threshold above it rarely is. This is the transition the manuscript observes
+at $\lambda^* \approx 15$ to $25$ and leaves to future work: at $\lambda = 15$ the detector
+still arrives first in $36.3\%$ of runs, at $\lambda = 20$ in $8.1\%$.
+
+\paragraph{The paradoxical signature} From $\Delta e = 0.141$ upwards the median
+$S_{\mathrm{pre}}$ decreases as the drift grows, from $19.8$ to $13.1$, because the first
+replacement comes sooner. At a threshold between these values the detector therefore loses
+more often on stronger drifts: at $\lambda = 15$ its share falls from $81\%$ to $18\%$ over
+the same range. The paradox is a decreasing evidence before the repair, read against a
+fixed threshold.
+
+\paragraph{At the bottom of the grid} At $\Delta e = 0.028$ the median $S_{\mathrm{pre}}$
+is $1.7$: the excess error is too small for the detector to accumulate anything before the
+forest replaces a tree, and that replacement is itself driven by noise
+(Section~\ref{sec:e:nodrift}). This is the weak-signal regime of the manuscript rather than
+its blind spot.
+
+\subsection{What the Certificate Guarantees}
+
+\begin{table*}[t]
+\centering
+\caption{What this report changes in the manuscript's claims.}
+\label{tab:contributions}
+\small
+\begin{tabular}{@{}p{0.31\textwidth}p{0.49\textwidth}p{0.13\textwidth}@{}}
+\toprule
+Manuscript & This report & Status \\
+\midrule
+Blind spot as $\tau_{\mathrm{ARF}} < \tau^*_{\mathrm{det}}$, a constant; runs without alarm set aside
+  & Miss defined on the complete race; $P_{\mathrm{miss}}$ identified on the campaign; Fréchet
+    bounds; the race decided by $S_{\mathrm{pre}}$ against $\lambda$ (Sections~\ref{sec:A},
+    \ref{sec:certificate}) & made exact \\
+Independence between trees gives an upper bound on $P_{\mathrm{miss}}$, asserted
+  & independence holds given the stream; Jensen gives the direction; no coupling reverses
+    it; $M_{\mathrm{crit}}$ is a conservative ceiling (Section~\ref{sec:B}) & proven \\
+Error back to its baseline at $\tau_{\mathrm{ARF}}$, a rectangular transient
+  & the error returns after $\tau_{\mathrm{ARF}}$; three quarters of the forest are renewed
+    $6.0$ to $14.3$ times later; the rectangle misestimates $A(w)$ by up to $43\%$
+    (Sections~\ref{sec:repair-date}, \ref{sec:E}) & corrected \\
+$\tau_{\mathrm{ARF}}$ as adaptation time; noise replacements read as further evidence of
+  erasure
+  & a lower bound; median $95$ steps without drift against $118$ at $\Delta e = 0.028$;
+    $49\%$ to $76\%$ of the evidence already accumulated; $\tau_{\mathrm{swap}}(25\%)$ tracks
+    the analytic reference better (Section~\ref{sec:repair-date}) & qualified \\
+Transition $\lambda^* \approx 15$ to $25$, left to future work
+  & median $S_{\mathrm{pre}}$ between $13.1$ and $19.8$ above $\Delta e = 0.10$
+    (Section~\ref{sec:spre}) & explained \\
+Paradoxical signature at $\lambda = 25$
+  & confirmed on the race at $\lambda = 15$ and $20$, and explained by the decrease of
+    $S_{\mathrm{pre}}$ with $\Delta e$ & confirmed \\
+$\lambda = 8$ ``sacrifices false-alarm robustness''; no threshold escapes starvation
+  & on the Bernoulli bench $\lambda = 8$ wins $91.0\%$ of races for $4.15\%$ false alarms
+    over $2\,000$ drift-free steps & restricted \\
+ADWIN clock artefact, ProteuS streams~\cite{suarez2025}, KSWIN~\cite{raab2020}, static
+  forest, real data & not examined & out of scope \\
+\bottomrule
+\end{tabular}
+\end{table*}
 
 \paragraph{The full window proves little} Its toll $H\delta_P = 20$ turns the thresholds
 into raw areas of $28$, $45$ and $70$. What a run has to offer against these is the
@@ -687,7 +1105,7 @@ does not.
 \caption{(a) Predicted budgets, raw $18.5\,\Delta e^{0.02}$ and usable, against the
 measured areas $A(w)$ and $A(H)$, medians over $100$ seeds. (b) Share of the raw budget
 taken by the tolerance $\delta_P$. Shaded: the two amplitudes outside the decision domain
-of Section~\ref{sec:D4rule}.}
+of Appendix~\ref{sec:D4rule}.}
 \label{fig:budget}
 \end{figure}
 
@@ -717,38 +1135,317 @@ the manuscript's derivation, its exponent $0.02$ and its rectangle, is scaffoldi
 measurement replaces rather than supports.}}
 \end{center}
 
-% =====================================================================
-% Convention de titre : les sections portent leur contenu, pas le numéro de
-% la question (« Question A » a été retiré). Le correcteur doit donc trouver
-% la correspondance question -> section dans « Context and Scope ».
-%
-%
-% Phrase d'ouverture prête à l'emploi pour B, déplacée depuis la fin de A
-% (elle y occupait une sous-section pour trois lignes de pont) :
-%
-%   With $P_{\mathrm{miss}}$ point identified, the Fréchet interval of
-%   Question~A measures what the \emph{marginals alone} concede --- between
-%   $0.09$ and $0.34$ of probability mass at $\lambda = 8$, depending on the
-%   amplitude. Closing that gap is not a matter of more data: it requires the
-%   \emph{structure} of the dependence, which is the object of this question.
-%
-% Correspondance à écrire dans « Context and Scope » :
-%   Question A -> sec:A          Question B -> sec:B
-%   Question C -> sec:repair-date
-%   Question D -> sec:D1 (instrumentation), sec:D2 (coefficient),
-%                 sec:D3 (résultat, protocole, censure)
-%   hors questions -> sec:E (choix du seuil, témoin sans drift)
-% =====================================================================
-% =====================================================================
-% Question C fondue (QC1, QC2, QC3).
-% Elle s'insère ici, entre B et D. Deux dépendances déjà posées ailleurs :
-%   - l'identité tau_ARF = tau_swap(1/M), énoncée au début de la section D
-%     avec son compte de vérification, à renvoyer vers C une fois C écrite ;
-%   - tau_rec = tau_err(rho), dont la notation est déclarée dans la table de
-%     notations et rappelée en D.
-% =====================================================================
+\subsection{Detecting Is Not Winning}
+
+\paragraph{Control} $S_t$ does not depend on $\lambda$, so a single offline pass over
+each trajectory yields the first crossing for every threshold. The sweep must reproduce
+the campaign exactly at its three original thresholds, and it does: the alarm counts
+of Table~\ref{tab:aveugle} are recovered to the run. Nothing below is readable without
+this check.
+
+
+The campaign of $2\,000$ runs is read at six thresholds. The drift-free arm of Section~\ref{sec:e:nodrift} gives what the same threshold costs when
+nothing happens.
+
+
+
+\paragraph{The two columns come apart} At $\lambda = 15$ the alarm still fires in
+$92.9\%$ of runs, barely below the $95.3\%$ of $\lambda = 8$, but it arrives first in only
+$36.3\%$ of them. Almost two thirds of its alarms are raised after the forest has already
+replaced a tree --- the \emph{Zombie alarms} of the manuscript. Reading the detection
+column alone would suggest that a moderate threshold escapes the blind spot. It does not.
+
+\paragraph{The paradoxical signature survives at $\lambda = 15$} Amplitude by amplitude,
+the share of runs won by the detector falls as the drift grows, which is the signature the
+manuscript reports at $\lambda = 25$.
+
+\begin{table}[t]
+\centering
+\caption{Share of runs won by the detector, six amplitudes spanning the grid, over all
+$100$ runs of the cell. The $\lambda = 8$ column is the last column of
+Table~\ref{tab:course}, restricted to these six rows.}
+\label{tab:signature}
+\begin{tabular}{crrr}
+\toprule
+$\Delta e$ & $\lambda = 8$ & $\lambda = 15$ & $\lambda = 20$ \\
+\midrule
+$0.028$ & $0\%$  & $0\%$  & $0\%$ \\
+$0.085$ & $62\%$ & $38\%$ & $20\%$ \\
+$0.141$ & $88\%$ & $81\%$ & $49\%$ \\
+$0.243$ & $97\%$ & $71\%$ & $21\%$ \\
+$0.361$ & $98\%$ & $44\%$ & $3\%$ \\
+$0.498$ & $99\%$ & $18\%$ & $1\%$ \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+At $\lambda = 8$ the rate climbs with the amplitude, from $62\%$ to $99\%$. At
+$\lambda = 15$ it peaks at $81\%$ then falls to $18\%$, and at $\lambda = 20$ it collapses
+to $1\%$. The transition $\lambda^* \approx 15$ to $25$ announced in the manuscript is
+therefore confirmed on the race, not contradicted.
+
+\paragraph{What the false-alarm column adds} The manuscript grants that a hyper-reactive
+threshold reaches a safe zone but states that it ``sacrifices false-alarm robustness''. On
+this bench that cost is measured rather than assumed: $\lambda = 8$ raises an alarm in
+$83$ of $2\,000$ runs where nothing changes, $4.15\%$, just under the $5\%$ calibration level
+usually adopted for drift detectors. So on the Bernoulli bench the only threshold that wins the race does so at
+an ordinary false-alarm cost, and the admissible set is not empty here.
+
+\paragraph{Three reservations} The false-alarm rate is measured over $2\,000$ steps on
+$2\,000$ runs; over a longer deployment such alarms accumulate, and the upper end of the
+Wilson interval at $\lambda = 8$ is $5.12\%$. The bench is homoscedastic, so this says
+nothing about the \emph{Fundamental Tension} the manuscript establishes on
+ARMA--GARCH streams, where bounding false alarms under clustered volatility is what empties
+the admissible set. And at the weakest amplitude no threshold wins a single run, which
+Section~\ref{sec:A} establishes without any dependence assumption.
 
 % =====================================================================
+\section{Discussion}
+\label{sec:discussion}
+% =====================================================================
+
+
+
+Table~\ref{tab:contributions} summarises the argument against the manuscript. The
+manuscript's phenomenon survives every correction; what changes is its mechanism and its
+reach. The blind spot is a comparison, run by run, between the evidence the forest lets
+through before its first replacement and a fixed threshold. The repair date that the
+manuscript uses is the earliest possible one, and it is only weakly tied to the evidence
+that decides the race or to the damage.
+
+\subsection{What Was Not Done}
+
+\begin{itemize}
+  \item One campaign, at $M = 10$, on a homoscedastic Bernoulli bench: no result as a
+    function of the ensemble size, and nothing on the heteroscedastic streams where the
+    manuscript locates its \emph{Fundamental Tension}.
+  \item The decision rule on $\tau_b$ was fixed during the analysis. The short-window area,
+    $S_{\mathrm{pre}}$ and the fourteen-indicator matrix were added after the prescribed
+    analysis and are exploratory; no correction for multiplicity is applied.
+  \item $\tau_{\mathrm{rec}}$ exists on seed-averaged curves only and is not correlated run by
+    run.
+  \item $\mathrm{Var}(G_S)$ is not estimated: a single seed drives the stream and the trees,
+    so the bias of Section~\ref{sec:B} has a sign but no size.
+  \item The permanent error cost of the replacement mechanism under no drift is known only
+    as an order of magnitude.
+  \item The supervisor's additional questions --- the profile of the error after the drift,
+    the variance of the error across trees, a z-score of the error drop --- are not
+    addressed. The second would require a new campaign, since only the ensemble error is
+    recorded.
+\end{itemize}
+
+\subsection{An Open Question: a Reference for Adaptation}
+
+Every indicator on the detector's side is a function of the ensemble error, and the error
+mixes two things: how much the forest has relearned, and how hard the new task is. At the
+top of the grid the new task is easier and the error settles below its pre-drift baseline.
+On the analytic probes, the forest there relearns the changed region early, yet in most
+runs it permanently loses the rare region above the new boundary, a loss too small to
+appear in the error (benchmark journal, control~3). The short-window area is the best
+measure of damage among ours, but a reference for adaptation itself needs the probes,
+which are not available online.
+
+% =====================================================================
+\begin{thebibliography}{99}
+\setlength{\itemsep}{0pt}
+\small
+\bibitem{blindspot2026} Anonymous, ``The blind spot paradox: when adaptive classifiers defeat drift detectors,'' manuscript under review, IEEE ICDM, 2026.
+\bibitem{moreno2012} J.~G. Moreno-Torres, T.~Raeder, R.~Alaiz-Rodríguez, N.~V. Chawla, and F.~Herrera, ``A unifying view on dataset shift in classification,'' \emph{Pattern Recognition}, vol.~45, no.~1, pp.~521--530, 2012.
+\bibitem{gama2014} J.~Gama, I.~Žliobaitė, A.~Bifet, M.~Pechenizkiy, and A.~Bouchachia, ``A survey on concept drift adaptation,'' \emph{ACM Computing Surveys}, vol.~46, no.~4, art.~44, 2014.
+\bibitem{lu2018} J.~Lu, A.~Liu, F.~Dong, F.~Gu, J.~Gama, and G.~Zhang, ``Learning under concept drift: a review,'' \emph{IEEE Trans. Knowl. Data Eng.}, vol.~31, no.~12, pp.~2346--2363, 2018.
+\bibitem{gomes2017} H.~M. Gomes, A.~Bifet, J.~Read, J.~P. Barddal, F.~Enembreck, B.~Pfahringer, G.~Holmes, and T.~Abdessalem, ``Adaptive random forests for evolving data stream classification,'' \emph{Machine Learning}, vol.~106, no.~9--10, pp.~1469--1495, 2017.
+\bibitem{domingos2000} P.~Domingos and G.~Hulten, ``Mining high-speed data streams,'' in \emph{Proc. ACM SIGKDD}, 2000, pp.~71--80.
+\bibitem{oza2001} N.~C. Oza and S.~Russell, ``Online bagging and boosting,'' in \emph{Proc. 8th Int. Workshop on Artificial Intelligence and Statistics}, 2001, pp.~105--112.
+\bibitem{bifet2007} A.~Bifet and R.~Gavaldà, ``Learning from time-changing data with adaptive windowing,'' in \emph{Proc. SIAM SDM}, 2007, pp.~443--448.
+\bibitem{page1954} E.~S. Page, ``Continuous inspection schemes,'' \emph{Biometrika}, vol.~41, no.~1--2, pp.~100--115, 1954.
+\bibitem{hinkley1971} D.~V. Hinkley, ``Inference about the change-point from cumulative sum tests,'' \emph{Biometrika}, vol.~58, no.~3, pp.~509--523, 1971.
+\bibitem{montiel2021} J.~Montiel, M.~Halford, S.~M. Mastelini \emph{et al.}, ``River: machine learning for streaming data in Python,'' \emph{J. Mach. Learn. Res.}, vol.~22, no.~110, pp.~1--8, 2021.
+\bibitem{fine1999} J.~P. Fine and R.~J. Gray, ``A proportional hazards model for the subdistribution of a competing risk,'' \emph{J. Amer. Statist. Assoc.}, vol.~94, no.~446, pp.~496--509, 1999.
+\bibitem{aalen1978} O.~O. Aalen and S.~Johansen, ``An empirical transition matrix for non-homogeneous Markov chains based on censored observations,'' \emph{Scand. J. Statist.}, vol.~5, no.~3, pp.~141--150, 1978.
+\bibitem{manski2003} C.~F. Manski, \emph{Partial Identification of Probability Distributions}. New York: Springer, 2003.
+\bibitem{frechet1951} M.~Fréchet, ``Sur les tableaux de corrélation dont les marges sont données,'' \emph{Annales de l'Université de Lyon, Section A}, vol.~14, pp.~53--77, 1951.
+\bibitem{esary1967} J.~D. Esary, F.~Proschan, and D.~W. Walkup, ``Association of random variables, with applications,'' \emph{Ann. Math. Statist.}, vol.~38, no.~5, pp.~1466--1474, 1967.
+\bibitem{lindley1952} D.~V. Lindley, ``The theory of queues with a single server,'' \emph{Math. Proc. Cambridge Philos. Soc.}, vol.~48, no.~2, pp.~277--289, 1952.
+\bibitem{kendall1945} M.~G. Kendall, ``The treatment of ties in ranking problems,'' \emph{Biometrika}, vol.~33, no.~3, pp.~239--251, 1945.
+\bibitem{efron1979} B.~Efron, ``Bootstrap methods: another look at the jackknife,'' \emph{Ann. Statist.}, vol.~7, no.~1, pp.~1--26, 1979.
+\bibitem{wilson1927} E.~B. Wilson, ``Probable inference, the law of succession, and statistical inference,'' \emph{J. Amer. Statist. Assoc.}, vol.~22, no.~158, pp.~209--212, 1927.
+\bibitem{simpson1951} E.~H. Simpson, ``The interpretation of interaction in contingency tables,'' \emph{J. Roy. Statist. Soc. B}, vol.~13, no.~2, pp.~238--241, 1951.
+\bibitem{suarez2025} A.~L. Suárez-Cetrulo, A.~Cervantes, and D.~Quintana, ``ProteuS: a generative approach for simulating concept drift in financial markets,'' arXiv:2509.11844, 2025.
+\bibitem{raab2020} C.~Raab, M.~Heusinger, and F.-M. Schleif, ``Reactive soft prototype computing for concept drift streams,'' \emph{Neurocomputing}, vol.~416, pp.~340--351, 2020.
+\end{thebibliography}
+
+% =====================================================================
+% Annexes : hors du corps de 15 pages
+% =====================================================================
+\appendices
+
+\section{Proofs}
+\label{app:proofs}
+
+\subsection{Fréchet Bounds}
+
+\paragraph{Lower bound} For a fixed $s \in \mathbb{N}$, the event
+$\{\tau_{\mathrm{ARF}}\le s < \tau_{\mathrm{det}}\}$ implies
+$\tau_{\mathrm{ARF}}<\tau_{\mathrm{det}}$, so it is a \emph{subset} of $\mathrm{Miss}$.
+Write $A = \{\tau_{\mathrm{ARF}} \le s\}$ and $B = \{\tau_{\mathrm{det}} > s\}$, so
+$P(A) = F_A(s)$ and $P(B) = 1 - F_D(s)$. Fréchet's inequality follows from
+$P(A \cup B) \le 1$:
+\[
+  P(A \cap B) \;=\; P(A) + P(B) - P(A \cup B) \;\ge\; P(A) + P(B) - 1 ,
+\]
+and since a probability is non-negative,
+$P(A \cap B) \ge \max\big(0, P(A)+P(B)-1\big)$. Substituting,
+$P(A) + P(B) - 1 = F_A(s) - F_D(s)$. The inclusion holding for every $s$, we keep the
+largest value:
+\[
+  P_{\mathrm{miss}} \;\ge\; \max\Big(0,\ \sup_{s\in\mathbb{N}} \big[F_A(s)-F_D(s)\big]\Big).
+\]
+
+\paragraph{Upper bound} Here we proceed by \emph{superset}. We claim
+\[
+  \mathrm{Miss} \;\subseteq\; \{\tau_{\mathrm{ARF}}\le s\} \cup \{\tau_{\mathrm{det}}> s+1\},
+\]
+and prove it by taking a run in $\mathrm{Miss}$ and splitting on where
+$\tau_{\mathrm{ARF}}$ falls. If $\tau_{\mathrm{ARF}} \le s$ the run lies in the first set
+and nothing more is needed. If $\tau_{\mathrm{ARF}} \ge s+1$, then
+$\tau_{\mathrm{det}} > \tau_{\mathrm{ARF}} \ge s+1$ puts it in the second. In words:
+either the forest was early, or the alarm --- which comes after it --- was late. Boole's
+subadditivity, then optimizing over $s$ and truncating at $1$, gives
+\[
+  P_{\mathrm{miss}} \;\le\; \min\Big(1,\ \inf_{s\in\mathbb{N}} \big[F_A(s) + 1 - F_D(s+1)\big]\Big).
+\]
+
+\paragraph{Verification on a toy case} Take both clocks uniform on $\{1,2\}$, so
+$F_A = F_D$ with $F_A(1) = \tfrac12$. Then $\mathrm{Miss}$ requires
+$\tau_{\mathrm{ARF}} = 1$ and $\tau_{\mathrm{det}} = 2$, and its probability depends
+entirely on the coupling: $0$ when the two clocks always agree, $0.25$ under
+independence, $0.5$ when one is $1$ exactly as the other is $2$. Identical marginals,
+three answers. The formulas give a lower bound of $0$ and an upper bound of $0.5$
+(attained at $s = 0$ and $s = 1$), both reached: the interval is exactly the set of
+achievable values, and nothing sharper can be had from marginals alone. Assuming
+independence, as the manuscript does, is therefore not a harmless convenience --- it
+selects one point out of $[0,\,0.5]$.
+
+\subsection{Lindley's Closed Form}
+
+The proof of Proposition~\ref{prop:lindley}~\cite{lindley1952}.
+
+\begin{proof}
+By induction on $j$. At $j = 0$ both sides are $0$. If the identity holds at $j-1$, then
+$S_j = \max\big(0,\ \max_{k \le j-1} \sum_{t=k+1}^{j-1} X_t + X_j\big)
+     = \max\big(0,\ \max_{k \le j-1} \sum_{t=k+1}^{j} X_t\big)$,
+and the $0$ is the empty sum obtained at $k = j$. Expanding the sum gives the second form.
+\end{proof}
+
+
+\subsection{Two Reservations on the Independence Correction}
+
+\paragraph{Two reservations} The comparison holds at a \emph{fixed}
+$\tau^*_{\mathrm{det}}$, which Proposition~9 makes a constant. Read as a claim about the
+real blind-spot risk it assumes more, since the real $\tau_{\mathrm{det}}$ is computed on
+the ensemble's error stream and so depends on how correlated the trees are. Both effects
+in fact lower $P_{\mathrm{miss}}$ --- a slower repair alarms earlier, and weaker variance
+reduction leaves a burstier stream that breaches $\lambda$ on noise alone --- so the sign
+holds, but part of the decrease is bought with alarms that win the race without detecting
+anything.
+
+And the corollary is not rescued. At $\Delta e = 0.33$ the manuscript measures
+$\widehat F(\tau^*_{\mathrm{det}}) = 0.49$: one tree alone already gives
+$P_{\mathrm{miss}} = 0.49$, ten times the $5\%$ that $\beta = 0.95$ allows, whence
+$M_{\mathrm{crit}} = 0$. Our correction states the true ceiling is $\ge 0$, which says
+nothing --- rescuing the certificate would require $\ge 1$. The status changes, the verdict
+does not.
+
+\subsection{The Correlation Trap}
+
+Could the dependence run the other way and reverse the conclusion? On the toy case of
+two trees uniform on $\{1,2\}$, an anti-monotone coupling ($\tau_1 = 1 \iff \tau_2 = 2$)
+gives $P(\tau_{\mathrm{ARF}} \le 1) = 1$ against $0.75$ under independence --- a
+\emph{faster} adaptation. Its covariance is
+$0 - \tfrac12\cdot\tfrac12 = -\tfrac14$, strictly negative.
+
+No ARF can realize it. By the law of total covariance, with
+$X=\mathbf{1}\{\tau_1{>}1\}$ and $Y=\mathbf{1}\{\tau_2{>}1\}$, the conditional term
+vanishes by Section~\ref{sec:factorization} and both conditional expectations equal
+$G_S(1)$, so
+\[
+  \mathrm{Cov}(X,Y) = \mathrm{Var}\big(G_S(1)\big) \;\ge\; 0 .
+\]
+
+\begin{center}
+\fbox{\parbox{0.92\columnwidth}{\textbf{The trap defused.} The only channel of dependence
+between two trees is the stream they share, and sharing a stream can only make them fail
+together --- never in opposition. The covariance is therefore never negative, and the
+anti-monotone coupling is structurally out of reach. This is not a missing link in
+Section~\ref{sec:convexity}, whose proof never invokes the sign of the dependence: it is a
+second consequence of the same conditional factorization, and it closes the one objection
+a reader would raise against it.}}
+\end{center}
+
+\section{Notation and Conventions}
+\label{app:notation}
+
+\begin{table*}[t]
+\centering
+\caption{Notation used throughout.}
+\label{tab:notation}
+\begin{tabular}{@{}ll@{}}
+  \toprule
+  $\tau^*$ & the drift instant, known by construction \\
+  $\tau_{\mathrm{ARF}}$ & delay until the first tree is replaced, $\min_i \tau_i$ over the $M$ trees \\
+  $\tau_{\mathrm{det}}$ & delay until the first external alarm, possibly $+\infty$ \\
+  $F_A$, $F_D$ & cumulative distribution functions of $\tau_{\mathrm{ARF}}$ and $\tau_{\mathrm{det}}$ \\
+  $H$ & post-drift observation horizon, $H = 2\,000$ \\
+  $\lambda$, $\delta_P$ & the external detector's threshold and tolerance \\
+  $\Delta e$ & drift amplitude, the error jump a non-adapting model would suffer \\
+  $\mathrm{Miss}$ & the ``blind spot'' event, defined in Section~\ref{sec:miss} \\
+  \midrule
+  \multicolumn{2}{@{}l@{}}{\emph{for the inter-tree analysis:}} \\
+  $M = 10$ & number of trees in the forest \\
+  $\tau_i$ & adaptation delay of tree $i$, so $\tau_{\mathrm{ARF}} = \min_i \tau_i$ \\
+  $S$ & the stream trajectory $(x_t, y_t)$ alone, without the trees' internal draws \\
+  $U_i$ & the randomness specific to tree $i$, identified in Section~\ref{sec:factorization} \\
+  $F$ & CDF of a \emph{single} tree $\tau_i$ --- distinct from $F_A$, which is that of $\tau_{\mathrm{ARF}}$ \\
+  $G_S(s)$ & $:= P(\tau_1 > s \mid S)$, the single-tree survival function \emph{given} the stream \\
+  $\beta$ & reliability target, the share of drifts the monitor should catch ($0.95$ in the manuscript) \\
+  \midrule
+  \multicolumn{2}{@{}l@{}}{\emph{for the instrumented campaign:}} \\
+  $e_t$, $\bar e_t$ & prequential error at step $t$, binary; and its inter-seed mean, with no temporal smoothing \\
+  $\hat p_0$ & pre-drift error baseline, estimated on the recorded pre-drift steps \\
+  $S_t$ & detector state, Eq.~\eqref{eq:cusum}, with $S_{\tau^*} = 0$ \\
+  $S_{\max}(H)$ & peak of that path over the horizon; the alarm \emph{is} $S_{\max}$ crossing $\lambda$ \\
+  $A(H)$ & accumulated excess error over the horizon \\
+  $N_t$ & number of distinct trees replaced by step $t$ \\
+  $\tau_{\mathrm{swap}}(q)$ & first instant at which a fraction $q$ of the $M$ trees has been replaced, so $\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(1/M)$ \\
+  $\tau_{50\%}$ & $\tau_{\mathrm{swap}}(50\%)$, the instant at which half of the forest has been renewed \\
+  $\tau_{\mathrm{rec}}$ & return of $\bar e_t$ below $\hat p_0 + \rho\,\Delta e$ with $\rho = 0.25$, held $20$ consecutive steps; also written $\tau_{\mathrm{err}}(\rho)$ \\
+  $R(\cdot)$, $G(\cdot)$ & fraction of the adaptation acquired, and of the evidence accumulated, at a given instant \\
+  $\tau_b$ & Kendall's rank correlation with tie correction, Eq.~\eqref{eq:taub} \\
+  \bottomrule
+\end{tabular}
+\end{table*}
+
+\noindent Both delays are counted from $\tau^*$ and take integer values, a fact the
+Fréchet bounds of Section~\ref{sec:A} rely on. Every measured figure in this report comes from the
+instrumented campaign of $20$ amplitudes $\times\ 100$ seeds $= 2\,000$ runs,
+$H = 2\,000$, $M = 10$, documented in \texttt{resultats\_R2/}; the two exceptions are the
+drift-free arm of $2\,000$ runs read in Section~\ref{sec:E} and the ten fictitious runs of
+the counter-example in Appendix~\ref{sec:d2:contre}, both signalled where they are used.
+
+\paragraph*{Intervals in brackets} A share of runs, $k$ out of $n$, is an estimate of a
+probability $p$ from a finite sample, and is reported with its Wilson $95\%$ interval,
+$[\ell;u]$: the set of values of $p$ under which observing $k$ successes out of $n$ would
+not be rejected at the $5\%$ level. Concretely, $p$ is retained whenever $k$ lies within
+$1.96$ standard deviations of $np$, the standard deviation $\sqrt{np(1-p)}$ being taken
+under $p$ itself and not under the estimate $k/n$; solving that inequality in $p$ gives
+the two bounds. Two consequences matter for reading the tables. The interval never
+collapses at the edges --- $0$ out of $100$ gives $[0.00;0.04]$, not $[0;0]$, since a
+rare event can go unobserved in $100$ trials --- and two shares whose intervals overlap
+substantially cannot be told apart, whereas disjoint intervals mark a genuine difference.
+With $n = 100$ the half-width is about $\pm 0.10$ near $p = 0.5$ and narrows towards
+$0$ and $1$.
+
 \section{Instrumenting the Repair, the Error and the Detector}
 \label{sec:D1}
 % =====================================================================
@@ -756,7 +1453,7 @@ measurement replaces rather than supports.}}
 The fraction of replaced trees, the global error and the internal state of the detector
 are traced here on one time axis. This section produces those three series and
 the four temporal markers read off them; what they are worth as measurements of the
-adaptation is settled in Sections~\ref{sec:D2} and~\ref{sec:D3}. Every figure quoted is
+adaptation is settled in Appendices~\ref{sec:D2} and~\ref{sec:D3}. Every figure quoted is
 reproduced by \texttt{resultats\_R2/scripts/chiffres\_QD.py} and \texttt{derives\_QD.py}.
 
 \subsection{What Is Recorded and What Is Recomputed}
@@ -777,28 +1474,13 @@ what makes the continuous threshold sweep of Section~\ref{sec:E} cost nothing.
 Two conventions are used throughout and stated once here. The detector is created at
 $\tau^*$ with $S_{\tau^*} = 0$, and every duration is counted from $\tau^*$. The two
 amplitudes below $\Delta e = 0.10$ lie outside the decision domain fixed in
-Section~\ref{sec:D4rule} and are shaded on every figure that sweeps $\Delta e$.
+Appendix~\ref{sec:D4rule} and are shaded on every figure that sweeps $\Delta e$.
 
 The hierarchy~\eqref{eq:hierarchy} of Section~\ref{sec:hierarchy} is used throughout,
 and with it the identity $\tau_{\mathrm{ARF}} = \tau_{\mathrm{swap}}(1/M)$: that is what
 makes the first row of Table~\ref{tab:agregation} tautological rather than measured.
 
-\subsection{The Three Series on a Common Time Axis}
-
-\begin{figure*}[t]
-  \centering
-\caption{Fraction of replaced trees $N_t/M$ (inter-seed median and interquartile range),
-  global error $\bar e_t$, and internal detector state $S_t$ on a common time axis, at
-  three amplitudes spanning the grid, with the four temporal markers $\tau_{\mathrm{det}}$
-  (at $\lambda = 8$), $\tau_{\mathrm{ARF}}$, $\tau_{50\%}$ and $\tau_{\mathrm{rec}}$. The
-  time axis is logarithmic: the four instants span two orders of magnitude across the
-  grid, and on a linear axis the markers of the high-amplitude column collapse into the
-  first few pixels. The $\tau_{\mathrm{rec}}$ marker is dashed where the test lacks the
-  power to resolve it.}
-\label{fig:joint}
-  \includegraphics[width=0.92\textwidth]{resultats_R2/resultats/figures/Fig_QD_trajectoires_full.png}
-
-\end{figure*}
+\subsection{Reading the Joint Figure}
 
 \paragraph{No temporal smoothing} $e_t$ is binary. The only averaging applied is the
 inter-seed mean, taken step by step, with no sliding filter anywhere. A moving average of
@@ -1011,24 +1693,6 @@ same sweep through the thresholds between $8$ and $25$, where the transition hap
 
 \end{table*}
 
-\begin{figure*}[t]
-  \centering
-\caption{Top: share of runs in which $\tau_{\mathrm{det}} < \tau_{\mathrm{ARF}}$, by
-  amplitude, for $\lambda \in \{8, 25, 50\}$. Filled markers with error bars: uncensored
-  runs only, Wilson $95\%$ interval, drawn only where the censoring of the cell is at most
-  $50\%$. Hollow markers: all 100 runs, censored runs counted as detector losses, drawn
-  everywhere. Bottom: censoring of $\tau_{\mathrm{det}}$ in the same cells, with the
-  $50\%$ line. What to see: at $\lambda = 8$ the detector wins almost everywhere except at
-  the bottom of the grid; at $\lambda = 25$ its win rate falls from $31\%$ at
-  $\Delta e = 0.141$ to zero by $\Delta e = 0.36$ while its censoring climbs back to
-  $99\%$ at the top of the grid; at $\lambda = 50$ it never wins. The fractions plotted are
-  those of Table~\ref{tab:course}, checked for equality inside the script.}
-\label{fig:course}
-  \includegraphics[width=0.9\textwidth]{resultats_R2/resultats/figures/Fig_QD_course_lambda_full.png}
-
-\end{figure*}
-
-% =====================================================================
 \section{Choosing the Association Coefficient}
 \label{sec:D2}
 % =====================================================================
@@ -1037,7 +1701,7 @@ Measuring how $\tau_{\mathrm{ARF}}$ associates with the real adaptation requires
 coefficient, and which one is not a detail here: the quantities to be
 correlated are durations measured on a finite horizon, and two of the three usual
 coefficients are disqualified by that alone. The counter-example of
-Section~\ref{sec:d2:contre} comes from \texttt{scripts/contre\_exemple\_kendall.py},
+Appendix~\ref{sec:d2:contre} comes from \texttt{scripts/contre\_exemple\_kendall.py},
 which computes both coefficients twice, once from their definition and once through
 \texttt{scipy}, so that each controls the other.
 
@@ -1117,7 +1781,7 @@ has no numerical value. $\tau_{\mathrm{swap}}(75\%)$ is censored in $9.10\%$ of 
 overall and in up to $78\%$ at a single amplitude; $\tau_{\mathrm{det}}$ at $\lambda = 50$
 is censored in $99.95\%$.
 
-\paragraph{Which survives stratification} Section~\ref{sec:D3} holds $\Delta e$ constant
+\paragraph{Which survives stratification} Appendix~\ref{sec:D3} holds $\Delta e$ constant
 within a stratum, and the three features do not survive that equally. The first does not
 survive at all: the non-monotonicity is non-monotonicity \emph{in $\Delta e$}, and within
 a stratum $\Delta e$ is fixed by construction. The other two survive, and they are
@@ -1143,7 +1807,7 @@ value would only be known to exceed \emph{its own} horizon: a run censored at $H
 and an observed run of $1\,200$ steps could not be ordered at all, and no imputation to a
 shared last rank would be licit. Under variable horizons the correct tool is a
 censoring-aware estimator such as Harrell's $C$ index. The convention used here rests on a
-property of this experimental design and does not transfer. Section~\ref{sec:d3:censure}
+property of this experimental design and does not transfer. Appendix~\ref{sec:d3:censure}
 checks what it changes in practice: nothing that carries a verdict.
 
 That common horizon is also where the choice between Spearman and Kendall becomes
@@ -1183,7 +1847,7 @@ $\tau_{\mathrm{ARF}}$ remove pairs from the numerator without any counterpart, a
 coefficient is displaced \emph{towards zero} relative to a tie-free measurement of the
 same association.
 
-That direction cuts both ways for the central result of Section~\ref{sec:D3}. A
+That direction cuts both ways for the central result of Appendix~\ref{sec:D3}. A
 discernible coefficient is if anything understated; but a coefficient indistinguishable
 from zero could in principle be a real association pulled towards zero by the ties. On this
 campaign the effect is negligible either way: within a stratum of the decision domain,
@@ -1259,13 +1923,12 @@ pairs --- concordant minus discordant, among the pairs that can be ordered --- a
 for ties explicitly. Censored runs are imputed to the last rank, which is legitimate
 because the horizon is common to all runs and only for that reason.
 
-% =====================================================================
-\section{What the Repair Date Tells the Detector}
+\section{Stratified Coefficients in Full}
 \label{sec:D3}
 % =====================================================================
 
 Every coefficient here is Kendall's $\tau_b$ with censored runs imputed to the last rank,
-justified in Section~\ref{sec:D2}. Every confidence interval on a $\tau_b$ is a bootstrap
+justified in Appendix~\ref{sec:D2}. Every confidence interval on a $\tau_b$ is a bootstrap
 interval over the seeds of the stratum, $2\,000$ resamples, quantiles $2.5\%$ and
 $97.5\%$; every interval on a fraction is a Wilson $95\%$ interval. Values are produced by
 \texttt{scripts/chiffres\_QD.py} and \texttt{derives\_QD.py}.
@@ -1330,49 +1993,10 @@ on $|\tau_b|$ ignores the precision of the estimate, treating a coefficient of $
 measured on $100$ seeds with a wide interval exactly like one measured tightly, whereas
 the interval rule uses what the bootstrap actually provides. The threshold is also a
 function of $n$ alone, so it says nothing about the tie structure of the particular pair
-being tested, and Section~\ref{sec:D2} established that this structure differs
+being tested, and Appendix~\ref{sec:D2} established that this structure differs
 systematically between the $\tau_{\mathrm{swap}}(q)$ comparators and the never-censored
 $A(H)$ and $S_{\max}(H)$. Finally, the pre-registered benchmark already uses the interval
 rule, so adopting it keeps one rule across the project instead of two.
-
-\subsection{The Aggregation Collapse}
-
-\begin{table}[t]
-  \centering
-\caption{Pooled against stratified coefficients; the stratified column is the median
-  over the 18 amplitudes of the decision domain. The first row is tautological, see
-  Section~\ref{sec:d3:tauto}.}
-\label{tab:agregation}
-  \small
-  \begin{tabular}{lccc}
-    \toprule
-    Comparator & pooled $\tau_b$ & median stratified & ratio \\
-    \midrule
-    $\tau_{\mathrm{swap}}(10\%)$ & $+1.000000$ & $+1.000000$ & $1.00$ \\
-    $\tau_{\mathrm{swap}}(25\%)$ & $+0.644626$ & $+0.493224$ & $1.31$ \\
-    $\tau_{\mathrm{swap}}(50\%)$ & $+0.556494$ & $+0.336523$ & $1.65$ \\
-    $\tau_{\mathrm{swap}}(75\%)$ & $+0.461827$ & $+0.097934$ & $4.72$ \\
-    $A(H)$                       & $+0.396512$ & $+0.052559$ & $7.54$ \\
-    $S_{\max}(H)$                & $+0.314673$ & $+0.212865$ & $1.48$ \\
-    \bottomrule
-  \end{tabular}
-
-\end{table}
-
-For $A(H)$ the pooled coefficient is $+0.3965$ against a median stratified coefficient of
-$+0.0526$, a factor of $7.5$. This is not a strong association weakened by stratification:
-the stratified coefficient is indistinguishable from zero under this protocol at every one
-of the 18 amplitudes. The pooled coefficient manufactures a link rather than confirming a
-weak one. Mechanically it is Simpson's paradox on $\Delta e$: within each stratum no
-association is discernible, and across strata both quantities move with the amplitude, so
-pooling recovers the amplitude and reports it as an association. The within-stratum null
-is itself partly a property of $A(H)$ rather than of $\tau_{\mathrm{ARF}}$: about half of
-the run-to-run variance of $A(H)$ is baseline noise (Section~\ref{sec:d3:answer}).
-
-The effect is strongest exactly where the within-stratum association is weakest: ratio
-$7.54$ for $A(H)$ and $4.72$ for $\tau_{\mathrm{swap}}(75\%)$, but only $1.48$ for
-$S_{\max}(H)$, which does carry a genuine within-stratum signal. That is the diagnostic
-one should expect, and it is why no pooled coefficient is quoted as a result in this work.
 
 \subsection{A Tautological Row, Marked as Such}
 \label{sec:d3:tauto}
@@ -1400,20 +2024,6 @@ quota above the nominal one.
   tautological.}
 \label{fig:heatmap}
   \includegraphics[width=0.92\textwidth]{resultats_R2/resultats/figures/Fig_QD_heatmap_taub_full.png}
-
-\end{figure*}
-
-\begin{figure*}[t]
-  \centering
-\caption{Forest plot of $\tau_b(\tau_{\mathrm{ARF}}, \cdot)$ with its bootstrap
-  $95\%$ confidence interval, for $A(H)$ (left) and $S_{\max}(H)$ (right), one row per
-  amplitude; filled squares mark intervals that exclude zero, hollow circles those that
-  straddle it, and the two shaded rows lie outside the decision domain. 15 of 18
-  intervals exclude zero for $S_{\max}(H)$, none for $A(H)$, under the interval rule of
-  Section~\ref{sec:D4rule}. The 15 are the 15 consecutive amplitudes from
-  $\Delta e = 0.287$ upward. Table \texttt{QCD\_correlations\_stratifiees\_full}.}
-\label{fig:forest}
-  \includegraphics[width=0.92\textwidth]{resultats_R2/resultats/figures/Fig_QD_forest_taub_full.png}
 
 \end{figure*}
 
@@ -1452,55 +2062,6 @@ quota above the nominal one.
 
 \end{table*}
 
-\subsection{The Answer}
-\label{sec:d3:answer}
-
-The two quantities in Table~\ref{tab:strat} play different roles, and conflating them
-changes the answer.
-
-$A(H)$ is the accumulated excess error over the horizon. Its association with
-$\tau_{\mathrm{ARF}}$ is indistinguishable from zero under this protocol at all
-18 amplitudes: median $+0.0526$, every confidence interval straddling zero.
-
-$S_{\max}(H)$ is the peak of the detector path~\eqref{eq:cusum}, in the closed form of
-Proposition~\ref{prop:lindley}. Its association is discernible at 15 of the 18 amplitudes, with a median of $+0.2129$, and the
-confidence interval lies entirely above zero at every amplitude from $\Delta e = 0.287$
-upwards. That count is the one the interval rule of Section~\ref{sec:D4rule} gives; the
-\texttt{discernable} column implements the threshold rule and would give $14$, the
-difference being the single cell $\Delta e = 0.287$, whose interval $[+0.0027 ; +0.2519]$
-excludes zero while its $\tau_b$ of $0.1308$ falls just under the threshold.
-
-The distinction matters because it is $S_{\max}(H)$ that decides the alarm, not $A(H)$.
-The alarm is by definition the crossing of $\lambda$ by $S_{\max}$. A claim that
-$\tau_{\mathrm{ARF}}$ carries no information about the evidence offered to the detector is
-attached to the wrong object if it rests on $A(H)$ alone.
-
-\paragraph{Why $A(H)$ shows nothing} $A(H)$ sums $e_t - \hat p_0$ over $2\,000$ steps, so an
-error on the estimated baseline is multiplied by $2\,000$. Within a stratum,
-$\tau_b(\hat p_0, A(H))$ has a median of $-0.4741$ over the 18 amplitudes: the runs whose
-baseline was estimated high show the least excess error, whatever the forest did. The
-baseline accounts for a median share of $0.51$ of the run-to-run variance of $A(H)$, and up
-to $0.88$. Over the short window $w = \mathrm{round}(3 \times 18.5/\Delta e)$ of
-Section~\ref{sec:certificate}, the same coefficient falls to $-0.0639$, and an association
-with $\tau_{\mathrm{ARF}}$ appears: median $+0.2313$, with a bootstrap interval excluding
-zero at 13 of the 18 amplitudes. This is exploratory --- the window was added after the
-table above was read --- and it is reproduced by \texttt{chiffres\_QD.py --sous D3w}. The
-null on $A(H)$ therefore says more about $A(H)$ than about $\tau_{\mathrm{ARF}}$.
-
-\noindent The answer, stated sharply:
-
-\begin{center}
-\fbox{\parbox{0.92\columnwidth}{$\tau_{\mathrm{ARF}}$ shows \textbf{no discernible
-association} with the full-horizon excess error $A(H)$ at any of the 18 amplitudes, but
-about half of the variance of $A(H)$ is baseline noise multiplied by $H$. Over the
-transient window alone, $A(w)$, the association is \textbf{weak but real}: median
-$\tau_b = +0.2313$, discernible at 13 of 18 amplitudes (exploratory). It is of the same
-order with $S_{\max}(H)$, the quantity that determines whether the alarm fires: median
-$\tau_b = +0.2129$, discernible at 15 of 18 amplitudes, every amplitude from
-$\Delta e = 0.287$ upwards without exception, and at none below. Ties on
-$\tau_{\mathrm{ARF}}$ are too rare to move any of these verdicts
-(Section~\ref{sec:D2}).}}
-\end{center}
 
 \subsection{Censoring: by Amplitude, and Whether It Drives Anything}
 \label{sec:d3:censure}
@@ -1513,7 +2074,7 @@ Aggregate censoring rates conceal what matters, so they are reported by amplitud
   amplitude inside the decision domain. The columns differ because the two amplitudes below
   $\Delta e = 0.10$ carry most of the censoring and lie outside the domain on which the
   criterion is declared. Baseline estimated over $3\,000$ pre-drift steps
-  (Section~\ref{sec:d1:socle}). At $\lambda = 50$ the single run that alarms is at
+  (Appendix~\ref{sec:d1:socle}). At $\lambda = 50$ the single run that alarms is at
   $\Delta e = 0.194$.}
 \label{tab:censure}
   \begin{tabular}{lccc}
@@ -1575,7 +2136,7 @@ is what they must do and serves as a control on the implementation. For the two 
 censored comparators the largest disagreement anywhere in the table is $0.0403$, on
 $\tau_{\mathrm{swap}}(75\%)$, an order of magnitude below the coefficients that carry the
 conclusions above and well inside their confidence intervals. The imputation convention of
-Section~\ref{sec:d2:rang} could be replaced by complete-case analysis without changing a
+Appendix~\ref{sec:d2:rang} could be replaced by complete-case analysis without changing a
 verdict.
 
 \begin{table}[t]
@@ -1668,169 +2229,33 @@ of this section holds as a function of forest size; the instrumented runs at oth
 of $M$ were produced for a different test and carry no evidence trace. No result involves
 $\tau_{\mathrm{det}}$ at $\lambda = 25$ or $\lambda = 50$ as a correlated variable, for the
 censoring reason given above. Harrell's $C$ index was not used, because the common-horizon
-argument of Section~\ref{sec:d2:rang} makes rank imputation licit here and the
+argument of Appendix~\ref{sec:d2:rang} makes rank imputation licit here and the
 complete-case comparison shows the choice is immaterial; under a variable horizon that
 reasoning would fail and the $C$ index would be required.
 
-% =====================================================================
-\section{Threshold Choice and the No-Drift Control}
-\label{sec:E}
-% =====================================================================
+\section{Reproducibility}
+\label{app:repro}
 
-This section collects two results that belong to no single section above and that
-would distort the one they were attached to. First, detecting a drift and winning the
-race against the forest are different things, and they separate as soon as the threshold
-rises --- which is what the narrow transition band of Section~\ref{sec:d3:censure} looks
-like once it is resolved. Second, the forest replaces trees at a steady rate when nothing
-changes at all, which disqualifies the date of the first replacement as a signal on its
-own. Everything below is recomputed offline from the recorded error trajectories by
-\texttt{resultats\_R2/scripts/chiffres\_QE.py}; no campaign is rerun.
+All scripts are in \texttt{04\_experimentations/resultats\_R2/scripts/} and run with
+\texttt{PYTHONHASHSEED=0}. The campaign is produced by \texttt{exp\_QCD\_campagne.py --full}
+(\texttt{--baseline 1000} reproduces the R2 baseline window, \texttt{--no-drift} the
+drift-free arm) and the analytic probes by \texttt{exp\_QCD\_etalon.py --full}. Tables and
+figures come from \texttt{analyse\_QCD.py --tag full --boot 2000} and
+\texttt{derives\_QD.py --tag full}, the counter-example from
+\texttt{contre\_exemple\_kendall.py}, and Figure~\ref{fig:matrice} with
+Table~\ref{tab:spre} from \texttt{matrice\_correlations.py}. Every number of the text is
+printed by \texttt{chiffres\_QA.py}, \texttt{chiffres\_QC.py}, \texttt{chiffres\_QD.py}
+(\texttt{--sous D3w} for the short-window area), \texttt{chiffres\_QE.py} or
+\texttt{matrice\_correlations.py}; \texttt{verif\_chiffres\_tex.py} replays them and checks
+each numerical literal of this report against their output and the recorded tables.
 
-\paragraph{Control} $S_t$ does not depend on $\lambda$, so a single offline pass over
-each trajectory yields the first crossing for every threshold. The sweep must reproduce
-the campaign exactly at its three original thresholds, and it does: the alarm counts
-of Table~\ref{tab:aveugle} are recovered to the run. Nothing below is readable without
-this check.
+\section{Use of Language Models}
+\label{app:llm}
 
-\subsection{Detecting Is Not Winning}
-
-The campaign of $2\,000$ runs is read at six thresholds. The drift-free arm --- $2\,000$ runs
-with no change point at all, same horizon --- gives what the same threshold costs when
-nothing happens.
-
-\begin{table*}[t]
-\centering
-\caption{Six thresholds on the same campaign. ``Wins the race'' is
-$\tau_{\mathrm{det}} < \tau_{\mathrm{ARF}}$ over all $2\,000$ runs, censored runs counted
-as losses; the next column restricts to the runs that alarm. Brackets: Wilson $95\%$
-interval, $n = 2\,000$ drift-free runs. The rows at $\lambda = 8$, $25$ and $50$ reproduce
-Tables~\ref{tab:course} and~\ref{tab:aveugle}.}
-\label{tab:seuils}
-\begin{tabular}{crrrl}
-\toprule
-$\lambda$ & alarm fires & wins the race & of uncensored & false alarms, no drift \\
-\midrule
-$8$  & $95.3\%$ & $\mathbf{91.0\%}$ & $95.4\%$ & $83/2\,000 = 4.15\%$ $[3.36;5.12]$ \\
-$12$ & $94.3\%$ & $78.8\%$ & $83.5\%$ & $11/2\,000 = 0.55\%$ $[0.31;0.98]$ \\
-$15$ & $92.9\%$ & $\mathbf{36.3\%}$ & $39.1\%$ & $3/2\,000 = 0.15\%$ $[0.05;0.44]$ \\
-$20$ & $66.2\%$ & $8.1\%$ & $12.2\%$ & $0/2\,000 = 0.00\%$ $[0.00;0.19]$ \\
-$25$ & $38.9\%$ & $2.5\%$ & $6.6\%$ & $0/2\,000 = 0.00\%$ $[0.00;0.19]$ \\
-$50$ & $0.1\%$ & $0.0\%$ & $0.0\%$ & $0/2\,000 = 0.00\%$ $[0.00;0.19]$ \\
-\bottomrule
-\end{tabular}
-
-\end{table*}
-
-\paragraph{The two columns come apart} At $\lambda = 15$ the alarm still fires in
-$92.9\%$ of runs, barely below the $95.3\%$ of $\lambda = 8$, but it arrives first in only
-$36.3\%$ of them. Almost two thirds of its alarms are raised after the forest has already
-replaced a tree --- the \emph{Zombie alarms} of the manuscript. Reading the detection
-column alone would suggest that a moderate threshold escapes the blind spot. It does not.
-
-\paragraph{The paradoxical signature survives at $\lambda = 15$} Amplitude by amplitude,
-the share of runs won by the detector falls as the drift grows, which is the signature the
-manuscript reports at $\lambda = 25$.
-
-\begin{table}[t]
-\centering
-\caption{Share of runs won by the detector, six amplitudes spanning the grid, over all
-$100$ runs of the cell. The $\lambda = 8$ column is the last column of
-Table~\ref{tab:course}, restricted to these six rows.}
-\label{tab:signature}
-\begin{tabular}{crrr}
-\toprule
-$\Delta e$ & $\lambda = 8$ & $\lambda = 15$ & $\lambda = 20$ \\
-\midrule
-$0.028$ & $0\%$  & $0\%$  & $0\%$ \\
-$0.085$ & $62\%$ & $38\%$ & $20\%$ \\
-$0.141$ & $88\%$ & $81\%$ & $49\%$ \\
-$0.243$ & $97\%$ & $71\%$ & $21\%$ \\
-$0.361$ & $98\%$ & $44\%$ & $3\%$ \\
-$0.498$ & $99\%$ & $18\%$ & $1\%$ \\
-\bottomrule
-\end{tabular}
-
-\end{table}
-
-At $\lambda = 8$ the rate climbs with the amplitude, from $62\%$ to $99\%$. At
-$\lambda = 15$ it peaks at $81\%$ then falls to $18\%$, and at $\lambda = 20$ it collapses
-to $1\%$. The transition $\lambda^* \approx 15$ to $25$ announced in the manuscript is
-therefore confirmed on the race, not contradicted.
-
-\paragraph{What the false-alarm column adds} The manuscript grants that a hyper-reactive
-threshold reaches a safe zone but states that it ``sacrifices false-alarm robustness''. On
-this bench that cost is measured rather than assumed: $\lambda = 8$ raises an alarm in
-$83$ of $2\,000$ runs where nothing changes, $4.15\%$, just under the $5\%$ calibration level
-usually adopted for drift detectors. So on the Bernoulli bench the only threshold that wins the race does so at
-an ordinary false-alarm cost, and the admissible set is not empty here.
-
-\paragraph{Three reservations} The false-alarm rate is measured over $2\,000$ steps on
-$2\,000$ runs; over a longer deployment such alarms accumulate, and the upper end of the
-Wilson interval at $\lambda = 8$ is $5.12\%$. The bench is homoscedastic, so this says
-nothing about the \emph{Fundamental Tension} the manuscript establishes on
-ARMA--GARCH streams, where bounding false alarms under clustered volatility is what empties
-the admissible set. And at the weakest amplitude no threshold wins a single run, which
-Section~\ref{sec:A} establishes without any dependence assumption.
-
-\subsection{The No-Drift Control}
-\label{sec:e:nodrift}
-
-The same drift-free arm answers a question that needs no threshold at all: what does
-$\tau_{\mathrm{ARF}}$ read when there is nothing to repair? Sections~\ref{sec:hierarchy}
-and~\ref{sec:D1} both read this arm in passing; it is reported here in full.
-
-\begin{table}[t]
-\centering
-\caption{The drift-free arm against the campaign; quartiles of the first replacement,
-$39$ and $192$ steps, and trees counted over the horizon $H$. The median at
-$\Delta e = 0.028$ carries the bootstrap interval $[92.5 ; 158.5]$ of
-Table~\ref{tab:ic-medianes}.}
-\label{tab:nodrift}
-\small
-\begin{tabular}{lr}
-\toprule
-On $2\,000$ runs with no change point & \\
-\midrule
-runs where at least one tree is replaced & $2\,000/2\,000$ \\
-first replacement, median & $95$ steps \\
-distinct trees renewed, median & $9/10$ \\
-runs whose forest is entirely renewed & $575/2\,000 = 28.7\%$ \\
-\midrule
-median $\tau_{\mathrm{ARF}}$ at $\Delta e = 0.028$ (real drift) & $118$ steps \\
-median $\tau_{\mathrm{ARF}}$ over the whole grid & $38$ steps \\
-\bottomrule
-\end{tabular}
-
-\end{table}
-
-\paragraph{Reading} Replacement churn under pure noise is the normal regime of the ARF,
-not an anomaly: nine trees out of ten are renewed over two thousand steps with no drift
-whatsoever. At the weakest amplitude of the grid the first replacement comes after $118$ steps against
-$95$ with no drift at all, so at that amplitude it does not distinguish a real change from
-its absence. This is the control any candidate replacement for $\tau_{\mathrm{ARF}}$ must
-pass before its correlations are worth computing, and it is test A1 of the benchmark.
-
-\subsection{What This Section Establishes}
-
-Detection and victory separate: a threshold can alarm on almost every drift and still
-arrive last on two thirds of them, so a detection rate quoted alone does not describe the
-blind spot. On this bench one threshold does win the race, $\lambda = 8$, at a false-alarm
-cost of $4.15\%$ per two thousand drift-free steps, which restricts the manuscript's
-``no CUSUM threshold escapes it'' to the settings it actually tested here. And the date of
-the first replacement fires as readily without drift as with the weakest one, which is a
-property of the indicator rather than of the detector --- the same verdict
-Section~\ref{sec:D3} reaches from the association side.
-
-% =====================================================================
-% TODO : conclusion commune, et la déclaration d'usage des LLM (exigée sans
-%        condition par les consignes de filière).
-% TODO : liste explicite de ce qui n'a pas été fait (exigée par le sujet) —
-%        la matière est en fin de sec:D3 et au § 8 du JOURNAL.
-%
-% Budget : 15 pages maximum, tout compris. Avec A, B, C, D et E le compte
-% dépasse : le dépassement se traite à l'assemblage, en condensant les
-% tables les plus longues (tab:course tient dans fig:course, qui est déjà
-% là) — pas en retirant un résultat.
-% =====================================================================
+Language models (Claude, Anthropic) were used for bibliographic search, for writing and
+reviewing code, and for drafting and proofreading this report. As the programme rules
+require, the prompts are listed in \texttt{Usage\_LLM\_liste\_prompts.md} at the root of the
+repository. Every result was checked against the scripts listed in
+Appendix~\ref{app:repro}.
 
 \end{document}
