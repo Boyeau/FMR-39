@@ -13,6 +13,21 @@ Groupe : Alexandre Boyer, Melaine Gouillou, Salomé Fonvielle, Ulysse Petit-Tich
   Dépôt original : https://github.com/TheBlindSpot-ICDM2026/The-Blind-Spot-Paradox-Experiments
   À l'intérieur : `experiments/R1` à `R9` + `run_all.sh` sont la cible du sujet (chaque script reproduit une figure du manuscrit). `docs/` et `results/R01`-`R18` sont le journal de recherche interne des auteurs (audits, écarts entre code et manuscrit) — à consulter en second, après avoir fait son propre raisonnement.
 - **`04_experimentations/`** — code écrit par le groupe pour répondre aux questions du sujet (distinct du dépôt officiel ci-dessus, qui reste une copie fidèle). Voir son `README.md` pour le détail par question.
+- **`05_presentation/`** — supports projetés : `soutenance_20min.tex` (soutenance du 16 septembre), le pitch de 3 minutes et le point d'avancement avec l'encadrant.
+
+## Reproduire en une commande
+
+```bash
+./reproduire.sh
+```
+
+Rejoue toute l'analyse depuis les tables versionnées, contrôle chaque chiffre du rapport, des rédactions et de la soutenance contre les scripts et les tables (`verif_chiffres_tex.py`), et recompile le rapport et la soutenance. Quelques minutes.
+
+```bash
+./reproduire.sh --complet
+```
+
+Relance d'abord les simulations (campagne 20 × 100, bras sans drift de 2 000 runs, sondes analytiques) sous des tags à part, vérifie qu'elles redonnent **à l'identique** les tables versionnées (`compare_reproduction.py`), puis fait tout ce qui précède. Environ une heure sur 10 cœurs. Le Python utilisé est celui du venv ci-dessous, ou `PYTHON=/chemin/vers/python ./reproduire.sh`.
 
 ## Environnement (pipeline `03_repo_officiel_...`)
 

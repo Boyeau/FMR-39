@@ -605,6 +605,24 @@
 \section*{Backup}
 % =====================================================================
 
+\begin{frame}{Backup --- The supervisor's additional questions}
+  {\small Treated in a separate working document on the same campaign; not merged into the report.}
+  \begin{itemize}
+    \item \textbf{Shape of the error after the drift}: not exponential, and its half-recovery comes
+          \emph{after} the median first replacement on $17$ of the $18$ readable drift sizes.
+          The first replacement is early, again.
+    \item \textbf{End of the horizon}: the error settles \emph{below} its pre-drift baseline at all
+          $20$ drift sizes. The new task is easier.
+    \item \textbf{Inside the forest} (pilot, $100$ runs): disagreement between trees halves when only
+          $63$ to $66\%$ of them are renewed --- the surviving trees learn too. After a strong drift,
+          new trees err far less than survivors.
+    \item \textbf{A z-score of the error drop} measures the number of seeds, not the dynamics.
+  \end{itemize}
+  \vfill
+  {\small\color{gray} Open, and worth continuing: a reference for adaptation, the size of the
+  independence bias, heteroscedastic streams, tree-by-tree dynamics.}
+\end{frame}
+
 \begin{frame}{Backup --- Fréchet bounds}
   For integer-valued clocks with marginal CDFs $F_A$ and $F_D$, and \emph{any} coupling,
   \begin{align*}
