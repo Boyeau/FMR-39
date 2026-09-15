@@ -33,7 +33,7 @@ $1$ alarms at $\lambda = 8$, $25$ and $50$. Nothing below is readable without th
 \section{Detecting Is Not Winning}
 
 The campaign of $2\,000$ runs is read at six thresholds. The drift-free arm of A1
-($100$ runs, no change point at all, same horizon) gives what the same threshold costs when
+($2\,000$ runs, no change point at all, same horizon) gives what the same threshold costs when
 nothing happens.
 
 \begin{center}
@@ -41,19 +41,19 @@ nothing happens.
 \toprule
 $\lambda$ & alarm fires & wins the race & of uncensored & false alarms, no drift \\
 \midrule
-$8$  & $95.3\%$ & $\mathbf{91.0\%}$ & $95.4\%$ & $5/100 = 5.0\%$ $[2.2;11.2]$ \\
-$12$ & $94.3\%$ & $78.8\%$ & $83.5\%$ & $2/100 = 2.0\%$ $[0.6;7.0]$ \\
-$15$ & $92.9\%$ & $\mathbf{36.3\%}$ & $39.1\%$ & $0/100 = 0.0\%$ $[0.0;3.7]$ \\
-$20$ & $66.2\%$ & $8.1\%$ & $12.2\%$ & $0/100 = 0.0\%$ $[0.0;3.7]$ \\
-$25$ & $38.9\%$ & $2.5\%$ & $6.6\%$ & $0/100 = 0.0\%$ $[0.0;3.7]$ \\
-$50$ & $0.1\%$ & $0.0\%$ & $0.0\%$ & $0/100 = 0.0\%$ $[0.0;3.7]$ \\
+$8$  & $95.3\%$ & $\mathbf{91.0\%}$ & $95.4\%$ & $83/2\,000 = 4.15\%$ $[3.36;5.12]$ \\
+$12$ & $94.3\%$ & $78.8\%$ & $83.5\%$ & $11/2\,000 = 0.55\%$ $[0.31;0.98]$ \\
+$15$ & $92.9\%$ & $\mathbf{36.3\%}$ & $39.1\%$ & $3/2\,000 = 0.15\%$ $[0.05;0.44]$ \\
+$20$ & $66.2\%$ & $8.1\%$ & $12.2\%$ & $0/2\,000 = 0.00\%$ $[0.00;0.19]$ \\
+$25$ & $38.9\%$ & $2.5\%$ & $6.6\%$ & $0/2\,000 = 0.00\%$ $[0.00;0.19]$ \\
+$50$ & $0.1\%$ & $0.0\%$ & $0.0\%$ & $0/2\,000 = 0.00\%$ $[0.00;0.19]$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \noindent ``Wins the race'' is $\tau_{\mathrm{det}} < \tau_{\mathrm{ARF}}$ over all
 $2\,000$ runs, censored runs counted as losses; the next column restricts to the runs that
-alarm. Brackets: Wilson $95\%$ interval, $n = 100$ drift-free runs.
+alarm. Brackets: Wilson $95\%$ interval, $n = 2\,000$ drift-free runs.
 
 \paragraph{The two columns come apart.} At $\lambda = 15$ the alarm still fires in
 $92.9\%$ of runs, barely below the $95.3\%$ of $\lambda = 8$, but it arrives first in only
@@ -89,13 +89,13 @@ $\lambda = 8$ over all twenty amplitudes.
 \paragraph{What the false-alarm column adds.} The manuscript grants that a hyper-reactive
 threshold reaches a safe zone but states that it ``sacrifices false-alarm robustness''. On
 this bench that cost is measured rather than assumed: $\lambda = 8$ raises an alarm in
-$5$ of $100$ runs where nothing changes, which is the calibration level usually adopted for
+$83$ of $2\,000$ runs where nothing changes, $4.15\%$, just under the $5\%$ calibration level usually adopted for
 drift detectors. So on the Bernoulli bench the only threshold that wins the race does so at
 an ordinary false-alarm cost, and the admissible set is not empty here.
 
 \paragraph{Three reservations.} The false-alarm rate is measured over $2\,000$ steps on
-$100$ runs; over a longer deployment such alarms accumulate, and the upper end of the
-Wilson interval at $\lambda = 8$ is $11.2\%$. The bench is homoscedastic, so this says
+$2\,000$ runs; over a longer deployment such alarms accumulate, and the upper end of the
+Wilson interval at $\lambda = 8$ is $5.12\%$. The bench is homoscedastic, so this says
 nothing about the \emph{Fundamental Tension} the manuscript establishes on
 ARMA--GARCH streams, where bounding false alarms under clustered volatility is what empties
 the admissible set. And at the weakest amplitude no threshold wins a single run, which
@@ -109,12 +109,12 @@ $\tau_{\mathrm{ARF}}$ read when there is nothing to repair?
 \begin{center}
 \begin{tabular}{lr}
 \toprule
-On $100$ runs with no change point & \\
+On $2\,000$ runs with no change point & \\
 \midrule
-runs where at least one tree is replaced & $100/100$ \\
-first replacement, median & $105$ steps (quartiles $43$ and $172$) \\
+runs where at least one tree is replaced & $2\,000/2\,000$ \\
+first replacement, median & $95$ steps (quartiles $39$ and $192$) \\
 distinct trees renewed over the horizon, median & $9/10$ \\
-runs whose forest is entirely renewed & $24/100$ \\
+runs whose forest is entirely renewed & $575/2\,000 = 28.7\%$ \\
 \midrule
 median $\tau_{\mathrm{ARF}}$ at $\Delta e = 0.028$ (real drift) & $118$ steps \\
 median $\tau_{\mathrm{ARF}}$ over the whole grid & $38$ steps \\
@@ -124,8 +124,8 @@ median $\tau_{\mathrm{ARF}}$ over the whole grid & $38$ steps \\
 
 \paragraph{Reading.} Replacement churn under pure noise is the normal regime of the ARF,
 not an anomaly: nine trees out of ten are renewed over two thousand steps with no drift
-whatsoever. At the weakest amplitude of the grid the stopwatch reads $118$ steps against
-$105$ with no drift at all, so at that amplitude it does not distinguish a real change from
+whatsoever. At the weakest amplitude of the grid the first replacement comes after $118$ steps against
+$95$ with no drift at all, so at that amplitude it does not distinguish a real change from
 its absence. This is the control any candidate replacement for $\tau_{\mathrm{ARF}}$ must
 pass before its correlations are worth computing, and it is test A1 of the benchmark.
 
@@ -134,7 +134,7 @@ pass before its correlations are worth computing, and it is test A1 of the bench
 Detection and victory separate: a threshold can alarm on almost every drift and still
 arrive last on two thirds of them, so a detection rate quoted alone does not describe the
 blind spot. On this bench one threshold does win the race, $\lambda = 8$, at a false-alarm
-cost of $5\%$ per two thousand drift-free steps, which restricts the manuscript's
+cost of $4.15\%$ per two thousand drift-free steps, which restricts the manuscript's
 ``no CUSUM threshold escapes it'' to the settings it actually tested here. And the date of
 the first replacement fires as readily without drift as with the weakest one, which is a
 property of the indicator rather than of the detector.

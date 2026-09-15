@@ -158,9 +158,11 @@ side at all, so the correction applies to the $x$ side only. The denominator sti
 the orderable pairs, but the two sides are no longer symmetric: ties in
 $\tau_{\mathrm{ARF}}$ remove pairs from the numerator without any counterpart, and the
 coefficient is displaced \emph{towards zero} relative to a tie-free measurement of the same
-association. The direction matters for reading Q~D.3, where the coefficients reported for
-$A(H)$ and $S_{\max}(H)$ are conservative: a value indistinguishable from zero there cannot
-be an artefact of ties inflating it.
+association. That direction cuts both ways for Q~D.3: a discernible coefficient is if
+anything understated, but a coefficient indistinguishable from zero could in principle be a
+real association pulled towards zero by the ties. On this campaign the effect is negligible
+either way: within a stratum of the decision domain only $0.2\%$ to $4.5\%$ of the pairs
+are tied on $\tau_{\mathrm{ARF}}$, which caps $|\tau_b|$ at $0.977$ or more.
 
 \section{The Counter-Example, and an Error in the Prescribed Exercise}
 \label{sec:contre}
@@ -214,18 +216,20 @@ with the observed runs perfectly ordered. What then amplifies the gap is the ord
 the observed runs: with four anti-ordered observations, Spearman reports $0.751$ where
 $\tau_b$ reports $0.490$, a gap of $0.261$, nearly four times the ordered case.
 
-The mechanism is the same in both rows. Spearman overstates the association because the
-six censored runs share a mid-rank that enters its sums of squares as an ordinary value,
-manufacturing agreement out of a tie block, while $\tau_b$ removes those pairs from both
-counts. The prescribed exercise hides this by silently assuming ties on both sides, which
+The mechanism is the same in both rows: the six censored runs share a mid-rank that
+enters Spearman's sums of squares as an ordinary value, while $\tau_b$ removes those pairs
+from both counts. The size of the gap is not, by itself, evidence of an artefact: for a
+bivariate normal law with correlation $r$, $\tau = (2/\pi)\arcsin r$ and
+$\rho_S = (6/\pi)\arcsin(r/2)$, so $\rho_S$ runs about $1.5$ times $\tau$ for weak
+associations even without any tie. The prescribed exercise hides this by silently assuming ties on both sides, which
 cancels the effect exactly.
 
 \section{Conclusion}
 
 Pearson is excluded by definition rather than by degree, since censored runs carry no
-numerical value. Spearman is computable but overstates the association in the presence of
-tie blocks, and the tie blocks here are created by the censoring itself. Kendall's $\tau_b$
-is used throughout Q~D, with censored runs imputed to the last rank, which is legitimate
+numerical value. Spearman is computable, but its value has no direct reading and its handling of
+the tie blocks created by the censoring is implicit. Kendall's $\tau_b$, which reads on pairs
+and corrects for ties explicitly, is used throughout Q~D, with censored runs imputed to the last rank, which is legitimate
 because the horizon is common to all runs and only for that reason.
 
 \end{document}

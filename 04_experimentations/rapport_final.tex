@@ -86,11 +86,10 @@ $\tau_{\mathrm{ARF}}$, the first tree replacement, and compares this random time
 nominal accumulation time $\tau^*_{\mathrm{det}} = \lambda/(\Delta e - \delta_P)$.
 
 \paragraph*{The two corrections this work addresses} Two of the corrections requested by
-the reviewers define the subject. First, the manuscript compares a random variable with a
-constant, and assumes independence between trees without proof (Questions A and B).
+the reviewers are the starting point of this work. First, the manuscript compares a random variable
+with a constant, and assumes independence between trees without proof.
 Second, it dates the adaptation of the forest at the first replaced tree without showing
-that this instant has anything to do with the disappearance of the signal (Questions C and
-D).
+that this instant has anything to do with the disappearance of the signal.
 
 \paragraph*{What we find} Both corrections lead to the same reading: \textbf{the blind
 spot is not a race between two clocks, but a budget of evidence set against a threshold.}
@@ -115,30 +114,6 @@ report.
     a threshold that detects almost every drift may still arrive after the repair
     (Section~\ref{sec:E}).
 \end{itemize}
-
-\begin{table}[h]
-\centering
-\caption{Where each question of the subject is answered.}
-\label{tab:questions}
-\small
-\begin{tabular}{@{}lp{0.46\textwidth}p{0.36\textwidth}@{}}
-\toprule
-Question & What the manuscript does & Where it is answered \\
-\midrule
-A & replaces the random alarm time by a constant and sets aside runs without alarm
-  & Section~\ref{sec:A}; the race as evidence, Section~\ref{sec:certificate} \\
-B & assumes independence between trees & Section~\ref{sec:B}; proofs, Appendix~\ref{app:proofs} \\
-C & takes the first replacement as the adaptation date
-  & units and certificate, Section~\ref{sec:certificate}; lower bound, Section~\ref{sec:repair-date};
-    evidence budget, Section~\ref{sec:E} \\
-D & never tests the link between $\tau_{\mathrm{ARF}}$ and other indicators
-  & method, Section~\ref{sec:campaign}; stratified association and correlation matrix,
-    Section~\ref{sec:repair-date}; details, Appendices~\ref{sec:D1}--\ref{sec:D3} \\
-beyond & --- & threshold sweep and drift-free control, Sections~\ref{sec:repair-date}
-  and~\ref{sec:E} \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \begin{table}[h]
 \centering
@@ -173,7 +148,7 @@ replaces the random alarm time by the constant $\tau^*_{\mathrm{det}}$ and sets 
 runs in which the detector never alarms. The race is a competing-risks problem observed
 under censoring at $H$~\cite{fine1999,aalen1978}. This section defines the miss event on
 the complete race, shows that its probability is identified on our campaign, and bounds it
-from the marginal laws alone (Question A).
+from the marginal laws alone.
 
 \subsection{Defining the Miss Event}
 \label{sec:miss}
@@ -287,13 +262,12 @@ with no assumption on the coupling. This is a different kind of ignorance from t
 just treated: there, data were missing; here, a structure is.
 
 \begin{proposition}[Fréchet bounds~\cite{frechet1951}]\label{prop:frechet}
-For integer-valued $\tau_{\mathrm{ARF}}$ and $\tau_{\mathrm{det}}$ with marginal CDFs $F_A$ and
-$F_D$, and for any coupling of the two,
-\[
-  \max\Big(0,\ \sup_{s\in\mathbb{N}} \big[F_A(s)-F_D(s)\big]\Big)
-  \;\le\; P_{\mathrm{miss}} \;\le\;
-  \min\Big(1,\ \inf_{s\in\mathbb{N}} \big[F_A(s) + 1 - F_D(s+1)\big]\Big).
-\]
+For integer-valued $\tau_{\mathrm{ARF}}$ and $\tau_{\mathrm{det}}$, the latter possibly infinite,
+with marginal CDFs $F_A$ and $F_D$, and for any coupling of the two,
+\begin{align*}
+  P_{\mathrm{miss}} &\ge \max\Big(0,\ \sup_{s\in\mathbb{N}} \big[F_A(s)-F_D(s)\big]\Big),\\
+  P_{\mathrm{miss}} &\le \min\Big(1,\ \inf_{s\in\mathbb{N}} \big[F_A(s) + 1 - F_D(s+1)\big]\Big).
+\end{align*}
 \end{proposition}
 
 \noindent The lower bound applies Fréchet's inequality to
@@ -350,7 +324,7 @@ trees as independent, although they learn from the same stream. It states that t
 resulting formula overestimates $P_{\mathrm{miss}}$, because the trees are positively
 correlated, but gives no proof. This section places the independence at the level where it
 holds, proves the direction of the bias, and states what it changes for the critical
-ensemble size (Question B).
+ensemble size.
 
 \subsection{Conditional Factorization}
 \label{sec:factorization}
@@ -402,9 +376,9 @@ formula predicts: the manuscript \textbf{overestimates the repair speed}.}}
 
 \paragraph{Equality condition} Jensen is an equality exactly when $G_S(s)$ is almost
 surely constant --- when the difficulty of adapting does not depend on which stream was
-drawn. That never happens here: each seed produces a different noise trajectory after the
-drift. Independence is therefore never exact, only an approximation, and a systematically
-optimistic one.
+drawn. There is no reason for it here: each seed produces a different noise trajectory after the
+drift. Independence is therefore not expected to be exact: it is an approximation, and a
+systematically optimistic one.
 
 \subsection{Operational Consequence}
 
@@ -443,8 +417,8 @@ about the real alarm are in Appendix~\ref{app:proofs}.
 \label{sec:certificate}
 % =====================================================================
 
-Question C asks for the units of $\tau_{\mathrm{ARF}}$ and $\lambda$. The answer turns the
-comparison of two times into a comparison between evidence and threshold: first for
+A repair time and a detection threshold are not measured in the same units. Taking that
+seriously turns the comparison of two times into a comparison between evidence and threshold: first for
 detection within the horizon, through a certificate, then for the race itself.
 
 $\tau_{\mathrm{ARF}}$ counts observations; $\lambda$ counts excess errors, since the
@@ -540,7 +514,7 @@ of this report changes.
 
 \paragraph{Indicators} Two families are measured on every run. \emph{Repair dates}, in
 steps: $\tau_{\mathrm{ARF}}$ and $\tau_{\mathrm{swap}}(q)$. \emph{Evidence}, in excess
-errors: $A(H)$ and $S_{\max}(H)$ as prescribed; the short-window area $A(w)$, cut at
+errors: $A(H)$ and $S_{\max}(H)$ over the whole horizon; the short-window area $A(w)$, cut at
 $w = \mathrm{round}(3 \times 18.5/\Delta e)$, three typical transients; $S_{\mathrm{pre}}$
 of Proposition~\ref{prop:race}; and $G(\tau_{\mathrm{ARF}}) =
 S_{\tau_{\mathrm{ARF}}}/S_{\max}(H)$, the share of the evidence already accumulated at the
@@ -585,9 +559,8 @@ $|\tau_b| > 0.13295637$. Shares of runs carry Wilson $95\%$ intervals~\cite{wils
 \label{sec:repair-date}
 % =====================================================================
 
-The manuscript dates the adaptation of the forest at $\tau_{\mathrm{ARF}}$. The subject asks
-whether this instant measures what it claims and, if not, what should replace it
-(Questions C and D). Three results show that it dates the repair too early and too
+The manuscript dates the adaptation of the forest at $\tau_{\mathrm{ARF}}$. Does this instant
+measure what it claims and, if not, what should replace it? Three results show that it dates the repair too early and too
 noisily; the last two measure what it still carries.
 
 \subsection{The First Replacement Is a Lower Bound}
@@ -711,7 +684,7 @@ it is reported in Appendix~\ref{sec:D1} only.
 \subsection{What $\tau_{\mathrm{ARF}}$ Tracks, Amplitude by Amplitude}
 \label{sec:tracks}
 
-The subject prescribes two comparisons: $\tau_{\mathrm{ARF}}$ against the later replacement
+Two comparisons are natural: $\tau_{\mathrm{ARF}}$ against the later replacement
 dates $\tau_{\mathrm{swap}}(q)$, and against the evidence $A(H)$ and $S_{\max}(H)$.
 Appendix~\ref{sec:D3} publishes all $120$ coefficients; the pooled and stratified medians
 summarise them.
@@ -838,9 +811,9 @@ and $t_{50}$ come from the analytic probes. Censored durations ranked last. Scri
 \label{fig:matrice}
 \end{figure*}
 
-Figure~\ref{fig:matrice} crosses fourteen indicators: the prescribed ones, the
+Figure~\ref{fig:matrice} crosses fourteen indicators: the dates and evidence measures above, the
 short-window area, $S_{\mathrm{pre}}$, the alarm dates at $\lambda = 8$ and $25$, and the
-analytic reference. The list was fixed after the prescribed analysis, so the reading is
+analytic reference. The list was fixed after the stratified analysis, so the reading is
 exploratory.
 
 \paragraph{Pooling manufactures agreement} Pooled over the $2\,000$ runs, almost every
@@ -1221,7 +1194,7 @@ that decides the race or to the damage.
     function of the ensemble size, and nothing on the heteroscedastic streams where the
     manuscript locates its \emph{Fundamental Tension}.
   \item The decision rule on $\tau_b$ was fixed during the analysis. The short-window area,
-    $S_{\mathrm{pre}}$ and the fourteen-indicator matrix were added after the prescribed
+    $S_{\mathrm{pre}}$ and the fourteen-indicator matrix were added after the stratified
     analysis and are exploratory; no correction for multiplicity is applied.
   \item $\tau_{\mathrm{rec}}$ exists on seed-averaged curves only and is not correlated run by
     run.
@@ -1229,10 +1202,11 @@ that decides the race or to the damage.
     so the bias of Section~\ref{sec:B} has a sign but no size.
   \item The permanent error cost of the replacement mechanism under no drift is known only
     as an order of magnitude.
-  \item The supervisor's additional questions --- the profile of the error after the drift,
-    the variance of the error across trees, a z-score of the error drop --- are not
-    addressed. The second would require a new campaign, since only the ensemble error is
-    recorded.
+  \item The supervisor's additional questions --- the shape of the error after the drift,
+    the window of the evidence area, the variance of the error across trees, a z-score of
+    the error drop --- are treated in a separate working document, on the same campaign and
+    on a per-tree pilot of $100$ runs. Its conclusions agree with this report and are not
+    merged into it.
 \end{itemize}
 
 \subsection{An Open Question: a Reference for Adaptation}
@@ -1247,6 +1221,21 @@ measure of damage among ours, but a reference for adaptation itself needs the pr
 which are not available online.
 
 % =====================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+Two corrections requested on the manuscript turned out to be one. Racing the first tree
+replacement against a nominal detection time compares a count of observations with a
+count of errors, and dating the repair at the first replacement picks the earliest and
+noisiest date available. Written in the detector's own unit, the race becomes exact and
+needs no assumption on the trees: the detector arrives first if and only if the evidence
+accumulated before the first replacement reaches the threshold. That single quantity
+accounts for the threshold at which the race changes hands and for the paradoxical
+signature, while the first replacement tracks neither the evidence nor the damage beyond
+a weak association. The blind spot survives this analysis. What it loses is its reading
+as a race between two clocks; what remains open is a reference against which adaptation
+itself could be measured.
+
 \begin{thebibliography}{99}
 \setlength{\itemsep}{0pt}
 \small
@@ -1278,6 +1267,11 @@ which are not available online.
 % =====================================================================
 % Annexes : hors du corps de 15 pages
 % =====================================================================
+\twocolumn[{\centering\Large\bfseries Appendices\par\vspace{0.5em}
+\normalsize\mdseries\parbox{0.8\textwidth}{\centering The appendices collect the proofs, the
+complete notation, and the material behind the main text: instrumentation, choice of the
+association coefficient, stratified coefficients in full, reproduction, and use of language
+models. They are not needed to follow the argument.}\par\vspace{1.5em}}]
 \appendices
 
 \section{Proofs}
