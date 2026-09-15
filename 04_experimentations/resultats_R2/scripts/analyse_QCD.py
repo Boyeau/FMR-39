@@ -636,8 +636,8 @@ def figure_joint(df, error_mat, s_mat, phi_mat, target_de, tag, terr=None,
             ax.set_xscale('log')
             ax.set_xlim(1, H)
 
-    fig.suptitle("Question D.1 — replacement, error and detector on a common "
-                 "time axis", fontsize=12)
+    fig.suptitle("Replacement, error and detector on a common time axis",
+                 fontsize=12)
     fig.tight_layout(rect=(0, 0, 1, 0.97))
     out = FIGURES_DIR / f"Fig_QD_trajectoires_{tag}.png"
     fig.savefig(out, dpi=150, bbox_inches='tight')
@@ -729,7 +729,7 @@ def figure_budget(budget, tag):
                     color='#C62828', alpha=0.12)
     ax.set_xlabel(r"$\Delta e$ — error jump amplitude")
     ax.set_ylabel("excess error area")
-    ax.set_title(r"C.3f --- evidence budget: measured vs.\ predicted")
+    ax.set_title("Evidence budget: measured vs. predicted")
     ax.legend(fontsize=9)
     ax.grid(alpha=0.18, lw=0.6)
     fig.tight_layout()
@@ -751,7 +751,7 @@ def figure_rg(rg, tag):
     ax.set_xlabel(r"$\Delta e$ — error jump amplitude")
     ax.set_ylabel("fraction")
     ax.set_ylim(-0.3, 1.05)
-    ax.set_title(r"D.1 — what is acquired at time $\tau_{\mathrm{ARF}}$")
+    ax.set_title(r"What is acquired at time $\tau_{\mathrm{ARF}}$")
     ax.legend(fontsize=9)
     ax.grid(alpha=0.18, lw=0.6)
     fig.tight_layout()
