@@ -257,11 +257,11 @@ def d1() -> None:
     print(f"  {rg.loc[rg.R_tau_arf < 0, 'fenetre_palier'].tolist()}")
     print("  >>> le bornage a tau_ARF/2 EST actif et R reste negatif.")
 
-    _sous_titre("le socle SANS drift (campagne A1_nodrift, 100 runs)")
+    _sous_titre("le socle SANS drift (bras QE2000_nodrift_M10, 2 000 runs)")
     try:
-        ev0 = _t("QCD_events_swap_A1_nodrift")
-        m0 = _t("QCD_runs_meta_A1_nodrift")
-        tr0 = _t("QCD_traces_error_A1_nodrift")
+        ev0 = _t("QCD_events_swap_QE2000_nodrift_M10")
+        m0 = _t("QCD_runs_meta_QE2000_nodrift_M10")
+        tr0 = _t("QCD_traces_error_QE2000_nodrift_M10")
         premiers = ev0.groupby(["run_id", "tree_id"], sort=False).t.min().reset_index()
         print(f"  runs                          : {len(m0)}")
         print(f"  remplacements par run (mediane): "
@@ -272,7 +272,7 @@ def d1() -> None:
         print(f"  p_hat_0 median                 : {m0.p_hat_0.median():.4f}")
         print("  >>> sans le moindre drift, la foret renouvelle quand meme la")
         print("      quasi-totalite de ses arbres sur l'horizon. C'est le socle")
-        print("      du JOURNAL section 2 b, mesure ici sur 100 runs et non 12.")
+        print("      du JOURNAL section 2 b, mesure ici sur 2 000 runs et non 12.")
         print("  ATTENTION : l'erreur d'une foret qui ne remplace JAMAIS rien")
         print("      (0,0125 au JOURNAL section 2 b) n'est PAS recalculable ici :")
         print("      elle vient de verif_biais.py, 12 executions, sortie non")
@@ -469,13 +469,99 @@ def d4() -> None:
     print("  >>> D.4 doit FIXER la regle, la justifier, et l'appliquer partout.")
 
 
+# ----------------------------------------------------------------------
+# D.3 (complement du 15/09) : A(H) contre la fenetre courte A(w)
+# ----------------------------------------------------------------------
+def _tau_b_censure(x: np.ndarray, y: np.ndarray, horizon: int = 2000) -> float:
+    """Meme convention que analyse_QCD.kendall_censored : censure imputee a H."""
+    from scipy.stats import kendalltau
+    xf = np.where(np.isnan(x), horizon, x)
+    yf = np.where(np.isnan(y), horizon, y)
+    if np.all(xf == xf[0]) or np.all(yf == yf[0]):
+        return float("nan")
+    return float(kendalltau(xf, yf).statistic)
+
+
+def d3_fenetre_courte() -> None:
+    """Pourquoi A(H) ne porte aucun lien : le bruit du socle, multiplie par H.
+
+    A(H) = somme sur 2 000 pas de (e_t - p0_hat) : une erreur d'estimation du
+    socle y est multipliee par H. La fenetre courte w = round(3 x 18,5 / Delta_e)
+    de la section C (analyse_QCD.evidence_budget) y echappe en grande partie.
+    Meme protocole que D.3 : tau_b avec censure imputee a H, IC bootstrap
+    percentile sur les graines de la strate, 2 000 tirages, graine 12345, regle
+    de l'intervalle. EXPLORATOIRE : A(w) a ete ajoute apres avoir vu D.3.
+    """
+    _titre("D.3 complement -- A(H) contre la fenetre courte A(w)")
+    ind = _t("QCD_indicateurs_full").sort_values("run_id").reset_index(drop=True)
+    tr = _t("QCD_traces_error_full").sort_values(["run_id", "t"])
+    E = tr["e"].to_numpy(dtype=float).reshape(len(ind), -1)
+    H = E.shape[1]
+    p0 = ind["p_hat_0"].to_numpy()
+    st = _t("QCD_correlations_stratifiees_full")
+    domaine = sorted(st.loc[st.dans_domaine_decision, "delta_e"].unique())
+
+    _sous_titre("controle : A(H) recalcule depuis les traces = colonne A_H")
+    ecart = np.abs((E - p0[:, None]).sum(axis=1) - ind["A_H"].to_numpy()).max()
+    print(f"  ecart maximal : {ecart:.3e}  {'OK' if ecart < 1e-9 else 'ECART'}")
+
+    rng = np.random.default_rng(12345)
+    lignes = []
+    for de in domaine:
+        m = np.isclose(ind["delta_e"].to_numpy(), de)
+        w = int(min(H, max(1, round(3 * 18.5 / de))))
+        a_w = (E[m, :w] - p0[m, None]).sum(axis=1)
+        a_h = ind.loc[m, "A_H"].to_numpy()
+        tau = ind.loc[m, "tau_arf"].to_numpy(dtype=float)
+        s_max = ind.loc[m, "S_max_H"].to_numpy()
+        n = int(m.sum())
+        boot = []
+        for _ in range(2000):
+            idx = rng.integers(0, n, n)
+            boot.append(_tau_b_censure(tau[idx], a_w[idx]))
+        lo, hi = np.nanpercentile(boot, [2.5, 97.5])
+        # ex-aequo sur tau_ARF : part des paires, et plafond de |tau_b| qu'elle impose
+        _, comptes = np.unique(tau, return_counts=True)
+        n0 = n * (n - 1) / 2
+        t_x = float((comptes * (comptes - 1) / 2).sum())
+        lignes.append({
+            "delta_e": de, "w": w,
+            "tb_p0_AH": _tau_b_censure(p0[m], a_h),
+            "tb_p0_Aw": _tau_b_censure(p0[m], a_w),
+            "tb_tau_AH": _tau_b_censure(tau, a_h),
+            "tb_tau_Smax": _tau_b_censure(tau, s_max),
+            "tb_tau_Aw": _tau_b_censure(tau, a_w), "ic_lo": lo, "ic_hi": hi,
+            "part_socle_var_AH": (H * p0[m].std(ddof=1) / a_h.std(ddof=1)) ** 2,
+            "part_paires_ex_aequo_tau": t_x / n0,
+            "plafond_tau_b": math.sqrt(1 - t_x / n0),
+        })
+    t = pd.DataFrame(lignes)
+    seuil = float(st.seuil_detectabilite.iloc[0])
+
+    _sous_titre(f"medianes sur les {len(t)} amplitudes du domaine de decision")
+    print(f"  tau_b(p0_hat, A(H))       : {t.tb_p0_AH.median():+.4f}")
+    print(f"  tau_b(p0_hat, A(w))       : {t.tb_p0_Aw.median():+.4f}")
+    print(f"  part du socle dans Var A(H): mediane {t.part_socle_var_AH.median():.2f}, "
+          f"max {t.part_socle_var_AH.max():.2f}")
+    print(f"  controle tau_b(tau_ARF, A(H))   : {t.tb_tau_AH.median():+.4f} (D.3 : +0.0526)")
+    print(f"  controle tau_b(tau_ARF, S_max)  : {t.tb_tau_Smax.median():+.4f} (D.3 : +0.2129)")
+    print(f"  tau_b(tau_ARF, A(w))      : {t.tb_tau_Aw.median():+.4f} ; "
+          f"IC excluant 0 : {int((t.ic_lo > 0).sum())}/{len(t)} ; "
+          f"|tau_b| > {seuil:.8f} : {int((t.tb_tau_Aw.abs() > seuil).sum())}/{len(t)}")
+    print(f"  ex-aequo sur tau_ARF      : {t.part_paires_ex_aequo_tau.min():.4f} a "
+          f"{t.part_paires_ex_aequo_tau.max():.4f} des paires ; plafond de |tau_b| >= "
+          f"{t.plafond_tau_b.min():.4f}")
+    _sous_titre("par amplitude")
+    print(t.to_string(index=False, float_format=lambda v: f"{v:8.4f}"))
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--sous", choices=["D1", "D2", "D3", "D4"], default=None,
+    p.add_argument("--sous", choices=["D1", "D2", "D3", "D3w", "D4"], default=None,
                    help="n'imprimer qu'une sous-question")
     a = p.parse_args()
 
-    fonctions = {"D1": d1, "D2": d2, "D3": d3, "D4": d4}
+    fonctions = {"D1": d1, "D2": d2, "D3": d3, "D3w": d3_fenetre_courte, "D4": d4}
     for nom, f in fonctions.items():
         if a.sous is None or a.sous == nom:
             f()

@@ -96,7 +96,7 @@ Placeholder.
   \multicolumn{2}{@{}l@{}}{\emph{for the inter-tree analysis:}} \\
   $M = 10$ & number of trees in the forest \\
   $\tau_i$ & adaptation delay of tree $i$, so $\tau_{\mathrm{ARF}} = \min_i \tau_i$ \\
-  $S$ & the complete realization of the stream (one seed) \\
+  $S$ & the stream trajectory $(x_t, y_t)$ alone, without the trees' internal draws \\
   $U_i$ & the randomness specific to tree $i$, identified in Section~\ref{sec:factorization} \\
   $F$ & CDF of a \emph{single} tree $\tau_i$ --- distinct from $F_A$, which is that of $\tau_{\mathrm{ARF}}$ \\
   $G_S(s)$ & $:= P(\tau_1 > s \mid S)$, the single-tree survival function \emph{given} the stream \\
@@ -122,7 +122,7 @@ Placeholder.
 Fréchet bounds of Section~\ref{sec:A} rely on. Every measured figure in this report comes from the
 instrumented campaign of $20$ amplitudes $\times\ 100$ seeds $= 2\,000$ runs,
 $H = 2\,000$, $M = 10$, documented in \texttt{resultats\_R2/}; the two exceptions are the
-drift-free arm of $100$ runs read in Section~\ref{sec:E} and the ten fictitious runs of
+drift-free arm of $2\,000$ runs read in Section~\ref{sec:E} and the ten fictitious runs of
 the counter-example in Section~\ref{sec:d2:contre}, both signalled where they are used.
 
 \paragraph*{Intervals in brackets} A share of runs, $k$ out of $n$, is an estimate of a
@@ -333,8 +333,8 @@ $0.498$ & $0.01$ & $0.01$ & $0.18$ \\
 \noindent The bound holds on all $60$ cells of the grid
 (\texttt{resultats\_R2/scripts/chiffres\_QA.py}), and is not vacuous: mean width $0.195$
 at $\lambda = 8$ and $0.106$ at $\lambda = 25$. At $\lambda = 50$ it falls to $0.001$,
-but only because the detector never alarms there, $\hat F_D$ stays flat at $0$, and both
-formulas reach $P_{\mathrm{miss}} = 1$ on their own --- exactness by degeneracy, not by
+but only because the detector alarms in a single run out of $2\,000$ there: $\hat F_D$ stays
+almost flat at $0$, and both formulas are pushed to $P_{\mathrm{miss}} \approx 1$ on their own --- exactness by degeneracy, not by
 sharpness. At the weakest amplitude the estimated lower bound of $0.91$ becomes $0.88$ at
 the $95\%$ level after a bootstrap resampling the $100$ seeds. There, the blind spot is
 forced by the marginals alone, with no assumption on the coupling: it is not an artefact
@@ -396,7 +396,10 @@ therefore independent and identically distributed, and
   P(\tau_{\mathrm{ARF}}>s \mid S) = \prod_{i=1}^{M} P(\tau_i>s\mid S) = G_S(s)^M .
 \]
 The independence assumption is thus not wrong in kind --- it is stated at the wrong level.
-It holds given the stream; it fails once the stream is averaged out.
+It holds given the stream; it fails once the stream is averaged out. In the campaign, a
+single seed drives both the stream and the trees' internal draws, so fixing a seed fixes
+the $U_i$ as well: $G_S$ cannot be estimated across seeds, and the factorization is a
+property of the model rather than a quantity measured here.
 
 \subsection{The Direction of the Bias}
 \label{sec:convexity}
@@ -737,7 +740,7 @@ measurement replaces rather than supports.}}
 %   hors questions -> sec:E (choix du seuil, témoin sans drift)
 % =====================================================================
 % =====================================================================
-% TODO : Question C --- reprendre QC1, QC2, QC3 (trois fichiers à fondre).
+% Question C fondue (QC1, QC2, QC3).
 % Elle s'insère ici, entre B et D. Deux dépendances déjà posées ailleurs :
 %   - l'identité tau_ARF = tau_swap(1/M), énoncée au début de la section D
 %     avec son compte de vérification, à renvoyer vers C une fois C écrite ;
@@ -906,9 +909,9 @@ between $-0.0271$ and $-0.0080$, always negative. Two mechanisms account for it,
 point at the baseline.
 
 First, $\hat p_0$ is itself partly a product of the replacement mechanism. On the
-drift-free arm of the campaign --- $100$ runs with no change point at all, reported in
+drift-free arm of the campaign --- $2\,000$ runs with no change point at all, reported in
 full in Section~\ref{sec:E} --- the forest renews most of itself over the horizon anyway,
-for a mean error of $0.0226$. Replacement churn under pure noise is the normal regime. A
+for a mean error of $0.0228$. Replacement churn under pure noise is the normal regime. A
 direct comparison against a forest that never replaces anything gave $0.0125$, but that
 figure is not produced by this campaign: it comes from an exploratory measurement of 12
 executions (\texttt{resultats\_R2/JOURNAL.md} \S~2\,b) whose output was not persisted, and
@@ -1180,10 +1183,12 @@ $\tau_{\mathrm{ARF}}$ remove pairs from the numerator without any counterpart, a
 coefficient is displaced \emph{towards zero} relative to a tie-free measurement of the
 same association.
 
-That direction is what makes the central result of Section~\ref{sec:D3} readable. The
-coefficients reported there for $A(H)$ and $S_{\max}(H)$ are conservative: a value
-indistinguishable from zero cannot be an artefact of ties inflating it, and a value that
-is discernible is if anything understated.
+That direction cuts both ways for the central result of Section~\ref{sec:D3}. A
+discernible coefficient is if anything understated; but a coefficient indistinguishable
+from zero could in principle be a real association pulled towards zero by the ties. On this
+campaign the effect is negligible either way: within a stratum of the decision domain,
+only $0.2\%$ to $4.5\%$ of the pairs are tied on $\tau_{\mathrm{ARF}}$, which caps
+$|\tau_b|$ at $0.977$ or more.
 
 \subsection{A Ten-Run Counter-Example, and the Configuration That Hides the Gap}
 \label{sec:d2:contre}
@@ -1238,17 +1243,21 @@ with the observed runs perfectly ordered. What then amplifies the gap is the ord
 the observed runs: with four anti-ordered observations, Spearman reports $0.751$ where
 $\tau_b$ reports $0.490$, a gap of $0.261$, nearly four times the ordered case.
 
-The mechanism is the same in both rows. Spearman overstates the association because the
-six censored runs share a mid-rank that enters its sums of squares as an ordinary value,
-manufacturing agreement out of a tie block, while $\tau_b$ removes those pairs from both
-counts. Ties on both sides hide this, because they cancel the effect exactly.
+The mechanism is the same in both rows: the six censored runs share a mid-rank that
+enters Spearman's sums of squares as an ordinary value, while $\tau_b$ removes those pairs
+from both counts. Ties on both sides hide this, because they cancel the effect exactly.
+The size of the gap is not, by itself, evidence of an artefact: the two coefficients live
+on different scales even without any tie. For a bivariate normal law with correlation $r$,
+$\tau = (2/\pi)\arcsin r$ and $\rho_S = (6/\pi)\arcsin(r/2)$, so that $\rho_S$ runs about
+$1.5$ times $\tau$ for weak associations.
 
 \paragraph{Conclusion} Pearson is excluded by definition rather than by degree, since
-censored runs carry no numerical value. Spearman is computable but overstates the
-association in the presence of tie blocks, and the tie blocks here are created by the
-censoring itself. Kendall's $\tau_b$ is used throughout what follows, with censored runs
-imputed to the last rank, which is legitimate because the horizon is common to all runs
-and only for that reason.
+censored runs carry no numerical value. Spearman is computable, but its value
+has no direct reading and its handling of the tie blocks created by the censoring is
+implicit. Kendall's $\tau_b$ is used throughout what follows because it reads directly on
+pairs --- concordant minus discordant, among the pairs that can be ordered --- and corrects
+for ties explicitly. Censored runs are imputed to the last rank, which is legitimate
+because the horizon is common to all runs and only for that reason.
 
 % =====================================================================
 \section{What the Repair Date Tells the Detector}
@@ -1354,9 +1363,11 @@ For $A(H)$ the pooled coefficient is $+0.3965$ against a median stratified coeff
 $+0.0526$, a factor of $7.5$. This is not a strong association weakened by stratification:
 the stratified coefficient is indistinguishable from zero under this protocol at every one
 of the 18 amplitudes. The pooled coefficient manufactures a link rather than confirming a
-weak one. Mechanically it is Simpson's paradox on $\Delta e$: within each stratum there is
-nothing, and across strata both quantities move with the amplitude, so pooling recovers
-the amplitude and reports it as an association.
+weak one. Mechanically it is Simpson's paradox on $\Delta e$: within each stratum no
+association is discernible, and across strata both quantities move with the amplitude, so
+pooling recovers the amplitude and reports it as an association. The within-stratum null
+is itself partly a property of $A(H)$ rather than of $\tau_{\mathrm{ARF}}$: about half of
+the run-to-run variance of $A(H)$ is baseline noise (Section~\ref{sec:d3:answer}).
 
 The effect is strongest exactly where the within-stratum association is weakest: ratio
 $7.54$ for $A(H)$ and $4.72$ for $\tau_{\mathrm{swap}}(75\%)$, but only $1.48$ for
@@ -1442,6 +1453,7 @@ quota above the nominal one.
 \end{table*}
 
 \subsection{The Answer}
+\label{sec:d3:answer}
 
 The two quantities in Table~\ref{tab:strat} play different roles, and conflating them
 changes the answer.
@@ -1461,18 +1473,33 @@ excludes zero while its $\tau_b$ of $0.1308$ falls just under the threshold.
 The distinction matters because it is $S_{\max}(H)$ that decides the alarm, not $A(H)$.
 The alarm is by definition the crossing of $\lambda$ by $S_{\max}$. A claim that
 $\tau_{\mathrm{ARF}}$ carries no information about the evidence offered to the detector is
-attached to the wrong object if it rests on $A(H)$ alone. The answer, stated sharply:
+attached to the wrong object if it rests on $A(H)$ alone.
+
+\paragraph{Why $A(H)$ shows nothing} $A(H)$ sums $e_t - \hat p_0$ over $2\,000$ steps, so an
+error on the estimated baseline is multiplied by $2\,000$. Within a stratum,
+$\tau_b(\hat p_0, A(H))$ has a median of $-0.4741$ over the 18 amplitudes: the runs whose
+baseline was estimated high show the least excess error, whatever the forest did. The
+baseline accounts for a median share of $0.51$ of the run-to-run variance of $A(H)$, and up
+to $0.88$. Over the short window $w = \mathrm{round}(3 \times 18.5/\Delta e)$ of
+Section~\ref{sec:certificate}, the same coefficient falls to $-0.0639$, and an association
+with $\tau_{\mathrm{ARF}}$ appears: median $+0.2313$, with a bootstrap interval excluding
+zero at 13 of the 18 amplitudes. This is exploratory --- the window was added after the
+table above was read --- and it is reproduced by \texttt{chiffres\_QD.py --sous D3w}. The
+null on $A(H)$ therefore says more about $A(H)$ than about $\tau_{\mathrm{ARF}}$.
+
+\noindent The answer, stated sharply:
 
 \begin{center}
-\fbox{\parbox{0.92\columnwidth}{$\tau_{\mathrm{ARF}}$ carries \textbf{no information}
-about the total accumulated excess error $A(H)$, indistinguishable from zero at all 18
-amplitudes. It carries a \textbf{weak but real} association with $S_{\max}(H)$, the
-quantity that determines whether the alarm fires: median $\tau_b = +0.2129$, discernible
-at 15 of 18 amplitudes, that is every amplitude from $\Delta e = 0.287$ upwards without
-exception. Below $\Delta e = 0.287$ the association is not distinguishable from zero
-either. Both figures are displaced towards zero by the tie correction
-(Section~\ref{sec:D2}), so the first is not an artefact of ties inflating a null and the
-second is if anything understated.}}
+\fbox{\parbox{0.92\columnwidth}{$\tau_{\mathrm{ARF}}$ shows \textbf{no discernible
+association} with the full-horizon excess error $A(H)$ at any of the 18 amplitudes, but
+about half of the variance of $A(H)$ is baseline noise multiplied by $H$. Over the
+transient window alone, $A(w)$, the association is \textbf{weak but real}: median
+$\tau_b = +0.2313$, discernible at 13 of 18 amplitudes (exploratory). It is of the same
+order with $S_{\max}(H)$, the quantity that determines whether the alarm fires: median
+$\tau_b = +0.2129$, discernible at 15 of 18 amplitudes, every amplitude from
+$\Delta e = 0.287$ upwards without exception, and at none below. Ties on
+$\tau_{\mathrm{ARF}}$ are too rare to move any of these verdicts
+(Section~\ref{sec:D2}).}}
 \end{center}
 
 \subsection{Censoring: by Amplitude, and Whether It Drives Anything}
@@ -1667,7 +1694,7 @@ this check.
 
 \subsection{Detecting Is Not Winning}
 
-The campaign of $2\,000$ runs is read at six thresholds. The drift-free arm --- $100$ runs
+The campaign of $2\,000$ runs is read at six thresholds. The drift-free arm --- $2\,000$ runs
 with no change point at all, same horizon --- gives what the same threshold costs when
 nothing happens.
 
@@ -1676,19 +1703,19 @@ nothing happens.
 \caption{Six thresholds on the same campaign. ``Wins the race'' is
 $\tau_{\mathrm{det}} < \tau_{\mathrm{ARF}}$ over all $2\,000$ runs, censored runs counted
 as losses; the next column restricts to the runs that alarm. Brackets: Wilson $95\%$
-interval, $n = 100$ drift-free runs. The rows at $\lambda = 8$, $25$ and $50$ reproduce
+interval, $n = 2\,000$ drift-free runs. The rows at $\lambda = 8$, $25$ and $50$ reproduce
 Tables~\ref{tab:course} and~\ref{tab:aveugle}.}
 \label{tab:seuils}
 \begin{tabular}{crrrl}
 \toprule
 $\lambda$ & alarm fires & wins the race & of uncensored & false alarms, no drift \\
 \midrule
-$8$  & $95.3\%$ & $\mathbf{91.0\%}$ & $95.4\%$ & $5/100 = 5.0\%$ $[2.2;11.2]$ \\
-$12$ & $94.3\%$ & $78.8\%$ & $83.5\%$ & $2/100 = 2.0\%$ $[0.6;7.0]$ \\
-$15$ & $92.9\%$ & $\mathbf{36.3\%}$ & $39.1\%$ & $0/100 = 0.0\%$ $[0.0;3.7]$ \\
-$20$ & $66.2\%$ & $8.1\%$ & $12.2\%$ & $0/100 = 0.0\%$ $[0.0;3.7]$ \\
-$25$ & $38.9\%$ & $2.5\%$ & $6.6\%$ & $0/100 = 0.0\%$ $[0.0;3.7]$ \\
-$50$ & $0.1\%$ & $0.0\%$ & $0.0\%$ & $0/100 = 0.0\%$ $[0.0;3.7]$ \\
+$8$  & $95.3\%$ & $\mathbf{91.0\%}$ & $95.4\%$ & $83/2\,000 = 4.15\%$ $[3.36;5.12]$ \\
+$12$ & $94.3\%$ & $78.8\%$ & $83.5\%$ & $11/2\,000 = 0.55\%$ $[0.31;0.98]$ \\
+$15$ & $92.9\%$ & $\mathbf{36.3\%}$ & $39.1\%$ & $3/2\,000 = 0.15\%$ $[0.05;0.44]$ \\
+$20$ & $66.2\%$ & $8.1\%$ & $12.2\%$ & $0/2\,000 = 0.00\%$ $[0.00;0.19]$ \\
+$25$ & $38.9\%$ & $2.5\%$ & $6.6\%$ & $0/2\,000 = 0.00\%$ $[0.00;0.19]$ \\
+$50$ & $0.1\%$ & $0.0\%$ & $0.0\%$ & $0/2\,000 = 0.00\%$ $[0.00;0.19]$ \\
 \bottomrule
 \end{tabular}
 
@@ -1733,13 +1760,13 @@ therefore confirmed on the race, not contradicted.
 \paragraph{What the false-alarm column adds} The manuscript grants that a hyper-reactive
 threshold reaches a safe zone but states that it ``sacrifices false-alarm robustness''. On
 this bench that cost is measured rather than assumed: $\lambda = 8$ raises an alarm in
-$5$ of $100$ runs where nothing changes, which is the calibration level usually adopted for
-drift detectors. So on the Bernoulli bench the only threshold that wins the race does so at
+$83$ of $2\,000$ runs where nothing changes, $4.15\%$, just under the $5\%$ calibration level
+usually adopted for drift detectors. So on the Bernoulli bench the only threshold that wins the race does so at
 an ordinary false-alarm cost, and the admissible set is not empty here.
 
 \paragraph{Three reservations} The false-alarm rate is measured over $2\,000$ steps on
-$100$ runs; over a longer deployment such alarms accumulate, and the upper end of the
-Wilson interval at $\lambda = 8$ is $11.2\%$. The bench is homoscedastic, so this says
+$2\,000$ runs; over a longer deployment such alarms accumulate, and the upper end of the
+Wilson interval at $\lambda = 8$ is $5.12\%$. The bench is homoscedastic, so this says
 nothing about the \emph{Fundamental Tension} the manuscript establishes on
 ARMA--GARCH streams, where bounding false alarms under clustered volatility is what empties
 the admissible set. And at the weakest amplitude no threshold wins a single run, which
@@ -1755,19 +1782,19 @@ and~\ref{sec:D1} both read this arm in passing; it is reported here in full.
 \begin{table}[t]
 \centering
 \caption{The drift-free arm against the campaign; quartiles of the first replacement,
-$43$ and $172$ steps, and trees counted over the horizon $H$. The median at
+$39$ and $192$ steps, and trees counted over the horizon $H$. The median at
 $\Delta e = 0.028$ carries the bootstrap interval $[92.5 ; 158.5]$ of
 Table~\ref{tab:ic-medianes}.}
 \label{tab:nodrift}
 \small
 \begin{tabular}{lr}
 \toprule
-On $100$ runs with no change point & \\
+On $2\,000$ runs with no change point & \\
 \midrule
-runs where at least one tree is replaced & $100/100$ \\
-first replacement, median & $105$ steps \\
+runs where at least one tree is replaced & $2\,000/2\,000$ \\
+first replacement, median & $95$ steps \\
 distinct trees renewed, median & $9/10$ \\
-runs whose forest is entirely renewed & $24/100$ \\
+runs whose forest is entirely renewed & $575/2\,000 = 28.7\%$ \\
 \midrule
 median $\tau_{\mathrm{ARF}}$ at $\Delta e = 0.028$ (real drift) & $118$ steps \\
 median $\tau_{\mathrm{ARF}}$ over the whole grid & $38$ steps \\
@@ -1778,8 +1805,8 @@ median $\tau_{\mathrm{ARF}}$ over the whole grid & $38$ steps \\
 
 \paragraph{Reading} Replacement churn under pure noise is the normal regime of the ARF,
 not an anomaly: nine trees out of ten are renewed over two thousand steps with no drift
-whatsoever. At the weakest amplitude of the grid the stopwatch reads $118$ steps against
-$105$ with no drift at all, so at that amplitude it does not distinguish a real change from
+whatsoever. At the weakest amplitude of the grid the first replacement comes after $118$ steps against
+$95$ with no drift at all, so at that amplitude it does not distinguish a real change from
 its absence. This is the control any candidate replacement for $\tau_{\mathrm{ARF}}$ must
 pass before its correlations are worth computing, and it is test A1 of the benchmark.
 
@@ -1788,7 +1815,7 @@ pass before its correlations are worth computing, and it is test A1 of the bench
 Detection and victory separate: a threshold can alarm on almost every drift and still
 arrive last on two thirds of them, so a detection rate quoted alone does not describe the
 blind spot. On this bench one threshold does win the race, $\lambda = 8$, at a false-alarm
-cost of $5\%$ per two thousand drift-free steps, which restricts the manuscript's
+cost of $4.15\%$ per two thousand drift-free steps, which restricts the manuscript's
 ``no CUSUM threshold escapes it'' to the settings it actually tested here. And the date of
 the first replacement fires as readily without drift as with the weakest one, which is a
 property of the indicator rather than of the detector --- the same verdict

@@ -6,9 +6,10 @@ Rejeu des chiffres de `redaction_QE_choix_du_seuil.tex` (section E).
 LECTURE SEULE. Ne resimule rien, n'ecrit aucune table. Tout est recalcule
 hors ligne a partir des trajectoires d'erreur deja enregistrees :
   - campagne avec drift : QCD_traces_error_full (2 000 runs x 2 000 pas) ;
-  - bras SANS drift de A1 : QCD_traces_error_A1_nodrift (100 runs), le
-    seul endroit du projet ou l'on observe le detecteur quand il ne se
-    passe rien.
+  - bras SANS drift : QCD_traces_error_QE2000_nodrift_M10 (2 000 runs,
+    memes graines que la campagne). Il remplace depuis le 15/09 le bras A1
+    de 100 runs, dont les intervalles etaient trop larges pour le taux de
+    fausses alarmes.
 
 CE QUE LA SECTION E ETABLIT, ET QUI N'EST NULLE PART AILLEURS
   1. Detecter n'est pas gagner. La detection dans l'horizon et la victoire
@@ -92,9 +93,9 @@ def balayage():
         etat = "OK" if mesure == attendu else "ECART -- NE RIEN LIRE PLUS BAS"
         print(f"  lambda = {lam:2d} | alarmes attendues {attendu:4d} | mesurees {mesure:4d}  {etat}")
 
-    meta0 = pd.read_parquet(DATA / "QCD_runs_meta_A1_nodrift.parquet").set_index("run_id")
+    meta0 = pd.read_parquet(DATA / "QCD_runs_meta_QE2000_nodrift_M10.parquet").set_index("run_id")
     det0 = _table_franchissements(
-        pd.read_parquet(DATA / "QCD_traces_error_A1_nodrift.parquet"), meta0["p_hat_0"], LAMBDAS)
+        pd.read_parquet(DATA / "QCD_traces_error_QE2000_nodrift_M10.parquet"), meta0["p_hat_0"], LAMBDAS)
     n0 = len(det0)
 
     print("\n[QE table 1] detecter n'est pas gagner, et ce que coute le silence")
@@ -111,7 +112,7 @@ def balayage():
         print(f"  {lam:>4} | {int(alarme.sum()):5d}/{n} {alarme.mean()*100:5.1f} %"
               f" | {k:5d}/{n} {k/n*100:5.1f} %"
               f" | {gagne.sum()/max(alarme.sum(),1)*100:14.1f} %"
-              f" | {fa:3d}/{n0} = {fa/n0*100:4.1f} % [{lo*100:.1f};{hi*100:.1f}]")
+              f" | {fa:3d}/{n0} = {fa/n0*100:5.2f} % [{lo*100:.2f};{hi*100:.2f}]")
 
     print("\n[QE table 2] victoire de la course par amplitude (part des 100 runs)")
     pivot = pd.DataFrame({"delta_e": ind["delta_e"]})
@@ -125,8 +126,8 @@ def balayage():
 def temoin_sans_drift():
     """Le controle qui ne depend d'aucun seuil : la foret se « repare »
     aussi quand rien ne change."""
-    ev = pd.read_parquet(DATA / "QCD_events_swap_A1_nodrift.parquet")
-    meta = pd.read_parquet(DATA / "QCD_runs_meta_A1_nodrift.parquet")
+    ev = pd.read_parquet(DATA / "QCD_events_swap_QE2000_nodrift_M10.parquet")
+    meta = pd.read_parquet(DATA / "QCD_runs_meta_QE2000_nodrift_M10.parquet")
     ind = pd.read_parquet(DATA / "QCD_indicateurs_full.parquet")
 
     premier = ev.groupby("run_id")["t"].min()
@@ -134,15 +135,17 @@ def temoin_sans_drift():
     q1, q3 = premier.quantile([0.25, 0.75])
     faible = ind.loc[ind["delta_e"] < 0.03, "tau_arf"].median()
 
-    print("\n[QE table 3] le temoin sans drift (100 runs, aucun changement)")
-    print(f"  runs avec au moins un remplacement | mesure = {premier.size}/{meta['run_id'].nunique()}")
+    n_runs = meta["run_id"].nunique()
+    complet = int((arbres == 10).sum())
+    print(f"\n[QE table 3] le temoin sans drift ({n_runs} runs, aucun changement)")
+    print(f"  runs avec au moins un remplacement | mesure = {premier.size}/{n_runs}")
     print(f"  premier remplacement, mediane      | mesure = {premier.median():.0f} pas"
           f"  (quartiles {q1:.0f} et {q3:.0f})")
     print(f"  arbres distincts renouveles        | mesure = mediane {arbres.median():.0f}/10 ;"
-          f" les 10 dans {int((arbres == 10).sum())} runs")
+          f" les 10 dans {complet} runs = {complet / n_runs * 100:.1f} %")
     print(f"  a comparer au drift le plus faible | mesure = tau_ARF median {faible:.0f} pas"
           f" a Delta_e = 0,028 ; {ind['tau_arf'].median():.0f} sur toute la grille")
-    print("  table = QCD_events_swap_A1_nodrift, QCD_indicateurs_full")
+    print("  table = QCD_events_swap_QE2000_nodrift_M10, QCD_indicateurs_full")
 
 
 if __name__ == "__main__":
