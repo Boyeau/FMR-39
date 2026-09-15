@@ -119,7 +119,7 @@ Placeholder.
 \end{center}
 
 \noindent Both delays are counted from $\tau^*$ and take integer values, a fact the
-Fréchet bounds of Question~A rely on. Every measured figure in this report comes from the
+Fréchet bounds of Section~\ref{sec:A} rely on. Every measured figure in this report comes from the
 instrumented campaign of $20$ amplitudes $\times\ 100$ seeds $= 2\,000$ runs,
 $H = 2\,000$, $M = 10$, documented in \texttt{resultats\_R2/}; the two exceptions are the
 drift-free arm of $100$ runs read in Section~\ref{sec:E} and the ten fictitious runs of
@@ -185,7 +185,7 @@ informed late. A finite $\tau_{\mathrm{ARF}}$ is smaller than $+\infty$, so the 
 falls inside $\mathrm{Miss}$ on its own.
 
 It must. Excluding it would restrict the count to runs where the detector eventually
-spoke --- the very selection bias this question holds against the manuscript, since those
+spoke --- the very selection bias this section holds against the manuscript, since those
 discarded are the runs where it failed most completely. At $\lambda = 50$, where $1\,999$
 runs out of $2\,000$ never fire, the rate would be computed over a single run.
 
@@ -362,8 +362,8 @@ $50$ & $1$       & $1\,999$ & $0$ & $1.0000$ & $[0.9981;1.0000]$ \\
 \end{tabular}
 \end{table}
 
-These totals pool cells of very unequal difficulty, and the per-cell breakdown belongs to
-Question~D.
+These totals pool cells of very unequal difficulty; the per-cell breakdown is given in
+Section~\ref{sec:d1:course}.
 
 % =====================================================================
 \section{The Independence Assumption Between Trees}
@@ -684,7 +684,7 @@ does not.
 \caption{(a) Predicted budgets, raw $18.5\,\Delta e^{0.02}$ and usable, against the
 measured areas $A(w)$ and $A(H)$, medians over $100$ seeds. (b) Share of the raw budget
 taken by the tolerance $\delta_P$. Shaded: the two amplitudes outside the decision domain
-of Question~D.}
+of Section~\ref{sec:D4rule}.}
 \label{fig:budget}
 \end{figure}
 
@@ -750,8 +750,8 @@ measurement replaces rather than supports.}}
 \label{sec:D1}
 % =====================================================================
 
-The subject asks for the fraction of replaced trees, the global error and the internal
-state of the detector to be traced jointly. This section produces those three series and
+The fraction of replaced trees, the global error and the internal state of the detector
+are traced here on one time axis. This section produces those three series and
 the four temporal markers read off them; what they are worth as measurements of the
 adaptation is settled in Sections~\ref{sec:D2} and~\ref{sec:D3}. Every figure quoted is
 reproduced by \texttt{resultats\_R2/scripts/chiffres\_QD.py} and \texttt{derives\_QD.py}.
@@ -823,7 +823,7 @@ $94\%$ depending on amplitude.
 
 The baseline $\hat p_0$ enters $S_t$ directly, and therefore governs $\tau_{\mathrm{det}}$,
 $A(H)$, $S_{\max}(H)$ and every censoring rate reported in this work. It is reported on
-both windows the protocol requires: $1\,000$ pre-drift steps, reproducing R2 as published,
+both estimation windows: $1\,000$ pre-drift steps, reproducing R2 as published,
 and $3\,000$ steps for the analysis. Since $3\,000$ pre-drift steps are recorded per run,
 this is a purely offline recomputation. As a control, the baseline recomputed at $3\,000$
 steps reproduces the campaign value with a maximum deviation of exactly $0$.
@@ -917,7 +917,7 @@ mechanism properly is an open item of that journal.
 
 Second, at large amplitudes the post-drift task is easier than the original one, so the
 error does not settle at $\hat p_0 + \Delta e$ at all --- the same mechanism that drives
-$A(H)$ negative in Section~\ref{sec:budget}. The stylised model of the subject fails at the
+$A(H)$ negative in Section~\ref{sec:budget}. The stylised step model fails at the
 top of the grid, and that is a measurement rather than a conjecture.
 
 \begin{figure}[t]
@@ -1030,8 +1030,8 @@ same sweep through the thresholds between $8$ and $25$, where the transition hap
 \label{sec:D2}
 % =====================================================================
 
-The subject asks for the correlation of $\tau_{\mathrm{ARF}}$ with the real adaptation.
-Which coefficient answers that question is not a detail here: the quantities to be
+Measuring how $\tau_{\mathrm{ARF}}$ associates with the real adaptation requires a
+coefficient, and which one is not a detail here: the quantities to be
 correlated are durations measured on a finite horizon, and two of the three usual
 coefficients are disqualified by that alone. The counter-example of
 Section~\ref{sec:d2:contre} comes from \texttt{scripts/contre\_exemple\_kendall.py},
@@ -1185,19 +1185,18 @@ coefficients reported there for $A(H)$ and $S_{\max}(H)$ are conservative: a val
 indistinguishable from zero cannot be an artefact of ties inflating it, and a value that
 is discernible is if anything understated.
 
-\subsection{The Counter-Example, and an Error in the Prescribed Exercise}
+\subsection{A Ten-Run Counter-Example, and the Configuration That Hides the Gap}
 \label{sec:d2:contre}
 
 Ten fictitious runs on a common horizon $H = 2\,000$: four observed, six censored. The
-exercise as prescribed asks for the four observed values to be perfectly ordered. Carried
-out literally, with the censored runs tied on both sides, it yields
-$\rho = \tau_b = 1.000000$ exactly. The gap is zero and the counter-example demonstrates
-nothing.
+natural first configuration orders the four observed values perfectly and ties the six
+censored runs on both sides. It yields $\rho = \tau_b = 1.000000$ exactly: the gap is
+zero and, so built, the counter-example demonstrates nothing.
 
 The reason is sharper than ``the example is badly chosen''. Ties on both sides require
 $\tau_{\mathrm{ARF}}$ itself to be censored, and on this campaign it never is:
 \texttt{censored\_arf} $= 0.0000$ on all $2\,000$ runs. The configuration under which the
-prescribed exercise produces no gap cannot occur in the data it is meant to illustrate.
+two coefficients coincide cannot occur in the data the example is meant to illustrate.
 
 \begin{table*}[t]
   \centering
@@ -1221,8 +1220,8 @@ prescribed exercise produces no gap cannot occur in the data it is meant to illu
   \centering
 \caption{The three configurations of Table~\ref{tab:contre}, as mid-ranks. Filled
   markers: observed runs; hollow markers: runs censored at $H$, which share one mid-rank
-  on the comparator side. (a) The prescribed exercise read literally also ties the six
-  censored runs on the $\tau_{\mathrm{ARF}}$ side, and the two coefficients coincide.
+  on the comparator side. (a) Tying the six censored runs on the $\tau_{\mathrm{ARF}}$ side as
+  well makes the two coefficients coincide.
   (b) With $\tau_{\mathrm{ARF}}$ left uncensored, the same four ordered observations
   already separate Spearman from Kendall by $0.071$. (c) Anti-ordering the four
   observations widens the gap to $0.261$. Table
@@ -1242,8 +1241,7 @@ $\tau_b$ reports $0.490$, a gap of $0.261$, nearly four times the ordered case.
 The mechanism is the same in both rows. Spearman overstates the association because the
 six censored runs share a mid-rank that enters its sums of squares as an ordinary value,
 manufacturing agreement out of a tie block, while $\tau_b$ removes those pairs from both
-counts. The prescribed exercise hides this by silently assuming ties on both sides, which
-cancels the effect exactly.
+counts. Ties on both sides hide this, because they cancel the effect exactly.
 
 \paragraph{Conclusion} Pearson is excluded by definition rather than by degree, since
 censored runs carry no numerical value. Spearman is computable but overstates the
@@ -1275,9 +1273,9 @@ amplitude is constant inside it by construction.
 \subsection{The Decision Rule, and Its Status}
 \label{sec:D4rule}
 
-\paragraph{A reservation, stated rather than glossed} The protocol asks for a decision
-criterion written down before any correlation is inspected. That claim cannot honestly be
-made here. The pre-registered document of this work fixes the criteria of a
+\paragraph{A reservation, stated rather than glossed} A decision criterion should be
+written down before any correlation is inspected. That anteriority cannot honestly be
+claimed here. The pre-registered document of this work fixes the criteria of a
 \emph{benchmark}: the tests that qualify candidate replacements for $\tau_{\mathrm{ARF}}$
 against an analytic reference. It contains neither the indicator evaluated here, nor its
 comparators, nor the decision domain $\Delta e \ge 0.10$, nor the threshold on $\tau_b$,
@@ -1621,10 +1619,9 @@ running to $15$ consecutive amplitudes in the same direction
 (Figure~\ref{fig:forest}), but individual cells whose $|\tau_b|$ is near the detectability
 threshold are not quoted on their own.
 
-\paragraph{The prescribed return time is not correlated run by run} The official
-statement of the question asks for the correlation of $\tau_{\mathrm{ARF}}$ with the
-residual error and with the effective time of return to normal. The second is not computed
-as a per-run correlation anywhere, and the reason belongs here rather than in silence.
+\paragraph{The return time is not correlated run by run} Next to the residual error,
+the natural second comparator for $\tau_{\mathrm{ARF}}$ is the effective time of return
+to normal, $\tau_{\mathrm{rec}}$. It is not computed as a per-run correlation anywhere, and the reason belongs here rather than in silence.
 $\tau_{\mathrm{rec}}$ is defined only on the seed-averaged error curve, one value per
 amplitude: on a single run the binary sequence is far too noisy for a threshold crossing to
 signal genuine recovery. The correlations above are computed run by run, so the two objects
@@ -1640,7 +1637,7 @@ falls below the pre-drift baseline. A criterion that a simplified problem satisf
 immediately does not measure adaptation.
 
 \paragraph{Scope} Everything above is measured at $M = 10$ on one campaign, so no result
-of this question holds as a function of forest size; the instrumented runs at other values
+of this section holds as a function of forest size; the instrumented runs at other values
 of $M$ were produced for a different test and carry no evidence trace. No result involves
 $\tau_{\mathrm{det}}$ at $\lambda = 25$ or $\lambda = 50$ as a correlated variable, for the
 censoring reason given above. Harrell's $C$ index was not used, because the common-horizon
@@ -1653,8 +1650,8 @@ reasoning would fail and the $C$ index would be required.
 \label{sec:E}
 % =====================================================================
 
-This section collects two results that belong to no single question of the subject and
-that would distort the one they were attached to. First, detecting a drift and winning the
+This section collects two results that belong to no single section above and that
+would distort the one they were attached to. First, detecting a drift and winning the
 race against the forest are different things, and they separate as soon as the threshold
 rises --- which is what the narrow transition band of Section~\ref{sec:d3:censure} looks
 like once it is resolved. Second, the forest replaces trees at a steady rate when nothing
@@ -1664,7 +1661,7 @@ own. Everything below is recomputed offline from the recorded error trajectories
 
 \paragraph{Control} $S_t$ does not depend on $\lambda$, so a single offline pass over
 each trajectory yields the first crossing for every threshold. The sweep must reproduce
-the campaign exactly at the three thresholds of the subject, and it does: the alarm counts
+the campaign exactly at its three original thresholds, and it does: the alarm counts
 of Table~\ref{tab:aveugle} are recovered to the run. Nothing below is readable without
 this check.
 
