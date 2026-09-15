@@ -287,15 +287,17 @@ the two clocks are coupled. That is what makes them \emph{universal}.}}
 $100$ seeds with $\tau_{\mathrm{ARF}} \le s$ and $\hat F_D(s)$ the share with
 $\tau_{\mathrm{det}} \le s$; the two bounds are the formulas above evaluated on these.
 $\hat F_D$ is sub-stochastic --- a censored $\tau_{\mathrm{det}}$ enters it at no finite
-$s$ --- so censored runs count as detector losses rather than as missing data. At
-$\lambda = 8$:
+$s$ --- so censored runs count as detector losses rather than as missing data. Unlike the censoring
+interval above, which collapses because $C_H = \varnothing$, these bounds discard the joint
+law on purpose: their width measures what the marginals alone leave undetermined about the
+coupling, whereas $\hat P_{\mathrm{miss}}$ reads the joint law directly. At $\lambda = 8$:
 
 \begin{table}[t]
 \centering
 \caption{Fréchet bounds on the estimated marginals, $\lambda = 8$.}
 \begin{tabular}{crrr}
 \toprule
-$\Delta e$ & lower & $\hat P_{\mathrm{miss}}$ & upper \\
+$\Delta e$ & Fréchet lower & $\hat P_{\mathrm{miss}}$ (joint law) & Fréchet upper \\
 \midrule
 $0.028$ & $0.91$ & $1.00$ & $1.00$ \\
 $0.141$ & $0.10$ & $0.12$ & $0.26$ \\
