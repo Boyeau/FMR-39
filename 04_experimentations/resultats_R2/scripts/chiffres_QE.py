@@ -203,7 +203,18 @@ def temoins_bruit():
     print("  table = QCD_temoins_bruit, QCD_events_swap_QE2000_nodrift_M10, QCD_traces_error_full")
 
 
+def tolerance_en_ecarts_types():
+    """delta_P rapporte a l'ecart-type binomial de l'estimation du socle p_hat_0."""
+    p = pd.read_parquet(DATA / "QCD_indicateurs_full.parquet")["p_hat_0"].mean()
+    print(f"\n[delta_P] socle moyen {p:.4f}")
+    for n in (3000, 1000):
+        sd = math.sqrt(p * (1 - p) / n)
+        print(f"  socle sur {n} pas : ecart-type {sd:.4f} ; delta_P = {DELTA_P / sd:.1f} ecarts-types")
+    print("  table = QCD_indicateurs_full.p_hat_0 (approximation binomiale)")
+
+
 if __name__ == "__main__":
     balayage()
     temoin_sans_drift()
     temoins_bruit()
+    tolerance_en_ecarts_types()

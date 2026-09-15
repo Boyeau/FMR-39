@@ -515,7 +515,9 @@ series \hyperref[fig:joint]{Figure~\ref*{fig:joint}} traces on a common time axi
 threshold enters the loop, so $S_t$, $\tau_{\mathrm{det}}$ and every indicator below are
 recomputed offline for any $\lambda$ (\hyperref[sec:D1]{Appendix~\ref*{sec:D1}}). The baseline $\hat p_0$ is
 estimated over the last $3\,000$ pre-drift steps; over $1\,000$ steps, as in R2, no verdict
-of this report changes.
+of this report changes. The tolerance $\delta_P = 0.01$ is that of the R2 bench, kept so that the
+results compare with the manuscript's; under a binomial approximation it amounts to $3.6$
+standard deviations of the estimation error of $\hat p_0$, and $2.1$ over $1\,000$ steps.
 
 \paragraph{Indicators} Two families are measured on every run. \emph{Repair dates}, in
 steps: $\tau_{\mathrm{ARF}}$ and $\tau_{\mathrm{swap}}(q)$. \emph{Evidence}, in excess
@@ -629,12 +631,15 @@ sustained, and it moves to steps $626$ and $322$ once persistence is required. N
 remains on the $18$ amplitudes where the test has power. Where it is blind the conjecture
 is not refuted either: resolving it would take about $1\,900$ seeds at $\Delta e = 0.028$.
 
-\paragraph{Not the bias of \hyperref[sec:convexity]{Section~\ref*{sec:convexity}}} Both results find
-$\tau_{\mathrm{ARF}}$ optimistic, and share nothing else. \eqref{eq:hierarchy} is
-combinatorial and would hold unchanged with independent trees;
-\hyperref[sec:convexity]{Section~\ref*{sec:convexity}} compares two laws of $\tau_{\mathrm{ARF}}$ and says nothing
-of $\tau_{\mathrm{swap}}(q)$. Grant that correction in full, and $\tau_{\mathrm{ARF}}$ still
-dates the recovery too early: the two errors compound.
+\paragraph{Not the bias of \hyperref[sec:convexity]{Section~\ref*{sec:convexity}}} Both results call
+$\tau_{\mathrm{ARF}}$ optimistic, but about different things.
+\hyperref[sec:convexity]{Section~\ref*{sec:convexity}} concerns the \emph{law} of $\tau_{\mathrm{ARF}}$: assuming
+independent trees predicts a first replacement sooner than the correlated forest delivers.
+Equation~\eqref{eq:hierarchy} concerns what $\tau_{\mathrm{ARF}}$ \emph{measures}: even known
+exactly, the first replacement comes before every later quota of renewed trees, on every run
+and whatever the dependence between trees, since it only uses that $N_t$ never decreases.
+Correcting the first error leaves the second intact: the independence formula dates the first
+replacement too early, and the first replacement dates the repair too early.
 
 \subsection{The First Replacement Fires Without Drift}
 \label{sec:e:nodrift}
