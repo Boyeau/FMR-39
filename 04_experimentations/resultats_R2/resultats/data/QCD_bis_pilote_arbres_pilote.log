@@ -1,0 +1,14 @@
+campagne      : pilote instrumente par arbre (D.1.bis, tache 5b)
+date          : 2026-09-15 12:29:00
+amplitudes    : 5 (0.028186, 0.242568, 0.415743, 0.482255, 0.497661)
+graines       : 20 (1..20)
+executions    : 100
+M             : 10
+horizon H     : 2000
+rodage        : 4000
+socle         : 3000 pas pre-rupture
+jobs          : -1
+duree_secondes: 63.2
+duree_minutes : 1.1
+controle      : 100 executions comparees a la campagne, 0 pas differents, 0 executions aux remplacements differents
+lignes_arbres : 2000000
