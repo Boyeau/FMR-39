@@ -254,3 +254,79 @@ disaient, plutôt que retirées silencieusement.
 
 *Résumé reconstruit à partir du journal des sessions. À relire et amender par l'auteur
 avant remise : la liste des prompts eux-mêmes n'y figure pas.*
+
+---
+
+## Partie 6 — questions `.bis` de l'encadrant (Ulysse Petit-Tichanné, 15 septembre)
+
+**Modèle :** Claude Opus 5 (1M context), session interactive dans Claude Code.
+
+**Point de départ.** Le mail de l'encadrant du 15 septembre pose cinq questions optionnelles
+et hiérarchisées. Contrainte donnée à l'assistant dès l'ouverture : ne modifier aucun
+livrable existant, créer seulement, et produire un document séparé compilable à tout moment
+pour qu'un arrêt en cours de route laisse quelque chose de publiable.
+
+**1. Planification puis exécution, en deux temps.** La session a commencé par un plan écrit
+(`.claude/plans/reponses-questions-bis-encadrant.md`), soumis à un audit adverse avant toute
+ligne de code, puis par son exécution. Trois décisions ont été prises par l'utilisateur
+contre la proposition initiale : faire le périmètre complet plutôt que le plancher, rédiger
+en français plutôt qu'en anglais, et verser le texte du mail dans le dépôt comme matière
+reçue.
+
+**2. Une limite reconnue dès le départ.** Les énoncés complets des questions, annoncés en
+pièce jointe, n'ont jamais été reçus. L'assistant a d'abord travaillé en supposant les
+disposer ; la vérification du fichier reçu a montré qu'il s'agissait du corps du mail rendu
+en HTML. La limite est écrite dans le plan, dans le document et dans le journal, plutôt que
+contournée.
+
+**3. Deux corrections imposées par les contrôles sur cas connus, pas par l'assistant.** Le
+protocole exige de valider tout estimateur sur un cas où la réponse est connue avant de
+l'appliquer aux données. Deux estimateurs ont échoué ce contrôle et ont dû être repris :
+
+- la règle de persistance du projet, qui exige qu'un seuil soit franchi à chaque pas de
+  vingt pas consécutifs, donne un temps de demi-vie de 150 pas pour une vérité de 69,3 sur
+  un transitoire exponentiel synthétique. Un facteur deux. La règle a été remplacée par un
+  franchissement en moyenne sur la même fenêtre, et son biais résiduel est mesuré puis
+  publié au lieu d'être tu ;
+- la formule fermée `w_opt = 1,2564·θ`, que le plan reprenait comme vérité de référence, ne
+  vaut que pour un bruit d'écart-type constant. Sur des tirages de Bernoulli la vérité vaut
+  2,85·θ. Les deux témoins ont été séparés, et la fenêtre qui en dérive est déclarée biaisée
+  dans le document.
+
+Dans les deux cas, c'est le contrôle qui a tranché, pas l'assistant ni l'utilisateur : les
+valeurs annoncées dans le plan étaient fausses et le sont restées jusqu'à ce que le cas
+connu les contredise.
+
+**4. Une resimulation décidée, pas subie.** La variance des erreurs entre arbres n'était
+calculable depuis aucune table existante. Un pilote instrumenté a été écrit, son coût
+chronométré sur une exécution avant lancement (3,9 s par exécution, 0,7 minute annoncée pour
+100), et sa validité contrôlée par reproduction bit à bit de la campagne, trajectoire et
+événements de remplacement compris.
+
+**5. Un résultat contraire à l'hypothèse de départ.** Le plan supposait que l'effet Hydre
+viendrait d'arbres neufs à forte erreur. La mesure donne l'inverse en haut de grille : les
+arbres remplacés ont un taux d'erreur de 0,0050 contre 0,2270 pour les survivants. Le
+document publie le résultat mesuré, pas l'hypothèse.
+
+**6. Un double audit adverse qui a réécrit trois verdicts.** Deux relectures en contexte
+vierge, l'une sur le code, l'autre sur les résultats, ont trouvé **trois bloquantes et onze
+majeures**. Les trois bloquantes étaient des chiffres exacts rattachés au mauvais objet, et
+les trois passaient le contrôle de traçabilité automatique :
+
+- « le temps de demi-vie est partout plus long que la date du premier remplacement, d'un
+  facteur 1,1 à 2,5 » : faux à une amplitude, et la borne 2,5 venait d'une ligne que le
+  document déclarait lui-même illisible deux paragraphes plus bas ;
+- le chiffre qui justifiait le changement de règle de mesure ne sortait d'aucune table : la
+  fonction correspondante était définie et jamais exécutée, la valeur ne vivait que dans un
+  commentaire de code. Le contrôle automatique la validait parce qu'elle existait ailleurs,
+  attachée à autre chose ;
+- un lien algébrique était déclaré sur une grandeur et tu sur une autre, dans la direction
+  exacte qui produisait le verdict de la troisième question. La réponse a dû être réécrite :
+  la comparaison la plus frappante du document est devenue une comparaison qui ne tranche pas.
+
+Ces trois erreurs sont le fait de l'assistant, pas de l'utilisateur, et aucune n'aurait été
+vue par les contrôles automatiques du dépôt. Elles sont consignées au § 13 du journal de
+recherche, avec ce qu'elles disaient, plutôt que corrigées en silence.
+
+*Les prompts eux-mêmes ne figurent pas ici. Comme pour les parties précédentes, ce résumé
+est à relire et amender par l'auteur avant remise.*

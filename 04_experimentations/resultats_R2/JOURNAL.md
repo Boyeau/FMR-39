@@ -854,3 +854,151 @@ tout chiffre de la liste « à ne surtout pas citer ».
 - **Multiplicité non corrigée** : B1 compte 260 tests à 5 %, dont 191 significatifs. Le
   signal domine largement, mais les cellules dont le `|τ-b|` avoisine 0,15 ne se citent pas
   individuellement sans correction.
+
+---
+
+## 12. Les questions `.bis` de l'encadrant (15 septembre)
+
+Mail du 15/09 (`01_consignes/Questions_bis_15sept.md`), cinq questions optionnelles.
+Document de réponse séparé : `04_experimentations/reponses_questions_bis.tex`. Aucun
+livrable existant n'a été modifié. Tout est recalculé hors ligne par `scripts/analyse_bis.py`,
+sauf le pilote par arbre (`scripts/exp_bis_pilote_arbres.py`), qui est une campagne.
+
+### 12.1 Ce que ces questions ont établi
+
+| | Résultat | Preuve |
+|---|---|---|
+| **C.3.bis a** | Le profil d'erreur **n'est pas exponentiel** là où sa forme est mesurable : `t_90/t_½` vaut 1,4839 à 1,8286 sur les 8 amplitudes lisibles, IC haut maximal **1,9714**, contre `ln10/ln2 = 3,3219` | 2 000 exécutions, bootstrap 2 000 rééchantillons |
+| **C.3.bis b** | Le temps caractéristique de l'erreur ne suit ni `τ_ARF` ni la loi de l'article. `t_½` dépasse `τ_ARF` médian sur **17 des 18 amplitudes lisibles** (facteur 0,8745 à 1,5625) — l'exception est `Δe = 0,141` — mais son IC ne l'en sépare que sur **8**. Contre la loi de l'article, le rapport passe de **1,822** à `Δe = 0,141` à **0,818** à `Δe = 0,498` : trop courte en bas de grille, trop longue en haut | `QCD_bis_demi_vie.parquet` |
+| **C.3.bis c** | `e_∞` passe **sous** `p̂₀` aux **20** amplitudes, mais l'écart n'excède 2 erreurs types qu'aux **3 plus fortes** ; il y culmine à `z = 4,1896` (0,002440 contre 0,023110 à `Δe = 0,498`) | non-régression exacte contre `QCD_fin_horizon_full` (écart 3,5e−18) |
+| **C.2.bis a** | `SNR(w)` a un maximum intérieur. La fenêtre de certificat imposée vaut **1,77 à 2,49 fois** `w_opt` sur `Δe ≥ 0,4` et **3,98 fois** à `Δe = 0,028`, mais **0,885 fois** à `Δe = 0,141` : trop longue sur 19 amplitudes sur 20, trop courte sur une | `QCD_bis_w_opt.parquet` |
+| **C.2.bis b** | En haut de grille `μ(w)` **change de signe** : `SNR(50) = +9,3695`, `SNR(2000) = −3,3284` à `Δe = 0,498`. Sur l'horizon complet, `A` mesure un déficit, pas un excès | `QCD_bis_snr_fenetre.parquet` |
+| **D.3.bis a** | `A(0,w)` est mieux lié que `A(H)` aux **durées de renouvellement** (contre `τ_ARF` : médiane stratifiée +0,1597 discernable sur 12 strates sur 18, contre +0,0526 discernable sur **0**), et **moins bien** à la date d'alarme (contre `τ_det(8)` : 1 strate sur 18 contre 5) | `QCD_bis_matrice_resume.parquet` |
+| **D.3.bis b** | La comparaison des trois aires face à `S_max(H)` et face à l'étalon **ne tranche pas** : `S_max` est un sup sur une famille qui contient `A(0,w) − w·δ_P` pour tout `w`, les 6 cellules portent donc le même lien algébrique. 11 cellules hachurées au total | démonstration + `QCD_bis_matrice_resume.parquet` |
+| **D.3.bis c** | Amplification de Simpson médiane **2,9696** sur 55 paires sans lien connu, 5 paires à signe inverse. Le maximum (378,28) est un **artefact de dénominateur** : 0 strate sur 17 discernable de zéro, et le ratio tombe à 208,05 sous l'autre convention | `QCD_bis_matrice_resume.parquet` |
+| **D.1.bis a** | Le désaccord `V(t)` retombe à mi-hauteur quand **63 à 66 %** seulement des arbres ont été renouvelés : les survivants apprennent | `QCD_bis_dispersion_arbres.parquet` |
+| **D.1.bis b** | Après une forte rupture, les arbres **neufs sont meilleurs** que les survivants : 0,0050 contre 0,2270 à `Δe = 0,498`. L'écart s'inverse en bas de grille (+0,0732 à `Δe = 0,028`) | pilote 5 × 20, bit à bit |
+| **C.1.bis** | `t_Z` mesure `n`, pas la dynamique : 751 / 487 / 353 pas pour 25 / 50 / 100 graines à `Δe = 0,141`, seuil 3 | `QCD_bis_t_zscore.parquet` |
+
+### 12.2 Deux corrections imposées par le contrôle sur cas connu
+
+**a. La règle de persistance pas à pas biaise fortement.** Exiger qu'un seuil soit
+franchi *à chaque pas* de 20 pas consécutifs donne, sur un transitoire exponentiel
+synthétique de constante `θ = 100`, un `t_½` de **112 pas pour une vérité de 69,3147**, soit 62 % de trop. La
+cause : à 100 graines le bruit binomial vaut ±0,038 au niveau franchi, un seul pas au-dessus
+casse la fenêtre, et l'instant retenu attend que la courbe soit descendue bien plus bas.
+
+La règle appliquée est le franchissement **en moyenne** sur la même fenêtre de 20 pas :
+toujours une persistance, mais le bruit y est divisé par `√20`. Biais résiduel mesuré sur le
+même tirage : `t_½ = 62` pour 69,3147, soit environ la moitié de la fenêtre de persistance.
+Ce décalage est publié avec les résultats. **Les deux valeurs sont dans
+`QCD_bis_self_check.parquet`**, lignes `t_half_regle_pas_a_pas` et `t_half` : une phrase
+publiée se relit dans une table, pas dans un commentaire de code.
+
+> **À reporter au § 4.** Une condition de persistance pas à pas sur une courbe bruitée est
+> un estimateur biaisé, pas un garde-fou neutre. Le garde-fou du 8 septembre reste juste
+> (un premier franchissement nu ne vaut rien) ; sa mise en œuvre pas à pas, non. Toute
+> grandeur définie par une persistance doit être **calibrée sur un cas où la réponse est
+> connue** avant d'être lue.
+
+**b. `w_opt = 1,2564·θ` ne vaut pas pour un bruit binomial.** Le cas fermé suppose un bruit
+d'écart-type **constant**. Sur des tirages de Bernoulli, dont la variance `p_t(1−p_t)` décroît
+avec le transitoire, la vérité calculée sur 20 000 graines vaut **285, soit 2,85·θ**. Les
+deux témoins sont donc séparés : (a1) bruit additif homoscédastique, où la formule
+s'applique et `W_95 = [110 ; 230]` contient 125,64 ; (a2) Bernoulli, où la vérité est
+numérique. `w_regle = round(1,81·t_½)` hérite de ce biais et vaut 1,1 à 1,5 fois `w_opt` :
+déclaré dans le document, pas corrigé.
+
+**c. À 100 graines, un argmax de `SNR` n'a pas de contenu.** Largeur de `W_95` rapportée à
+`w_opt` : **0,85** sur le témoin à bruit corrélé. La lecture porte sur `W_95`, validée par
+taux de couverture sur 100 réplications de 100 graines (0,97 pour le point, 1,00 pour la
+plage). Même famille que le piège du § 9.5, sur une autre grandeur.
+
+### 12.3 Contrôles passés
+
+- `e_∞` reproduit `erreur_fin_horizon` (fenêtre 500) à **3,5e−18** près.
+- `A(0,2000)` reproduit `A_H` de `QCD_indicateurs_full` à **6,0e−12** près.
+- La cellule `(τ_ARF, A(H))` de la matrice redonne **+0,396512** empilé et **+0,052559** en
+  médiane stratifiée, ratio **7,54** : non-régression exacte contre `tab:agregation` de
+  `redaction_QD3`.
+- Pilote par arbre : sur 100 exécutions, **0 pas différent** de `QCD_traces_error_full` et
+  **0 exécution** aux remplacements différents. Le sondage par arbre ne consomme aucun aléa.
+- Témoin sans drift de C.3.bis : baisse **négative** (−0,002143), aucun `t_q` défini, aucun
+  indicateur de lisibilité levé.
+- Témoin Simpson synthétique : ratio 85,5 sur le cas construit, 0,997 sur le témoin sans
+  effet.
+
+### 12.4 Ce qui reste ouvert
+
+1. La variance par arbre n'est mesurée que sur 5 amplitudes × 20 graines. Les amplitudes
+   intermédiaires ne sont pas couvertes et les écarts neufs/survivants n'ont pas d'IC
+   comparable au reste du rapport.
+2. `V(t)` partage votes, sondes et fenêtre avec `acc_bande` : ce n'est pas une mesure
+   externe. Une dispersion mesurée sur un dispositif indépendant reste à faire.
+3. Multiplicité non corrigée : 66 paires × 18 strates = 1 188 coefficients.
+4. Les énoncés complets des cinq questions n'ont jamais été reçus ; les réponses suivent le
+   corps du mail.
+5. **Le verdict de forme de C.3.bis et son critère de sélection vont dans le même sens.** Le
+   rapport `t_90/t_½` décroît avec l'amplitude (Spearman **−0,5107**, p = 0,0214) et le critère
+   de lisibilité ne se lève qu'en haut de grille : les 8 amplitudes retenues sont celles où le
+   rapport est le plus bas (moyenne **1,6066** contre **2,3385** ailleurs). Le compte de 8
+   bascule à 7 ou 9 pour deux décimales de bruit.
+6. `e_∞` est déclaré **non fiable** à `Δe = 0,390998` et `Δe = 0,465040` ; la seconde est l'une
+   des 8 amplitudes du test de forme et fournit la borne haute 1,9714 citée.
+7. Le témoin à bruit corrélé de C.2.bis ne reproduit que le **sens** du régime des données
+   (0,9665 et 2,0582 contre 0,6001 et 1,5866), pas son amplitude : la couverture validée sur
+   lui ne transporte pas telle quelle.
+8. Le témoin sans drift de C.3.bis tourne sur 2 000 graines, la mesure sur 100 par strate :
+   son bruit est `√20` fois plus faible que celui du régime testé.
+
+---
+
+## 13. Ce que le double audit adverse a corrigé (15 septembre)
+
+Deux critiques en contexte vierge, l'un sur la fidélité au plan et la correction du code,
+l'autre sur la plausibilité des résultats. **Trois bloquantes, onze majeures**, toutes
+traitées avant publication. Les quatre premières sont des erreurs de raisonnement, pas de
+calcul : les chiffres étaient exacts et rattachés au mauvais objet.
+
+1. **« `t_½` partout plus long que `τ_ARF`, facteur 1,1 à 2,5 »** : faux. `Δe = 0,141` donne
+   230 contre 263, et la borne 2,5 venait de `Δe = 0,028`, ligne que le document déclarait
+   lui-même illisible deux paragraphes plus bas. Verdict réécrit sur les 18 amplitudes
+   lisibles, avec le fait que l'IC ne sépare les deux horloges que sur 8 d'entre elles.
+2. **Le « `t_½` = 150 » de la règle pas à pas ne sortait d'aucune table.** La fonction
+   `premier_franchissement` était définie et jamais appelée ; le chiffre ne vivait que dans sa
+   docstring. Le contrôle l'exécute maintenant et écrit sa ligne : **112**.
+   `verif_chiffres_tex.py` validait pourtant 150, parce que la valeur existait ailleurs dans
+   les tables, rattachée à un autre objet — le piège du § 11.5, rejoué à l'identique.
+3. **Le lien de Lindley était déclaré sur `A(H)` et tu sur `A(0,w)`**, dans la direction exacte
+   qui produisait le verdict. `S_max(H)` est un sup sur une famille qui contient
+   `A(0,w) − w·δ_P` pour **tout** `w` : hachurer `(S_max, A(H))` seul revenait à masquer le
+   terme de comparaison et à inviter à lire les deux autres. Quatre cellules ajoutées, et la
+   réponse de D.3.bis ne s'appuie plus ni sur `S_max` ni sur l'étalon.
+4. Le hachurage « plus de 50 % de censure » ne marquait **aucune** cellule : il lisait la ligne
+   empilée, où la censure globale reste sous 50 %. Il porte maintenant sur les strates, et
+   marque 11 cellules.
+5. Le critère du témoin nul avait été **remplacé après son échec** : les deux critères prévus
+   au plan échouent à `Δe = 0`, seul un troisième, ajouté ensuite, se lève. Les trois lignes
+   sont publiées, les deux échecs compris.
+6. « 1,2 trop court / 1,8 trop long » contre la loi de l'article : les deux qualificatifs
+   étaient **échangés**.
+7. Les cinq amplitudes des figures s'écartaient du plan : `Δe = 0,085` avait remplacé
+   `Δe = 0,141`, précisément l'amplitude qui falsifie trois affirmations. Revenues à celles du
+   plan.
+8. `n_verite = 5000` était écrit sur les 16 lignes du contrôle, alors que la vérité Bernoulli
+   se calcule sur 20 000 graines. Une ligne qui porte un paramètre **faux** est pire qu'une
+   ligne qui n'en porte pas.
+9. Non-sequitur sur `w_regle` : le cas fermé réfuté la rendrait trop **courte**, la mesure la
+   trouve trop **longue**. Les deux faits tiennent, aucun n'explique l'autre.
+10. « Fenêtres glissantes de 10 pas » : c'étaient des blocs **disjoints**.
+11. « L'excès de variance dépasse 1 dès que les remplacements commencent » : à `Δe = 0,028` il
+    vaut déjà 1,8821 au bloc 0, **avant** tout remplacement. Le remplacement n'a pas
+    l'exclusivité de la causalité.
+12. `t_Z` décroît avec `n` sur 52 des 54 triplets, pas 54. Les deux exceptions sont déclarées.
+13. Pas de log de campagne pour le pilote, alors qu'une durée était citée. Log écrit.
+14. Cinq chiffres du texte étaient calculés à la volée sans table : ils ont leur colonne.
+
+> **À reporter au § 4.** Le contrôle de traçabilité vérifie qu'un chiffre **existe** dans une
+> table, jamais qu'il est cité au **bon endroit**. Une borne extraite d'une ligne déclarée
+> illisible, un chiffre repris d'un autre objet, un qualificatif inversé : les trois passent le
+> grep. Seule une relecture qui recalcule chaque affirmation les arrête.
