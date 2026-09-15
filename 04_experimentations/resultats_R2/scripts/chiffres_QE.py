@@ -148,6 +148,62 @@ def temoin_sans_drift():
     print("  table = QCD_events_swap_QE2000_nodrift_M10, QCD_indicateurs_full")
 
 
+def _mediane_censuree(x, rng, n_boot=2000):
+    """Mediane d'une duree censuree a H (NaN = aucun remplacement), rangee en dernier."""
+    v = np.where(np.isnan(x), np.inf, x)
+    boot = np.median(rng.choice(v, size=(n_boot, v.size), replace=True), axis=1)
+    lo, hi = np.percentile(boot, [2.5, 97.5])
+    return np.median(v), lo, hi
+
+
+def temoins_bruit():
+    """Deux temoins sans drift (exp_QCD_temoins_bruit.py) : bruit d'etiquette
+    stationnaire, et foret dont les detecteurs sont desactives."""
+    chemin = DATA / "QCD_temoins_bruit.parquet"
+    if not chemin.exists():
+        print("\n[temoins bruit] table absente : lancer exp_QCD_temoins_bruit.py")
+        return
+    d = pd.read_parquet(chemin)
+    ev0 = pd.read_parquet(DATA / "QCD_events_swap_QE2000_nodrift_M10.parquet")
+    rng = np.random.default_rng(0)
+    fmt = lambda v: "> 2000" if np.isinf(v) else f"{v:.0f}"
+
+    avec = d[d["remplacement"]]
+    graines = sorted(avec["seed"].unique())
+    ref = ev0.groupby("run_id")["t"].agg(["min", "size"]).reindex(np.array(graines) - 1)
+    zero = avec[avec["eta"] == 0].set_index("seed").loc[graines]
+    identique = (np.array_equal(zero["premier_remplacement"].fillna(-1).to_numpy(),
+                                ref["min"].fillna(-1).to_numpy())
+                 and np.array_equal(zero["n_remplacements"].to_numpy(), ref["size"].fillna(0).to_numpy()))
+    print(f"\n[temoins bruit] {len(graines)} graines par bras ; eta = 0 reproduit le bras "
+          f"QE2000 au run pres : {identique}")
+    print("  eta | erreur de base p_hat_0 | runs avec remplacement | premier remplacement, mediane [IC 95 %]"
+          " | remplacements par run")
+    for eta, g in avec.groupby("eta"):
+        med, lo, hi = _mediane_censuree(g["premier_remplacement"].to_numpy(), rng)
+        n_avec = int(g["premier_remplacement"].notna().sum())
+        print(f"  {eta:.2f} | {g['p_hat_0'].mean():.4f} | {n_avec}/{len(g)} = {n_avec / len(g) * 100:.1f} %"
+              f" | {fmt(med)} [{fmt(lo)} ; {fmt(hi)}] | {g['n_remplacements'].mean():.2f}")
+
+    # niveau d'erreur que voit la foret apres un drift faible, avant sa premiere reparation
+    ind = pd.read_parquet(DATA / "QCD_indicateurs_full.parquet")
+    tr = pd.read_parquet(DATA / "QCD_traces_error_full.parquet")
+    for cible in (0.085, 0.141):
+        sel = ind.loc[(ind["delta_e"] - cible).abs() < 0.002, ["run_id", "tau_arf", "p_hat_0"]]
+        t = tr[tr["run_id"].isin(sel["run_id"])].merge(sel, on="run_id")
+        avant = t[t["t"] < t["tau_arf"].fillna(H)].groupby("run_id")["e"].mean()
+        print(f"  a Delta_e = {cible} : erreur moyenne avant le premier remplacement = {avant.mean():.4f}"
+              f" (socle {sel['p_hat_0'].mean():.4f})")
+
+    sans = d[~d["remplacement"]]
+    tr0 = pd.read_parquet(DATA / "QCD_traces_error_QE2000_nodrift_M10.parquet")
+    print(f"  foret sans remplacement : erreur moyenne post = {sans['erreur_post'].mean():.4f}"
+          f" ; foret standard, memes graines = {zero['erreur_post'].mean():.4f}"
+          f" ; foret standard, 2 000 runs = {tr0['e'].mean():.4f}")
+    print("  table = QCD_temoins_bruit, QCD_events_swap_QE2000_nodrift_M10, QCD_traces_error_full")
+
+
 if __name__ == "__main__":
     balayage()
     temoin_sans_drift()
+    temoins_bruit()

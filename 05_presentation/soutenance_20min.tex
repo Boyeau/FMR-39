@@ -304,6 +304,8 @@
           trees. Three quarters of the forest are renewed \textbf{$6.0$ to $14.3$ times later}.
     \item \alert{With no drift at all}, the first replacement comes after $95$ steps in
           median, against $118$ on the weakest drift.
+    \item On weak drifts it comes \emph{later}: $346$ steps at $\Delta e = 0.085$. With no drift
+          but the same error level, it also waits $268$: the error level delays it, not the change.
   \end{itemize}
   \note{The paper dates the repair at the first replaced tree. By construction, that is the
     earliest of all possible dates: the moment when three trees, or half, or three quarters
@@ -314,7 +316,12 @@
     there is a more worrying fact. On the two thousand runs with no change at all, the forest
     still replaces its first tree, after ninety-five steps in median. On the weakest real
     drift, it takes one hundred and eighteen. So at low drift, this date cannot tell a real
-    change from noise.}
+    change from noise. Worse, on a slightly stronger drift it comes later, after three
+    hundred and forty-six steps. We checked why with a second control without drift, where we
+    only raise the error level by flipping labels. At the same error level, the first
+    replacement also waits about two hundred and seventy steps. The internal detector of each
+    tree cuts less often when the error is noisier, so on weak drifts this date measures the
+    error level, not the change.}
 \end{frame}
 
 \begin{frame}{When the first tree goes, most of the evidence is already there}
@@ -507,8 +514,8 @@
   \end{center}
   \begin{itemize}
     \item At $\lambda = 15$ the alarm almost always fires, but mostly \emph{after} the repair.
-    \item At $\lambda = 8$ the detector wins at an ordinary false-alarm cost: the paper's
-          ``no threshold escapes'' does not hold on this bench.
+    \item At $\lambda = 8$ the detector wins $91\%$ of races for $4.15\%$ of drift-free runs
+          with a false alarm: the paper's ``no threshold escapes'' does not hold on this bench.
     \item \textcolor{gray}{Not tested: the heteroscedastic streams where the paper places its
           false-alarm tension.}
   \end{itemize}
@@ -516,10 +523,11 @@
     things. At threshold fifteen, the alarm fires on ninety-three percent of drifts, which
     looks excellent, but it arrives before the repair in only thirty-six percent of them.
     Most of these alarms come after the forest has already changed. At threshold eight, the
-    detector wins ninety-one percent of the races, and it costs about four percent of false
-    alarms over two thousand steps where nothing happens, which is an ordinary calibration
-    level. So on this bench, one threshold does escape the blind spot, and the paper's claim
-    that no threshold escapes has to be restricted. We did not test the financial streams
+    detector wins ninety-one percent of the races, and about four percent of the runs where
+    nothing happens raise a false alarm within two thousand steps. At threshold twelve, it
+    still wins seventy-nine percent of the races, for half a percent of false alarms. So on
+    this bench, low thresholds do escape the blind spot, and the paper's claim that no
+    threshold escapes has to be restricted. We did not test the financial streams
     with clustered volatility, where the paper places the false-alarm problem.}
 \end{frame}
 
@@ -538,7 +546,7 @@
     error back to normal at the first replacement & it comes back later; the rectangle fails & \textbf{corrected} \\
     first replacement as the repair date & earliest date, fires without drift & \textbf{qualified} \\
     transition between $15$ and $25$, unexplained & set by the evidence before the repair & \textbf{explained} \\
-    no threshold escapes & $\lambda = 8$ does, on this bench & \textbf{restricted} \\
+    no threshold escapes & $\lambda = 8$ and $12$ do, on this bench & \textbf{restricted} \\
     \bottomrule
   \end{tabular}
   \vspace{0.6em}
