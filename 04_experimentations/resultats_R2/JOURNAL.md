@@ -998,6 +998,29 @@ calcul : les chiffres étaient exacts et rattachés au mauvais objet.
 13. Pas de log de campagne pour le pilote, alors qu'une durée était citée. Log écrit.
 14. Cinq chiffres du texte étaient calculés à la volée sans table : ils ont leur colonne.
 
+### 13.1 Ce que la règle de franchissement change à C.1.c, et ce qu'elle n'y change pas
+
+`analyse_QCD.py::tau_err_table` calcule `τ_err(ρ)` par la règle **pas à pas**, celle que le
+contrôle sur cas connu vient de montrer biaisée. La question C.1.c en dépend : son verdict se
+lit sur `τ_err < τ_ARF` médian. Mesure faite, hors ligne, sans toucher au script ni à la
+rédaction — `analyse_bis.py --tauerr`, table `QCD_bis_tau_err_deux_regles.parquet` :
+
+- **non-régression d'abord** : la réimplémentation pas à pas reproduit `tau_err_p20` de
+  `QCD_tau_err_full` à **0 pas près** aux 20 amplitudes ;
+- le biais est réel : `τ_err` pas à pas dépasse `τ_err` en moyenne de **16 pas en médiane**,
+  jusqu'à **321** à `Δe = 0,085` ;
+- **le verdict ne bascule sur aucune des 18 amplitudes interprétables** : `τ_err` arrive après
+  `τ_ARF` dans **0/18** cas sous les deux règles.
+
+> **Conclusion pour le groupe.** C.1.c tient, et tient *mieux* qu'avant : l'estimateur moins
+> biaisé donne des `τ_err` systématiquement plus courts, et ils restent tous postérieurs à
+> `τ_ARF`. Rien à réécrire dans QC1. Les deux amplitudes où le verdict bascule, `Δe = 0,028`
+> et `Δe = 0,085`, sont déjà écartées par le critère de lisibilité `ρ·Δe > 2σ`.
+
+Cela ne dispense pas de la règle générale : toute autre grandeur du projet définie par un
+premier franchissement pas à pas porte le même biais, et il se mesure avant d'être supposé
+négligeable.
+
 > **À reporter au § 4.** Le contrôle de traçabilité vérifie qu'un chiffre **existe** dans une
 > table, jamais qu'il est cité au **bon endroit**. Une borne extraite d'une ligne déclarée
 > illisible, un chiffre repris d'un autre objet, un qualificatif inversé : les trois passent le

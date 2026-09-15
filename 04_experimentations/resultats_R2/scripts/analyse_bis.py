@@ -1863,6 +1863,68 @@ def _figure_arbres(agg, ser):
     plt.close(fig)
 
 
+# ============ CONSEQUENCE POUR C.1.c : tau_err sous les deux regles ============
+# `analyse_QCD.py::tau_err_table` calcule tau_err(rho) par la regle PAS A PAS, la
+# meme que le controle sur cas connu a montree biaisee (112 pour une verite de
+# 69,3147). La question n'est pas de refaire C.1.c, qui n'est pas notre piste,
+# mais de mesurer si le verdict en depend. Lecture seule, hors ligne, rejouable.
+def run_tauerr(args):
+    print("[C.1.c] tau_err sous les deux regles de franchissement")
+    from analyse_QCD import RHO_ERR
+    E, meta = charger_campagne()
+    ind = pd.read_parquet(DATA / "QCD_indicateurs_full.parquet")
+    tau_med = ind.groupby("delta_e")["tau_arf"].median()
+    ref = pd.read_parquet(DATA / "QCD_tau_err_full.parquet")
+
+    lignes = []
+    for de, grp in meta.groupby("delta_e", sort=True):
+        e_mean = E[grp.run_id.to_numpy()].mean(axis=0)
+        p0 = float(grp.p_hat_0.mean())
+        seuil = RHO_ERR * de
+        sigma = float(e_mean[-500:].std())
+        ecart = e_mean - p0
+        ok = ecart <= seuil
+        conv = np.convolve(ok.astype(int), np.ones(PERSIST, int), "valid")
+        hit = np.flatnonzero(conv == PERSIST)
+        t_pas = float(hit[0]) if hit.size else np.nan
+        t_moy = float(franchissement_en_moyenne(ecart[None, :], np.array([seuil]),
+                                                PERSIST)[0])
+        tm = float(tau_med.loc[de])
+        lignes.append({
+            "delta_e": float(de), "rho": RHO_ERR, "seuil": seuil,
+            "sigma_courbe": sigma, "interpretable": bool(seuil > 2 * sigma),
+            "tau_arf_median": tm,
+            "tau_err_pas_a_pas": t_pas, "tau_err_en_moyenne": t_moy,
+            "ecart_deux_regles": t_pas - t_moy,
+            "avant_tau_arf_pas_a_pas": bool(np.isfinite(t_pas) and t_pas < tm),
+            "avant_tau_arf_en_moyenne": bool(np.isfinite(t_moy) and t_moy < tm),
+            "persistance": PERSIST, "n_runs": len(grp),
+        })
+    d = pd.DataFrame(lignes)
+    d["verdict_bascule"] = d.avant_tau_arf_pas_a_pas != d.avant_tau_arf_en_moyenne
+
+    # Controle : la colonne pas a pas doit reproduire la table publiee de C.1.c.
+    m = d.merge(ref[["delta_e", "tau_err_p20"]], on="delta_e")
+    ecart_ref = float(np.nanmax(np.abs(m.tau_err_pas_a_pas - m.tau_err_p20)))
+    print(f"  non-regression contre QCD_tau_err_full : ecart max {ecart_ref:.0f} pas")
+    if ecart_ref > 0:
+        raise ValueError("la reimplementation ne reproduit pas tau_err_p20")
+
+    d.to_parquet(DATA / "QCD_bis_tau_err_deux_regles.parquet", index=False)
+    i = d[d.interpretable]
+    print(f"  sur les {len(i)} amplitudes interpretables : "
+          f"{int(i.avant_tau_arf_pas_a_pas.sum())}/{len(i)} avec la regle pas a pas, "
+          f"{int(i.avant_tau_arf_en_moyenne.sum())}/{len(i)} avec la regle en moyenne")
+    print(f"  verdicts qui basculent : {int(i.verdict_bascule.sum())}")
+    print(f"  ecart entre regles : median {i.ecart_deux_regles.median():.0f} pas, "
+          f"max {i.ecart_deux_regles.max():.0f}, min {i.ecart_deux_regles.min():.0f}")
+    print(d[["delta_e", "interpretable", "tau_arf_median", "tau_err_pas_a_pas",
+             "tau_err_en_moyenne", "verdict_bascule"]].to_string(
+        index=False, float_format=lambda v: f"{v:9.1f}"))
+    print(f"[OK] QCD_bis_tau_err_deux_regles.parquet ({len(d)} lignes)")
+    return d
+
+
 # ================================================================== CLI ========
 def main():
     p = argparse.ArgumentParser(description=__doc__,
@@ -1872,13 +1934,15 @@ def main():
     p.add_argument("--d3bis", action="store_true", help="matrice de correlation (pr. 3)")
     p.add_argument("--d1bis", action="store_true", help="dispersion entre arbres (pr. 4)")
     p.add_argument("--c1bis", action="store_true", help="Z-score (priorite 5)")
+    p.add_argument("--tauerr", action="store_true",
+                   help="consequence de la regle de franchissement sur tau_err (C.1.c)")
     p.add_argument("--arbres", action="store_true",
                    help="volet 5b : variance par arbre depuis le pilote instrumente")
     p.add_argument("--self-check", action="store_true", help="controles sur cas connus")
     p.add_argument("--all", action="store_true", help="tout, dans l'ordre des dependances")
     a = p.parse_args()
-    if not any([a.c3bis, a.c2bis, a.d3bis, a.d1bis, a.c1bis, a.arbres, a.self_check,
-                a.all]):
+    if not any([a.c3bis, a.c2bis, a.d3bis, a.d1bis, a.c1bis, a.arbres, a.tauerr,
+                a.self_check, a.all]):
         p.error("choisir au moins une sous-commande")
     if a.all or a.self_check:
         run_self_check(a)
@@ -1894,6 +1958,8 @@ def main():
         run_arbres(a)
     if a.all or a.c1bis:
         run_c1bis(a)
+    if a.all or a.tauerr:
+        run_tauerr(a)
 
 
 if __name__ == "__main__":
