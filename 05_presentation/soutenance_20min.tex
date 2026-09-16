@@ -511,23 +511,33 @@
 \end{frame}
 
 \begin{frame}{Detecting is not winning}
-  \begin{center}
-    \begin{tabular}{@{}cccc@{}}
-      \toprule
-      threshold $\lambda$ & alarm fires & detector arrives first & false alarms, no drift \\
-      \midrule
-      $8$  & $95.3\%$ & $\mathbf{91.0\%}$ & $4.15\%$ \\
-      $15$ & $92.9\%$ & $\mathbf{36.3\%}$ & $0.15\%$ \\
-      $20$ & $66.2\%$ & $8.1\%$           & $0.00\%$ \\
-      $25$ & $38.9\%$ & $2.5\%$           & $0.00\%$ \\
-      \bottomrule
-    \end{tabular}\\[0.3em]
-    {\scriptsize\color{gray} $2\,000$ runs with drift and $2\,000$ without, over $2\,000$ steps}
-  \end{center}
-  \begin{itemize}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.53\textwidth}
+      \centering\small
+      \begin{tabular}{@{}cccc@{}}
+        \toprule
+        $\lambda$ & alarm & first & false alarms \\
+        \midrule
+        $8$  & $95.3\%$ & $\mathbf{91.0\%}$ & $4.15\%$ \\
+        $10$ & $94.8\%$ & $\mathbf{90.0\%}$ & $1.30\%$ \\
+        $12$ & $94.3\%$ & $78.8\%$          & $0.55\%$ \\
+        $15$ & $92.9\%$ & $\mathbf{36.3\%}$ & $0.15\%$ \\
+        $20$ & $66.2\%$ & $8.1\%$           & $0.00\%$ \\
+        $25$ & $38.9\%$ & $2.5\%$           & $0.00\%$ \\
+        \bottomrule
+      \end{tabular}\\[0.3em]
+      {\scriptsize\color{gray} $2\,000$ runs with drift and $2\,000$ without, over $2\,000$ steps}
+    \end{column}\hfill
+    \begin{column}{0.45\textwidth}
+      \centering
+      \includegraphics[width=0.95\textwidth]{Fig_QE_compromis_lambda_n2000.png}\\[-0.3em]
+      {\scriptsize\color{gray} each point is one $\lambda$; the knee sits just below $\lambda = 12$}
+    \end{column}
+  \end{columns}
+  \begin{itemize}\small
     \item At $\lambda = 15$ the alarm almost always fires, but mostly \emph{after} the repair.
-    \item At $\lambda = 8$ the detector wins $91\%$ of races for $4.15\%$ of drift-free runs
-          with a false alarm: the paper's ``no threshold escapes'' does not hold on this bench.
+    \item At $\lambda = 10$ the detector still wins $90.0\%$ of races for $1.30\%$ of false
+          alarms: the paper's ``no threshold escapes'' does not hold on this bench.
     \item \textcolor{gray}{Not tested: the heteroscedastic streams where the paper places its
           false-alarm tension.}
   \end{itemize}
