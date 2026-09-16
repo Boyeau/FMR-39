@@ -209,6 +209,9 @@
       \end{alertblock}
     \end{column}
   \end{columns}
+  \vspace{0.3em}
+  {\scriptsize\color{gray} $\tau_{\mathrm{ARF}}$: first tree replaced \quad
+   $\tau_{\mathrm{det}}$: first alarm \quad $\Delta e$: drift size, the jump in error}
   \note{The paper says there is a blind spot when the forest repairs before the alarm, but
     it quietly sets aside the runs where the alarm never comes. Those are exactly the runs
     where the detector fails most. So we define the event on the complete race, with one
@@ -427,6 +430,10 @@
           S_{\mathrm{pre}} = \max_{t < \tau_{\mathrm{ARF}}} S_t
         \]
       \end{block}
+      \vspace{-0.3em}
+      {\scriptsize\color{gray} $S_{\mathrm{pre}}$: the highest the detector's evidence gets
+       before the forest repairs itself\par}
+      \vspace{0.3em}
       \small No rate, no averaging, no assumption on the trees. Checked on $2\,000$ runs out
       of $2\,000$ at three thresholds.
     \end{column}
@@ -684,6 +691,24 @@
       forest entirely renewed & $28.7\%$ \\
       \midrule
       first replacement at the weakest drift, median & $118$ steps \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Backup --- Notation}
+  \begin{center}
+    \small
+    \begin{tabular}{@{}ll@{}}
+      \toprule
+      $\Delta e$ & drift size: the jump in error a stale model suffers \\
+      $\tau_{\mathrm{ARF}}$ & first tree replaced after the change \\
+      $\tau_{\mathrm{swap}}(q)$ & first time a share $q$ of the trees has been replaced \\
+      $\tau_{\mathrm{det}}$ & first alarm of the external detector, possibly never \\
+      $S_t$, $\lambda$ & detector statistic and its threshold \\
+      $S_{\mathrm{pre}}$ & highest $S_t$ reached before the first replacement \\
+      $A(w)$, $A(H)$ & excess error over the transient window, over the whole horizon \\
+      $G$ & share of the detector's final evidence already reached at $\tau_{\mathrm{ARF}}$ \\
       \bottomrule
     \end{tabular}
   \end{center}
