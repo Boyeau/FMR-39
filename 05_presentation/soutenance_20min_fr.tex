@@ -205,14 +205,15 @@
         The forest always replaces a tree within the horizon, so no run is left
         undecided: $P_{\mathrm{miss}}$ is \textbf{identified}.\\[0.3em]
         \centering
+        {\small all $20$ drift sizes pooled:}\\[0.1em]
         \begin{tabular}{@{}lccc@{}}
           $\lambda$ & $8$ & $25$ & $50$ \\
           $P_{\mathrm{miss}}$ & $0.0905$ & $0.9715$ & $1.0000$
         \end{tabular}
       \end{exampleblock}
       \begin{alertblock}{Without any dependence assumption}
-        From the marginal laws alone, the blind spot at the weakest drift is at least
-        $0.91$ at $\lambda = 8$.
+        From the marginal laws alone, the blind spot at the weakest drift
+        ($\Delta e = 0.028$, observed $1.00$) is at least $0.91$ at $\lambda = 8$.
       \end{alertblock}
     \end{column}
   \end{columns}
@@ -239,27 +240,31 @@
   \begin{enumerate}
     \item \textbf{Given the stream}, what separates two trees is their own random draws:
           the trees are independent \emph{conditionally}.
-    \item \textbf{Averaging over streams}, convexity gives the direction:
+    \item \textbf{Hence the covariance of two trees is a variance}, never negative: sharing
+          a stream can only make them fail together --- the forest is \emph{slower} than
+          the independence formula says.
+    \item \textbf{More precisely}, averaging over streams, convexity gives the bound:
           \[
             P(\tau_{\mathrm{ARF}} \le s) \;\le\; 1 - \big(1 - F(s)\big)^M
           \]
-          \alert{The independence formula overstates the speed of the repair.}
-    \item \textbf{Consequence}: the paper's critical ensemble size becomes a conservative
-          ceiling; its verdict does not change.
-    \item \textbf{No coupling reverses the sign}: sharing a stream can only make trees fail
-          together, since the covariance equals a variance.
+    \item \textbf{Conclusion}: \alert{the independence formula overstates the speed of
+          the repair}, hence the blind spot; the paper's critical ensemble size becomes a
+          conservative ceiling, and its verdict does not change.
   \end{enumerate}
   \note{Le second raccourci est l'indépendance. Les dix arbres apprennent sur le même flux,
     ils ne peuvent donc pas être indépendants. Mais la question est : à quel niveau. Une
     fois le flux fixé, ce qui distingue un arbre d'un autre n'est plus que son aléa propre,
     les poids aléatoires du bagging en ligne. À ce niveau, sachant le flux, les arbres sont
-    indépendants. Quand on moyenne sur les flux, l'inégalité de Jensen donne un sens clair :
-    la probabilité que la forêt se soit déjà réparée est au plus ce que la formule
-    d'indépendance prédit. L'article fait donc paraître la forêt plus rapide qu'elle n'est,
-    et surestime le point aveugle. Sa taille critique d'ensemble n'est pas fausse, elle
-    devient un plafond conservateur, et le verdict de l'article lui-même ne change pas. La
-    dépendance pourrait-elle aller dans l'autre sens ? Non : la covariance entre deux arbres
-    est égale à une variance, elle n'est donc jamais négative.}
+    indépendants. C'est une propriété de l'algorithme, et tout le reste en découle. D'abord
+    le sens : le seul canal entre deux arbres est le flux qu'ils partagent, et un flux
+    partagé ne peut que les faire échouer ensemble, puisque leur covariance se réduit à une
+    variance. La vraie forêt se répare donc plus lentement que ne le dit la formule
+    d'indépendance. Ensuite la taille : en moyennant sur les flux, l'inégalité de Jensen
+    donne une majoration, la probabilité que la forêt se soit déjà réparée est au plus ce
+    que la formule d'indépendance prédit. L'article fait donc paraître la forêt plus rapide
+    qu'elle n'est, et surestime le point aveugle. Sa taille critique d'ensemble n'est pas
+    fausse, elle devient un plafond conservateur, et le verdict de l'article lui-même ne
+    change pas.}
 \end{frame}
 
 % =====================================================================
